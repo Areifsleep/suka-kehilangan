@@ -15,17 +15,47 @@ datasource db {
 
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+  id_user  String   @id @default(uuid(7)) @db.VarChar(255)
+  id_role String   @db.VarChar(255)
+  name String     @db.VarChar(255)
+  email String    @unique @db.VarChar(255)
+  username String   @unique @db.VarChar(255)
+  password String   @db.VarChar(255)
+
+  sessions Session[]
+
+  role Role @relation(fields: [id_role], references: [id_role], onDelete: Cascade, onUpdate: Cascade)
+
+  last_update_password DateTime @db.Timestamp(6) @default(now()) 
+
+  created_at DateTime @default(now())  @db.Timestamp(6)
+  updated_at DateTime @updatedAt @db.Timestamp(6)
+
+  @@map("users")
+
 }
 
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model Role {
+  id_role String  @id @default(uuid(7)) @db.VarChar(255)
+  role_name String @db.VarChar(255)
+
+ users User[]
+
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @updatedAt @db.Timestamp(6)
+
+  @@map("roles")
+}
+
+model Session {
+  id_session String   @id @default(uuid(7)) @db.VarChar(255)
+  id_user    String   @db.VarChar(255)
+  token      String   @unique @db.VarChar(255)
+
+  user       User     @relation(fields: [id_user], references: [id_user], onDelete: Cascade, onUpdate: Cascade)
+
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @updatedAt @db.Timestamp(6)
+
+  @@map("sessions")
 }

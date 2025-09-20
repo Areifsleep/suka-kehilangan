@@ -6,9 +6,8 @@ export class AppService {
   constructor(private readonly prisma: PrismaService) {}
 
   getHello(): any {
-    const user = this.prisma.user.findMany({});
-
-    return user;
-    return 'Hello World!';
+    return {
+      message: 'OK',
+    };
   }
 }
