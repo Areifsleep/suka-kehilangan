@@ -1,42 +1,67 @@
+import ms from 'ms';
 import argon2 from 'argon2';
-import { HttpException, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+
+import { UserService } from '../user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { randomUUID } from 'crypto';
+import refreshJwtConfig from './config/refresh.jwt.config';
+import { type ConfigType } from '@nestjs/config';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly prismaService: PrismaService,
+    @Inject(refreshJwtConfig.KEY)
+    private readonly refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
+    private readonly tokenService: TokenService,
+  ) {}
 
-  async login(username: string, password: string) {
-    const existingUser = await this.prismaService.user.findUnique({
-      where: {
-        username,
-      },
-    });
+  async validateUser(username: string, password: string) {
+    const existingUser =
+      await this.userService.findByUsernameWithAllPermissions(username);
 
-    if (!existingUser) {
-      throw new HttpException('Username or password is incorrect', 401);
+    const unauthorizedConditions =
+      !existingUser ||
+      (await argon2.verify(existingUser.password, password)) === false;
+
+    if (unauthorizedConditions) {
+      throw new UnauthorizedException('Invalid username or password');
     }
 
-    const match = await argon2.verify(existingUser.password, password);
-
-    if (!match) {
-      throw new HttpException('Username or password is incorrect', 401);
-    }
-
-    const token = randomUUID();
-
-    const generatedToken = await this.prismaService.session.create({
-      data: {
-        id_user: existingUser.id_user,
-        token,
-      },
-    });
-
-    return generatedToken.token;
+    return { id: existingUser.id };
   }
 
-  async logout() {}
+  async signIn(userId: string) {
+    const tokens = await this.tokenService.generateTokens(userId);
+
+    const expiresIn = this.refreshTokenConfig.expiresIn; // bisa "1d", "3600", dll
+    const ttlMs =
+      typeof expiresIn === 'string' ? ms(expiresIn) : expiresIn! * 1000;
+
+    const expiresAt = new Date(Date.now() + ttlMs);
+
+    const hashedRefreshToken = await argon2.hash(tokens.refreshToken);
+
+    await this.prismaService.session.create({
+      data: {
+        jti: tokens.jti,
+        user_id: userId,
+        hashed_refresh_token: hashedRefreshToken,
+        expires_at: expiresAt,
+      },
+    });
+
+    return tokens;
+  }
+
+  async refresh(userId: string) {
+    const newAccessToken = this.tokenService.generateAccessToken(userId);
+    return { newAccessToken };
+  }
+
+  async signOut() {}
 
   async getSession() {}
 
