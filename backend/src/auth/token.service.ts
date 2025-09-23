@@ -44,6 +44,12 @@ export class TokenService {
       sub: userId,
     };
 
-    this.jwtService.sign(payload);
+    return this.jwtService.sign(payload);
+  }
+
+  async revokeJti(jti: string) {
+    await this.prismaService.revokedJwt.create({
+      data: { jti, expires_at: new Date() },
+    });
   }
 }

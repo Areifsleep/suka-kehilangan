@@ -59,7 +59,7 @@ model User {
   username String   @unique @db.VarChar(255)
   password String   @db.VarChar(255)
 
-  sessions Session[]
+  sessions Session?
 
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   study_program StudyProgram? @relation(fields: [study_program_id], references: [id], onDelete: Cascade)
@@ -116,14 +116,12 @@ model Session {
   id    String @id @default(uuid(7)) @db.VarChar(255)
   jti   String @unique @db.VarChar(255)
 
-  user_id String @db.VarChar(255)
+  user_id String @db.VarChar(255) @unique
   hashed_refresh_token String   @db.VarChar(255)
   expires_at           DateTime @db.Timestamp(6)
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  // Tambahkan index pada user_id untuk mempercepat query "lihat semua sesi user"
-  @@index([user_id])
   @@map("sessions")
 }
 

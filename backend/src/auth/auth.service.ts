@@ -44,12 +44,18 @@ export class AuthService {
 
     const hashedRefreshToken = await argon2.hash(tokens.refreshToken);
 
-    await this.prismaService.session.create({
-      data: {
+    await this.prismaService.session.upsert({
+      where: { user_id: userId },
+      update: {
+        hashed_refresh_token: hashedRefreshToken,
+        expires_at: expiresAt,
         jti: tokens.jti,
+      },
+      create: {
         user_id: userId,
         hashed_refresh_token: hashedRefreshToken,
         expires_at: expiresAt,
+        jti: tokens.jti,
       },
     });
 
@@ -57,11 +63,19 @@ export class AuthService {
   }
 
   async refresh(userId: string) {
-    const newAccessToken = this.tokenService.generateAccessToken(userId);
+    const newAccessToken = await this.tokenService.generateAccessToken(userId);
     return { newAccessToken };
   }
 
-  async signOut() {}
+  async signOut(userId: string) {
+    this.prismaService.$transaction(async ($tx) => {
+      const data = await $tx.session.delete({
+        where: { user_id: userId },
+      });
+
+      await this.tokenService.revokeJti(data.jti);
+    });
+  }
 
   async getSession() {}
 

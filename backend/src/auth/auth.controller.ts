@@ -20,9 +20,6 @@ import {
 import { AuthService } from './auth.service';
 import { WebResponseModel } from 'src/models/web';
 
-// DTOs
-import { LoginBodyDto } from './dtos/login.dto';
-
 // Guards
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
@@ -78,10 +75,19 @@ export class AuthController {
   }
 
   @Post('logout')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(): Promise<void> {
-    // TODO: Implement logout logic
-    await this.authService.signOut();
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async logout(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<WebResponseModel<{ success: boolean }>> {
+    await this.authService.signOut(req.user?.id!);
+
+    return {
+      data: {
+        success: true,
+      },
+      pagination: null,
+    };
   }
 
   @Get('session')
