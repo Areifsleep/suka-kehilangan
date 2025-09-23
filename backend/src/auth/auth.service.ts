@@ -68,7 +68,7 @@ export class AuthService {
   }
 
   async signOut(userId: string) {
-    this.prismaService.$transaction(async ($tx) => {
+    await this.prismaService.$transaction(async ($tx) => {
       const data = await $tx.session.delete({
         where: { user_id: userId },
       });
