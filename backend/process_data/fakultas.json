@@ -1,0 +1,64 @@
+[
+  [
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6c913afdd0db",
+      "kode_fakultas": "F01",
+      "nama": "ADAB DAN ILMU BUDAYA",
+      "singkatan": "FADIB"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6ca995b77d7a",
+      "kode_fakultas": "F02",
+      "nama": "DAKWAH DAN KOMUNIKASI",
+      "singkatan": "FD"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6cb25599a9d8",
+      "kode_fakultas": "F03",
+      "nama": "EKONOMI DAN BISNIS ISLAM",
+      "singkatan": "FEBI"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6ccb8e5d5528",
+      "kode_fakultas": "F04",
+      "nama": "ILMU SOSIAL DAN HUMANIORA",
+      "singkatan": "FISHUM"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6cda4bcdd9c7",
+      "kode_fakultas": "F05",
+      "nama": "ILMU TARBIYAH DAN KEGURUAN",
+      "singkatan": "TARBIYAH"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6cee8410ccbc",
+      "kode_fakultas": "F06",
+      "nama": "SAINS DAN TEKNOLOGI",
+      "singkatan": "FST"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6cf6d712e087",
+      "kode_fakultas": "F07",
+      "nama": "SYARIAH DAN HUKUM",
+      "singkatan": "FSH"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6d05f6bab393",
+      "kode_fakultas": "F08",
+      "nama": "USHULUDDIN DAN PEMIKIRAN ISLAM",
+      "singkatan": "FUPI"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6d1ce4e9808e",
+      "kode_fakultas": "F09",
+      "nama": "PASCASARJANA",
+      "singkatan": "PASCA"
+    },
+    {
+      "id_fakultas": "0198b77c-4a87-7f51-a9c7-6d23f20f7acd",
+      "kode_fakultas": "F10",
+      "nama": "Kedokteran dan Ilmu Kesehatan",
+      "singkatan": "FK"
+    }
+  ]
+]
