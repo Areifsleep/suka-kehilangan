@@ -20,20 +20,12 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 max-w-[420px] sm:max-w-md md:max-w-lg lg:max-w-xl">
         <div className="flex flex-col items-center mb-6">
-          {UIN}
-          <div className="mb-4">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 200 200"
-              className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36"
-            >
-              <rect width="100%" height="100%" fill="transparent" />
-              <g transform="translate(50,18)">
-                <path d="M50 0 L90 0 Q100 0 100 10 L100 50 Q100 60 90 60 L50 60 Q40 60 40 50 L40 10 Q40 0 50 0 Z" fill="#0b6b44" />
-                <circle cx="50" cy="80" r="8" fill="#c9a360" />
-              </g>
-            </svg>
-          </div>
+          <img 
+            src={UIN} 
+            alt="UIN Sunan Kalijaga Logo" 
+            className="mb-4 object-contain"
+            style={{ width: '250px', height: '250px', maxWidth: '250px', maxHeight: '250px' }}
+          />          
 
           <h1 className="text-2xl sm:text-3xl md:text-3xl font-serif text-yellow-600 tracking-wide">SUKA KEHILANGAN</h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-2 text-center max-w-xs">
