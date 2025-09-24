@@ -19,13 +19,24 @@ enum Level {
   S3
 }
 
+enum ReportStatus {
+  OPEN
+  CLAIMED
+  CLOSED
+}
+
+enum ReportType {
+  FOUND
+  LOST
+}
+
 model Faculty {
-  id   String         @id @default(uuid(7))
-  code String         @unique
-  name          String
-  abbreviation     String
-  created_at DateTime @default(now())  @db.Timestamp(6)
-  updated_at DateTime @updatedAt @db.Timestamp(6)
+  id           String   @id @default(uuid(7))
+  code         String   @unique
+  name         String
+  abbreviation String
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+  updated_at   DateTime @updatedAt @db.Timestamp(6)
 
   study_program StudyProgram[]
 
@@ -33,52 +44,60 @@ model Faculty {
 }
 
 model StudyProgram {
-  id          String       @id @default(uuid(7))
-  faculty_id  String
-  code        String       @unique
-  name        String
-  level       Level
-
-  created_at DateTime @default(now())  @db.Timestamp(6)
+  id         String   @id @default(uuid(7))
+  faculty_id String
+  code       String   @unique
+  name       String
+  level      Level
+  created_at DateTime @default(now()) @db.Timestamp(6)
   updated_at DateTime @updatedAt @db.Timestamp(6)
 
-  users User[]
+  people UserProfile[]
 
-  faculty      Faculty     @relation(fields: [faculty_id], references: [id], onDelete: Cascade)
+  faculty Faculty @relation(fields: [faculty_id], references: [id], onDelete: Cascade)
+
   @@map("study_programs")
 }
 
-
-
 model User {
-  id  String   @id @default(uuid(7)) @db.VarChar(255)
-  role_id String   @db.VarChar(255)
-  study_program_id String? @db.VarChar(255)
-  full_name String     @db.VarChar(255)
-  email String    @unique @db.VarChar(255)
-  username String   @unique @db.VarChar(255)
-  password String   @db.VarChar(255)
+  id                   String   @id @default(uuid(7)) @db.VarChar(255)
+  role_id              String   @db.VarChar(255)
+  username             String   @unique @db.VarChar(255)
+  password             String   @db.VarChar(255)
+  last_update_password DateTime @default(now()) @db.Timestamp(6)
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+  updated_at           DateTime @updatedAt @db.Timestamp(6)
 
-  sessions Session?
+  sessions        Session?
+  profile         UserProfile?
+  created_reports Report[]     @relation("created_reports")
+  claimed_reports Report[]     @relation("claimed_reports")
 
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([username], name: "idx_username")
+  @@map("users")
+}
+
+model UserProfile {
+  user_id          String  @id @db.VarChar(255)
+  study_program_id String? @db.VarChar(255)
+  email            String  @unique @db.VarChar(255)
+  nim              String? @unique @db.VarChar(255)
+  nip              String? @unique @db.VarChar(255)
+  full_name        String  @db.VarChar(255)
+
+  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   study_program StudyProgram? @relation(fields: [study_program_id], references: [id], onDelete: Cascade)
 
-  last_update_password DateTime @db.Timestamp(6) @default(now()) 
-
-  created_at DateTime @default(now())  @db.Timestamp(6)
-  updated_at DateTime @updatedAt @db.Timestamp(6)
-
-  @@map("users")
-  @@index([username], name: "idx_username")
-
+  @@map("user_profiles")
 }
 
 model Role {
-  id String  @id @default(uuid(7)) @db.VarChar(255)
+  id   String @id @default(uuid(7)) @db.VarChar(255)
   name String @db.VarChar(255)
 
- users User[]
+  users            User[]
   role_permissions RolePermissions[]
 
   created_at DateTime @default(now()) @db.Timestamp(6)
@@ -88,12 +107,11 @@ model Role {
 }
 
 model Permission {
-
-  id String   @id @default(uuid(7)) @db.VarChar(255)
-  name String @db.VarChar(255)
-  description String? @db.VarChar(255)
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  updated_at DateTime @updatedAt @db.Timestamp(6)
+  id          String   @id @default(uuid(7)) @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String?  @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @updatedAt @db.Timestamp(6)
 
   role_permissions RolePermissions[]
 
@@ -101,22 +119,20 @@ model Permission {
 }
 
 model RolePermissions {
-  role_id String   @db.VarChar(255)
-  permission_id String   @db.VarChar(255)
+  role_id       String @db.VarChar(255)
+  permission_id String @db.VarChar(255)
 
-  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([role_id, permission_id])
-
   @@map("role_permissions")
-} 
+}
 
 model Session {
-  id    String @id @default(uuid(7)) @db.VarChar(255)
-  jti   String @unique @db.VarChar(255)
-
-  user_id String @db.VarChar(255) @unique
+  id                   String   @id @default(uuid(7)) @db.VarChar(255)
+  jti                  String   @unique @db.VarChar(255)
+  user_id              String   @unique @db.VarChar(255)
   hashed_refresh_token String   @db.VarChar(255)
   expires_at           DateTime @db.Timestamp(6)
 
@@ -126,9 +142,60 @@ model Session {
 }
 
 model RevokedJwt {
-  jti       String    @id @db.VarChar(255) 
-  expires_at DateTime 
+  jti        String   @id @db.VarChar(255)
+  expires_at DateTime
 
   @@map("revoked_jwts")
 }
 
+model ReportCategory {
+  id          String   @id @default(uuid(7))
+  name        String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @updatedAt @db.Timestamp(6)
+
+  reports Report[]
+
+  @@map("report_categories")
+}
+
+model Report {
+  id                 String       @id @default(uuid(7))
+  created_by_user_id String       @db.VarChar(255)
+  claimed_by_user_id String?      @db.VarChar(255)
+  report_category_id String       @db.VarChar(255)
+  item_name          String       @db.VarChar(255)
+  report_type        ReportType
+  report_status      ReportStatus @default(OPEN)
+  description        String?      @db.Text
+  place_found        String       @db.VarChar(255)
+  claimed_at         DateTime?    @db.Timestamp(6)
+  created_at         DateTime     @default(now()) @db.Timestamp(6)
+  updated_at         DateTime     @updatedAt @db.Timestamp(6)
+
+  report_images ReportImage[]
+
+  created_by User  @relation("created_reports", fields: [created_by_user_id], references: [id], onDelete: Cascade)
+  claimed_by User? @relation("claimed_reports", fields: [claimed_by_user_id], references: [id], onDelete: Cascade)
+
+  category ReportCategory @relation(fields: [report_category_id], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+model ReportImage {
+  id                String   @id @default(uuid(7))
+  report_id         String   @db.VarChar(255)
+  storage_key       String   @db.VarChar(255)
+  original_filename String   @db.VarChar(255)
+  file_size         Int
+  mime_type         String   @db.VarChar(255)
+  is_primary        Boolean  @default(false)
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+  updated_at        DateTime @updatedAt @db.Timestamp(6)
+
+  report Report @relation(fields: [report_id], references: [id], onDelete: Cascade)
+
+  @@map("report_images")
+}
