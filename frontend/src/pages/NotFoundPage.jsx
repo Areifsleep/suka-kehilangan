@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 export default function NotFoundPage() {
   return (
@@ -10,7 +10,7 @@ export default function NotFoundPage() {
       </p>
       <Link
         to="/"
-        className="mt-6 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        className="mt-6 px-4 py-2 text-sm font-medium text-white bg-[#01747b] rounded-md hover:bg-[#016a70]"
       >
         Kembali ke Halaman Utama
       </Link>
