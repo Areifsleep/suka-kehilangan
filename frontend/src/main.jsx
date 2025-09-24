@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.jsx";
 import "./styles/global.css";
 import LoginPage from "./pages/LoginPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 const queryClient = new QueryClient();
 
@@ -17,10 +18,7 @@ createRoot(document.getElementById("root")).render(
         <Routes>
           {/* Grup rute yang menggunakan MainLayout (dengan Navbar) */}
           <Route element={<MainLayout />}>
-            <Route
-              path="/"
-              element={<App />}
-            />
+            <Route path="/" element={<App />} />
             {/* Tambahkan rute lain yang butuh navbar di sini */}
             {/* <Route path="/profile" element={<Profile />} /> */}
             {/* <Route path="/about" element={<About />} /> */}
@@ -28,15 +26,12 @@ createRoot(document.getElementById("root")).render(
 
           {/* Grup rute yang menggunakan AuthLayout (tanpa Navbar) */}
           <Route path="auth">
-            <Route
-              path="login"
-              element={<LoginPage />}
-            />
+            <Route path="login" element={<LoginPage />} />
             {/* <Route path="register" element={<Register />} /> */}
           </Route>
 
           {/* Anda juga bisa menambahkan rute untuk halaman 404 Not Found di sini */}
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
       <ReactQueryDevtools />
