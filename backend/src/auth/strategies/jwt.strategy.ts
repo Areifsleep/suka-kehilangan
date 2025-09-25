@@ -54,8 +54,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     const userToSendinRequest: AuthUserObject = {
       id: user.id,
-      full_name: user.full_name,
+      full_name: user.profile?.full_name!,
       username: user.username,
+      email: user.profile?.email!,
       role: user.role.name,
       permissions: user.role.role_permissions.map((p) => p.permission.name),
     };
