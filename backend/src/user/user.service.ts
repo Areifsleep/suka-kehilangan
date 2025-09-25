@@ -42,11 +42,18 @@ export class UserService {
         id,
       },
       include: {
+        profile: true,
         role: {
           include: {
             role_permissions: {
-              include: {
-                permission: true,
+              select: {
+                permission: {
+                  select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                  },
+                },
               },
             },
           },
