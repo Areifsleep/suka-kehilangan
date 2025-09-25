@@ -87,6 +87,9 @@
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1",
       "^uuid$": "uuid"
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(uuid)/)"
+    ]
   }
 }
