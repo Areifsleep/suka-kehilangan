@@ -2,97 +2,270 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Suka Kehilangan - Backend API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Backend aplikasi sistem informasi barang hilang dan ditemukan untuk kampus UIN Sunan Kalijaga Yogyakarta. Dibangun menggunakan [NestJS](https://nestjs.com/) framework dengan TypeScript, Prisma ORM, dan MySQL database.
 
-## Description
+## 🚀 Fitur Utama
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Autentikasi & Otorisasi**: JWT-based authentication dengan refresh token
+- **Manajemen Role & Permission**: Multi-role system (Admin, Petugas, User)
+- **Report System**: CRUD untuk laporan barang hilang dan ditemukan
+- **File Upload**: Dukungan upload gambar untuk laporan
+- **Database Seeding**: Automated seeding untuk data fakultas, prodi, dan user
 
-## Project setup
+## 📋 Prerequisites
 
-```bash
-$ npm install
-```
+Pastikan sistem Anda telah menginstall:
 
-## Compile and run the project
+- **Node.js** (versi 18.x atau lebih tinggi)
+- **npm** atau **yarn** sebagai package manager
+- **MySQL** (versi 8.x atau lebih tinggi)
+- **Git** untuk version control
+
+## 🛠️ Instalasi
+
+### 1. Clone Repository
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone <repository-url>
+cd backend
 ```
 
-## Run tests
+### 2. Install Dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+### 3. Setup Environment Variables
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Buat file `.env` di root directory dan isi dengan konfigurasi berikut:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+# Database Configuration
+DATABASE_URL="mysql://username:password@localhost:3306/suka_kehilangan_db"
+
+# JWT Configuration
+JWT_SECRET="your-jwt-secret-key"
+JWT_EXPIRES_IN="15m"
+
+# Refresh Token Configuration
+REFRESH_JWT_SECRET="your-refresh-jwt-secret-key"
+REFRESH_JWT_EXPIRES_IN="7d"
+
+# Node Environment
+NODE_ENV="development"
+
+# Upload Configuration (Optional)
+MAX_FILE_SIZE=5242880  # 5MB
+ALLOWED_FILE_TYPES="image/jpeg,image/png,image/jpg"
+```
+
+⚠️ **Penting**: Ganti `username`, `password`, dan nama database sesuai dengan konfigurasi MySQL Anda.
+
+## 🗄️ Setup Database
+
+### 1. Buat Database MySQL
+
+```sql
+CREATE DATABASE suka_kehilangan_db;
+```
+
+### 2. Generate Prisma Client
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma generate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3. Jalankan Database Migration
 
-## Resources
+```bash
+npx prisma migrate deploy
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+atau untuk development:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npx prisma migrate dev
+```
 
-## Support
+Perintah `prisma studio` akan membuka web interface untuk melihat database di browser.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 🌱 Setup Data Seeder
 
-## Stay in touch
+### 1. Jalankan Seeder
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Setelah database siap, jalankan seeder untuk mengisi data awal:
 
-## License
+```bash
+npm run seed
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### 2. Data yang Akan Di-seed
+
+Seeder akan mengisi database dengan:
+
+- ✅ **Fakultas**: Data fakultas UIN Sunan Kalijaga
+- ✅ **Program Studi**: Data program studi dari semua fakultas
+- ✅ **Roles**: Admin, Petugas, User
+- ✅ **Permissions**: Hak akses untuk setiap role
+- ✅ **Report Categories**: Kategori barang (elektronik, dokumen, aksesoris, dll.)
+- ✅ **Users**: Sample users (admin, petugas, dosen, mahasiswa)
+
+### 3. Default User Accounts
+
+Setelah seeding, Anda dapat login menggunakan akun berikut:
+
+| Role      | Username          | Password   | Email                        |
+| --------- | ----------------- | ---------- | ---------------------------- |
+| Admin     | `admin`           | `12345678` | admin@kampus.ac.id           |
+| Petugas   | `petugas01`       | `12345678` | petugas01@kampus.ac.id       |
+| Dosen     | `[NIP_DOSEN]`     | `12345678` | [nip]@uin-suka.ac.id         |
+| Mahasiswa | `[NIM_MAHASISWA]` | `12345678` | [nim]@student.uin-suka.ac.id |
+
+⚠️ **Keamanan**: Pastikan untuk mengubah password default setelah instalasi!
+
+## 🚀 Menjalankan Aplikasi
+
+### Development Mode
+
+```bash
+# Jalankan dalam mode development (auto-reload)
+npm run start:dev
+```
+
+### Production Mode
+
+```bash
+# Build aplikasi untuk production
+npm run build
+
+# Jalankan dalam mode production
+npm run start:prod
+```
+
+### Debug Mode
+
+```bash
+# Jalankan dengan debugger
+npm run start:debug
+```
+
+Aplikasi akan berjalan di `http://localhost:3000`
+
+## 🧪 Testing
+
+### Unit Tests
+
+```bash
+# Jalankan unit tests
+npm run test
+
+# Jalankan tests dengan watch mode
+npm run test:watch
+
+# Jalankan tests dengan coverage report
+npm run test:cov
+```
+
+### End-to-End Tests
+
+```bash
+# Jalankan e2e tests
+npm run test:e2e
+```
+
+### Debug Tests
+
+```bash
+# Debug tests
+npm run test:debug
+```
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+- `POST /auth/login` - User login
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/logout` - User logout
+- `POST /auth/sessions` Mendapatkan current user yang sedang login
+
+## 🗂️ Struktur Project
+
+```
+src/
+├── auth/              # Authentication module
+│   ├── guards/        # Auth guards (JWT, Local, etc.)
+│   ├── strategies/    # Passport strategies
+│   └── dtos/          # Data transfer objects
+├── user/              # User management module
+├── prisma/            # Prisma service
+├── seeder/            # Database seeder
+├── constants/         # Application constants
+├── models/            # Response models
+└── utils/             # Utility functions
+```
+
+## 🔧 Troubleshooting
+
+### Database Connection Issues
+
+1. **Error: Access denied for user**
+
+   ```bash
+   # Pastikan credentials di .env sudah benar
+   # Periksa user MySQL memiliki akses ke database
+   ```
+
+2. **Error: Database doesn't exist**
+   ```bash
+   # Buat database terlebih dahulu
+   CREATE DATABASE suka_kehilangan_db;
+   ```
+
+### Migration Issues
+
+1. **Reset Migration (Development Only)**
+
+   ```bash
+   npx prisma migrate reset
+   npx prisma migrate dev
+   ```
+
+2. **Schema Drift**
+   ```bash
+   npx prisma db push
+   ```
+
+### Seeding Issues
+
+1. **Seeding gagal - Data sudah ada**
+   - Seeder dirancang untuk skip duplicate data
+   - Safe untuk dijalankan berulang kali
+
+2. **Role/Permission tidak sesuai**
+   ```bash
+   # Hapus data role dan permission, lalu seed ulang
+   # Atau check konfigurasi di src/constants/config-seed.ts
+   ```
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -am 'Add new feature'`)
+4. Push to branch (`git push origin feature/new-feature`)
+5. Create Pull Request
+
+## 📄 License
+
+This project is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## 🔗 Resources
+
+- [NestJS Documentation](https://docs.nestjs.com)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [MySQL Documentation](https://dev.mysql.com/doc/)
+- [JWT.io](https://jwt.io/) - JWT Debugger
