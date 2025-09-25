@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 import { v7 as uuidv7 } from 'uuid';
 import { JwtAuthPayload } from './types/jwt-claims';
