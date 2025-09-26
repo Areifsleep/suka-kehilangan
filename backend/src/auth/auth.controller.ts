@@ -27,8 +27,8 @@ import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth/refresh-jwt-auth.
 import { type AuthenticatedRequest } from './types/authenticated-request';
 
 interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
+  access_token: string;
+  refresh_token: string;
 }
 
 interface RefreshResponse {
@@ -65,23 +65,49 @@ export class AuthController {
       );
     }
 
+    // Konfigurasi cookie untuk ACCESS TOKEN (berdurasi singkat)
+    res.cookie('access_token', token.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 15, // 15 menit
+    });
+
+    // Konfigurasi cookie untuk REFRESH TOKEN (berdurasi panjang)
+    res.cookie('refresh_token', token.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24 * 1, // 1 hari
+    });
+
     return {
       data: {
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
+        access_token: token.accessToken,
+        refresh_token: token.refreshToken,
       },
       pagination: null,
     };
   }
 
   @Post('logout')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
   async logout(
     @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<WebResponseModel<{ success: boolean }>> {
     await this.authService.signOut(req.user?.id!);
 
+    // Hapus access_token
+    res.clearCookie('access_token');
+
+    // Hapus refresh_token
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
     return {
       data: {
         success: true,
@@ -91,8 +117,8 @@ export class AuthController {
   }
 
   @Get('session')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
   async getSession(
     @Req() req: AuthenticatedRequest,
   ): Promise<WebResponseModel<SessionResponse>> {
@@ -107,10 +133,11 @@ export class AuthController {
   }
 
   @Get('refresh')
-  @UseGuards(RefreshJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(RefreshJwtAuthGuard)
   async refresh(
     @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<WebResponseModel<RefreshResponse>> {
     if (!req.user?.id) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -123,6 +150,13 @@ export class AuthController {
         'Failed to generate new access token',
       );
     }
+
+    res.cookie('access_token', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 15, // 15 menit
+    });
 
     return {
       data: {

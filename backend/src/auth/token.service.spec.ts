@@ -132,28 +132,16 @@ describe('TokenService', () => {
   });
 
   describe('generateAccessToken', () => {
-    it.skip('should generate access token', () => {
+    it('should generate access token', async () => {
       const userId = 'user-123';
       const accessToken = 'new-access-token';
 
-      // Create a new mock for this test
-      const freshJwtService = {
-        sign: jest.fn().mockReturnValue(accessToken),
-        signAsync: jest.fn(),
-        verifyAsync: jest.fn(),
-      };
+      mockJwtService.sign.mockReturnValue(accessToken);
 
-      // Create new service instance for this test
-      const freshTokenService = new TokenService(
-        prismaService,
-        freshJwtService as any,
-        mockRefreshJwtConfig,
-      );
-
-      const result = freshTokenService.generateAccessToken(userId);
+      const result = await service.generateAccessToken(userId);
 
       expect(result).toBe(accessToken);
-      expect(freshJwtService.sign).toHaveBeenCalledWith(
+      expect(mockJwtService.sign).toHaveBeenCalledWith(
         expect.objectContaining({
           sub: userId,
           jti: expect.any(String),
@@ -167,16 +155,16 @@ describe('TokenService', () => {
       jest.clearAllMocks();
     });
 
-    it.skip('should handle JWT service errors in access token generation', () => {
+    it('should handle JWT service errors in access token generation', async () => {
       const userId = 'user-123';
 
       mockJwtService.sign.mockImplementation(() => {
         throw new Error('Access token generation failed');
       });
 
-      expect(() => {
-        service.generateAccessToken(userId);
-      }).toThrow('Access token generation failed');
+      await expect(service.generateAccessToken(userId)).rejects.toThrow(
+        'Access token generation failed',
+      );
     });
   });
 

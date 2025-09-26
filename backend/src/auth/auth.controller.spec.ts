@@ -71,10 +71,30 @@ describe('AuthController', () => {
       const result = await controller.login(mockRequest, mockResponse);
 
       expect(authService.signIn).toHaveBeenCalledWith('1');
+      expect(mockResponse.cookie).toHaveBeenCalledWith(
+        'access_token',
+        mockTokens.accessToken,
+        {
+          httpOnly: true,
+          secure: false, // NODE_ENV is not 'production' in tests
+          sameSite: 'strict',
+          maxAge: 900000, // 15 minutes in milliseconds
+        },
+      );
+      expect(mockResponse.cookie).toHaveBeenCalledWith(
+        'refresh_token',
+        mockTokens.refreshToken,
+        {
+          httpOnly: true,
+          secure: false, // NODE_ENV is not 'production' in tests
+          sameSite: 'strict',
+          maxAge: 86400000, // 1 day in milliseconds
+        },
+      );
       expect(result).toEqual({
         data: {
-          accessToken: mockTokens.accessToken,
-          refreshToken: mockTokens.refreshToken,
+          access_token: mockTokens.accessToken,
+          refresh_token: mockTokens.refreshToken,
         },
         pagination: null,
       });
@@ -104,9 +124,15 @@ describe('AuthController', () => {
     it('should logout user successfully', async () => {
       mockAuthService.signOut.mockResolvedValue(undefined);
 
-      const result = await controller.logout(mockRequest);
+      const result = await controller.logout(mockRequest, mockResponse);
 
       expect(authService.signOut).toHaveBeenCalledWith('1');
+      expect(mockResponse.clearCookie).toHaveBeenCalledWith('access_token');
+      expect(mockResponse.clearCookie).toHaveBeenCalledWith('refresh_token', {
+        httpOnly: true,
+        secure: false, // NODE_ENV is not 'production' in tests
+        sameSite: 'strict',
+      });
       expect(result).toEqual({
         data: {
           success: true,
@@ -140,9 +166,19 @@ describe('AuthController', () => {
       const newAccessToken = 'new-access-token';
       mockAuthService.refresh.mockResolvedValue({ newAccessToken });
 
-      const result = await controller.refresh(mockRequest);
+      const result = await controller.refresh(mockRequest, mockResponse);
 
       expect(authService.refresh).toHaveBeenCalledWith('1');
+      expect(mockResponse.cookie).toHaveBeenCalledWith(
+        'access_token',
+        newAccessToken,
+        {
+          httpOnly: true,
+          secure: false, // NODE_ENV is not 'production' in tests
+          sameSite: 'strict',
+          maxAge: 900000, // 15 minutes in milliseconds
+        },
+      );
       expect(result).toEqual({
         data: {
           access_token: newAccessToken,
@@ -154,17 +190,17 @@ describe('AuthController', () => {
     it('should throw UnauthorizedException when user is missing', async () => {
       const requestWithoutUser = {} as AuthenticatedRequest;
 
-      await expect(controller.refresh(requestWithoutUser)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        controller.refresh(requestWithoutUser, mockResponse),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw InternalServerErrorException when newAccessToken is missing', async () => {
       mockAuthService.refresh.mockResolvedValue({ newAccessToken: null });
 
-      await expect(controller.refresh(mockRequest)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(
+        controller.refresh(mockRequest, mockResponse),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 });
