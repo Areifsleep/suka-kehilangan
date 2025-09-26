@@ -1,0 +1,58 @@
+services:
+  app1:
+    build: .
+    container_name: suka-kehilangan-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+    networks:
+      - suka-kehilangan-network
+
+  # Layanan untuk MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    environment:
+      # Sesuaikan dengan nama database dari DATABASE_URL Anda
+      MYSQL_DATABASE: suka_kehilangan
+      # Password untuk user 'root'
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      # Mapping port 3306 jika Anda perlu mengakses dari luar docker
+      - "3306:3306"
+    volumes:
+      # Di sinilah data MySQL akan disimpan secara permanen
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # Layanan untuk phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql # Menunjuk ke service mysql
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - mysql # Harus jalan setelah mysql siap
+    networks:
+      - app-network
+
+# Definisikan jaringan yang akan digunakan oleh layanan
+networks:
+  suka-kehilangan-network:
+    driver: bridge
+
+# Definisikan volume untuk persistensi data
+volumes:
+  db-data:
+    driver: local
