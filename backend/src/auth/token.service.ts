@@ -52,4 +52,11 @@ export class TokenService {
       data: { jti, expires_at: new Date() },
     });
   }
+
+  async decode(token: string) {
+    return this.jwtService.verifyAsync<JwtAuthPayload>(token, {
+      ignoreExpiration: false,
+      secret: this.refreshTokenConfig.secret,
+    });
+  }
 }
