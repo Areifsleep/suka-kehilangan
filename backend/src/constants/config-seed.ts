@@ -42,8 +42,14 @@ export const PERMISSIONS_DATA = [
     group: 'Laporan (Reports)',
     permissions: [
       {
+        name: 'CREATE-REPORT-LOST',
+        description: 'Membuat laporan kehilangan barang.',
+        roles: ['User'],
+      },
+      {
         name: 'CREATE-REPORT-FOUND',
-        description: 'Membuat laporan penemuan barang baru.',
+        description:
+          'Membuat laporan penemuan barang baru (diunggah oleh petugas).',
         roles: ['Petugas'],
       },
       {
@@ -106,7 +112,7 @@ export const PERMISSIONS_DATA = [
     ],
   },
   {
-    group: 'Manajemen Pengguna & Akun',
+    group: 'Manajemen Akun',
     permissions: [
       {
         name: 'MANAGE-OWN-ACCOUNT',
@@ -115,22 +121,25 @@ export const PERMISSIONS_DATA = [
       },
       {
         name: 'MANAGE-USERS',
-        description: 'Melihat, mengubah, dan menghapus akun Mahasiswa/Dosen.',
+        description:
+          'Mengelola (melihat, mengubah, menghapus) akun Pengguna (User).',
         roles: ['Admin'],
       },
       {
         name: 'MANAGE-OFFICERS',
-        description: 'Mendaftarkan, mengubah, dan menghapus akun Petugas.',
+        description:
+          'Mengelola (mendaftarkan, mengubah, menghapus) akun Petugas.',
         roles: ['Admin'],
       },
     ],
   },
   {
-    group: 'Data Master & Sistem',
+    group: 'Administrasi Sistem',
     permissions: [
       {
         name: 'VIEW-DASHBOARD',
-        description: 'Mengakses halaman dashboard dengan statistik laporan.',
+        description:
+          'Mengakses halaman dashboard dengan statistik laporan lengkap.',
         roles: ['Petugas', 'Admin'],
       },
       {

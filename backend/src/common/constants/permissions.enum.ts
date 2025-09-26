@@ -1,5 +1,6 @@
 export enum Permission {
   // Laporan (Reports)
+  CreateReportLost = 'CREATE-REPORT-LOST',
   CreateReportFound = 'CREATE-REPORT-FOUND',
   ViewOwnReports = 'VIEW-OWN-REPORTS',
   ViewAllReports = 'VIEW-ALL-REPORTS',
@@ -14,12 +15,12 @@ export enum Permission {
   ViewClaims = 'VIEW-CLAIMS',
   VerifyClaim = 'VERIFY-CLAIM',
 
-  // Manajemen Pengguna & Akun
+  // Manajemen Akun
   ManageOwnAccount = 'MANAGE-OWN-ACCOUNT',
   ManageUsers = 'MANAGE-USERS',
   ManageOfficers = 'MANAGE-OFFICERS',
 
-  // Data Master & Sistem
+  // Administrasi Sistem
   ViewDashboard = 'VIEW-DASHBOARD',
   ManageCategories = 'MANAGE-CATEGORIES',
   ExportReports = 'EXPORT-REPORTS',
