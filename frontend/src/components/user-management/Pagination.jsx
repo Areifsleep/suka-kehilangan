@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Button } from "@/components/ui/button";
 
 const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange }) => {
@@ -10,7 +11,7 @@ const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange
 
   const renderPageNumbers = () => {
     const pages = [];
-    
+
     for (let i = 1; i <= totalPages; i++) {
       if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
         pages.push(
@@ -26,15 +27,25 @@ const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange
         );
       } else if (i === 2 && currentPage > 3) {
         pages.push(
-          <span key={i} className="px-2 text-gray-500">…</span>
+          <span
+            key={i}
+            className="px-2 text-gray-500"
+          >
+            …
+          </span>
         );
       } else if (i === totalPages - 1 && currentPage < totalPages - 2) {
         pages.push(
-          <span key={i} className="px-2 text-gray-500">…</span>
+          <span
+            key={i}
+            className="px-2 text-gray-500"
+          >
+            …
+          </span>
         );
       }
     }
-    
+
     return pages;
   };
 
@@ -43,7 +54,7 @@ const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange
       <div className="text-sm text-gray-600">
         Menampilkan {currentCount} dari {total} user
       </div>
-      
+
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
@@ -53,7 +64,7 @@ const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange
         >
           «
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -73,7 +84,7 @@ const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange
         >
           ›
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"
