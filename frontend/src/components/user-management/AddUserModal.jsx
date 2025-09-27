@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => {
@@ -38,7 +39,7 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   // Reset form when modal closes
@@ -49,21 +50,27 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
   }, [open]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Tambah User Baru</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleFormSubmit} className="grid grid-cols-12 gap-4 mt-4">
+        <form
+          onSubmit={handleFormSubmit}
+          className="grid grid-cols-12 gap-4 mt-4"
+        >
           <div className="col-span-4 flex items-center">
             <Label>Nama</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Nama" 
+            <Input
+              placeholder="Nama"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={(e) => handleInputChange("name", e.target.value)}
             />
           </div>
 
@@ -71,10 +78,10 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
             <Label>Username</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Username" 
+            <Input
+              placeholder="Username"
               value={formData.username}
-              onChange={(e) => handleInputChange('username', e.target.value)}
+              onChange={(e) => handleInputChange("username", e.target.value)}
             />
           </div>
 
@@ -82,11 +89,11 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
             <Label>Email</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Email" 
+            <Input
+              placeholder="Email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={(e) => handleInputChange("email", e.target.value)}
             />
           </div>
 
@@ -94,11 +101,11 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
             <Label>Password</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Password" 
-              type="password" 
+            <Input
+              placeholder="Password"
+              type="password"
               value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
+              onChange={(e) => handleInputChange("password", e.target.value)}
             />
           </div>
 
@@ -106,13 +113,21 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
             <Label>Fakultas</Label>
           </div>
           <div className="col-span-8">
-            <Select onValueChange={(val) => handleInputChange('faculty', val)} value={formData.faculty}>
+            <Select
+              onValueChange={(val) => handleInputChange("faculty", val)}
+              value={formData.faculty}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Fakultas" />
               </SelectTrigger>
               <SelectContent>
                 {faculties.map((f) => (
-                  <SelectItem key={f} value={f}>{f}</SelectItem>
+                  <SelectItem
+                    key={f}
+                    value={f}
+                  >
+                    {f}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -122,20 +137,34 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
             <Label>Program Studi</Label>
           </div>
           <div className="col-span-8">
-            <Select onValueChange={(val) => handleInputChange('program', val)} value={formData.program}>
+            <Select
+              onValueChange={(val) => handleInputChange("program", val)}
+              value={formData.program}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Program Studi" />
               </SelectTrigger>
               <SelectContent>
                 {programs.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                  <SelectItem
+                    key={p}
+                    value={p}
+                  >
+                    {p}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="col-span-12 flex justify-end gap-3 mt-4">
-            <Button variant="outline" type="button" onClick={handleClose}>Cancel</Button>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={handleClose}
+            >
+              Cancel
+            </Button>
             <Button type="submit">Tambah</Button>
           </div>
         </form>

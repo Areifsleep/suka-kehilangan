@@ -1,23 +1,26 @@
-import { FullPageSpinner } from "@/components/FullPageSpinner";
-import { api } from "@/lib/axios";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useMemo } from "react";
 import { useNavigate } from "react-router";
+import { createContext, useContext, useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { api } from "@/lib/axios";
+import { FullPageSpinner } from "@/components/FullPageSpinner";
+import { useAuthStore } from "@/stores/authStore";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { setAuthenticated, setUnauthenticated } = useAuthStore.getState();
 
   const {
     data: user,
     isLoading,
     error,
+    isSuccess,
   } = useQuery({
     queryKey: ["auth-session"],
     queryFn: async () => {
-      // queryFn sekarang bisa lebih "bodoh", tidak perlu try/catch
       const response = await api.get("/auth/session");
       return response.data.data;
     },
@@ -41,12 +44,14 @@ export const AuthProvider = ({ children }) => {
     mutationFn: () => api.post("/auth/logout"),
     onSuccess: () => {
       queryClient.setQueryData(["auth-session"], null);
+      setUnauthenticated();
       navigate("/", { replace: true });
     },
     onError: (error) => {
       console.error("Logout error:", error);
       // Even if logout fails, clear local session
       queryClient.setQueryData(["auth-session"], null);
+      setUnauthenticated();
       navigate("/", { replace: true });
     },
   });
@@ -85,6 +90,13 @@ export const AuthProvider = ({ children }) => {
       </AuthContext.Provider>
     );
   }
+
+  // Melakukan sync hasil React Query ke Zustand
+  useEffect(() => {
+    if (isSuccess && user) {
+      setAuthenticated();
+    }
+  }, [isSuccess, user, setAuthenticated, setUnauthenticated]);
 
   // Selalu render children. Biarkan komponen lain yang memutuskan
   // untuk menampilkan loading spinner berdasarkan 'isLoading' dari context.

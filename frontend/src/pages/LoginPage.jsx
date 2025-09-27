@@ -1,15 +1,15 @@
+import { toast } from "react-toastify";
+import { useNavigate, useLocation } from "react-router";
 import React, { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "react-router";
 
+import { api } from "@/lib/axios";
+import UIN from "@/assets/UIN.png";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { api } from "@/lib/axios";
 import { useFormValidation, validationRules } from "@/hooks/useFormValidation";
-import UIN from "@/assets/UIN.png";
-import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -111,9 +111,6 @@ export default function LoginPage() {
                     if (errors.username) {
                       clearError("username");
                     }
-                    if (submitError) {
-                      setSubmitError("");
-                    }
                   }}
                   className={`rounded-lg shadow-sm px-4 py-3 text-sm sm:text-base h-full ${
                     errors.username ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
@@ -134,9 +131,6 @@ export default function LoginPage() {
                     setPassword(e.target.value);
                     if (errors.password) {
                       clearError("password");
-                    }
-                    if (submitError) {
-                      setSubmitError("");
                     }
                   }}
                   className={`rounded-lg shadow-sm pr-10 px-4 py-3 text-sm sm:text-base h-full ${
