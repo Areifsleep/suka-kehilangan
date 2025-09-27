@@ -1,5 +1,5 @@
 services:
-  app1:
+  backend_api:
     build: .
     container_name: suka-kehilangan-backend
     restart: unless-stopped
@@ -29,7 +29,7 @@ services:
       # Di sinilah data MySQL akan disimpan secara permanen
       - db-data:/var/lib/mysql
     networks:
-      - app-network
+      - suka-kehilangan-network
 
   # Layanan untuk phpMyAdmin
   phpmyadmin:
@@ -45,7 +45,7 @@ services:
     depends_on:
       - mysql # Harus jalan setelah mysql siap
     networks:
-      - app-network
+      - suka-kehilangan-network
 
 # Definisikan jaringan yang akan digunakan oleh layanan
 networks:

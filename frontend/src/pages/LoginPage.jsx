@@ -1,19 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useLocation } from "react-router";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/axios";
+import { useFormValidation, validationRules } from "@/hooks/useFormValidation";
 import UIN from "@/assets/UIN.png";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const usernameRef = useRef(null);
+
+  // Auto-focus username field when component mounts
+  useEffect(() => {
+    if (usernameRef.current) {
+      usernameRef.current.focus();
+    }
+  }, []);
+
+  // Form validation setup
+  const { errors, validate, clearError } = useFormValidation({
+    username: [validationRules.required("Username is required")],
+    password: [validationRules.required("Password is required"), validationRules.minLength(6, "Password must be at least 6 characters")],
+  });
+
+  // Get the intended destination from location state
+  const from = location.state?.from?.pathname || "/beranda";
+
+  // Login mutation
+  const loginMutation = useMutation({
+    mutationFn: async (credentials) => {
+      const response = await api.post("/auth/login", credentials);
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch user session
+      queryClient.invalidateQueries({ queryKey: ["auth-session"] });
+      // Navigate to intended destination or default dashboard
+      navigate(from, { replace: true });
+    },
+    onError: (error) => {
+      const message = "Username atau Password Salah";
+      toast.error(message, { position: "top-right" });
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ username, password });
+
+    // Validate form
+    const formData = { username: username.trim(), password };
+    if (!validate(formData)) {
+      return;
+    }
+
+    // Submit login
+    loginMutation.mutate(formData);
   };
 
   return (
@@ -50,11 +102,25 @@ export default function LoginPage() {
               <div className="h-12">
                 <Label className="sr-only">Username</Label>
                 <Input
+                  ref={usernameRef}
                   placeholder="Username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="rounded-lg border-gray-300 shadow-sm px-4 py-3 text-sm sm:text-base h-full"
+                  autoComplete="username"
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    if (errors.username) {
+                      clearError("username");
+                    }
+                    if (submitError) {
+                      setSubmitError("");
+                    }
+                  }}
+                  className={`rounded-lg shadow-sm px-4 py-3 text-sm sm:text-base h-full ${
+                    errors.username ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
+                  }`}
+                  disabled={loginMutation.isPending}
                 />
+                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
               </div>
 
               <div className="relative h-12">
@@ -63,8 +129,20 @@ export default function LoginPage() {
                   placeholder="Password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="rounded-lg border-gray-300 shadow-sm pr-10 px-4 py-3 text-sm sm:text-base h-full"
+                  autoComplete="current-password"
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) {
+                      clearError("password");
+                    }
+                    if (submitError) {
+                      setSubmitError("");
+                    }
+                  }}
+                  className={`rounded-lg shadow-sm pr-10 px-4 py-3 text-sm sm:text-base h-full ${
+                    errors.password ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
+                  }`}
+                  disabled={loginMutation.isPending}
                 />
 
                 <button
@@ -131,6 +209,7 @@ export default function LoginPage() {
                     </svg>
                   )}
                 </button>
+                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
               </div>
               <div className="text-right -mt-2">
                 <a
@@ -144,9 +223,36 @@ export default function LoginPage() {
               <div>
                 <Button
                   type="submit"
-                  className="h-12 cursor-pointer w-full rounded-lg py-3 font-semibold border-2 border-gray-300 bg-white text-gray-700 transition-all duration-150 ease-in-out hover:bg-green-500 hover:border-green-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  disabled={loginMutation.isPending}
+                  className="h-12 cursor-pointer w-full rounded-lg py-3 font-semibold border-2 border-gray-300 bg-white text-gray-700 transition-all duration-150 ease-in-out hover:bg-green-500 hover:border-green-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  LOGIN
+                  {loginMutation.isPending ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Logging in...
+                    </div>
+                  ) : (
+                    "LOGIN"
+                  )}
                 </Button>
               </div>
             </form>
