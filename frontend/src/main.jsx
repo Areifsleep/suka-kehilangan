@@ -20,6 +20,7 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn.jsx";
 import { UserLayout } from "./layouts/UserLayout.jsx";
 import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
 import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
+import SettingsPage from "./pages/SettingsPage.jsx";
 
 function MainLayout() {
   return (
@@ -52,7 +53,11 @@ const router = createBrowserRouter([
       {
         element: <MainLayout />,
         children: [
-          { path: "/user", element: <UserLayout />, children: [{ index: true, element: <div>Halaman User</div> }] },
+          {
+            path: "/user",
+            element: <UserLayout />,
+            children: [{ index: true, element: <div>Halaman User</div> }],
+          },
           {
             path: "/petugas",
             element: <PetugasLayout />,
@@ -83,11 +88,15 @@ const router = createBrowserRouter([
           },
           {
             path: "/settings",
+            // element: <SettingsPage />,
             element: <RoleBasedLayout />,
             children: [
               {
                 index: true,
-                element: <div>Settings Dashboard - Available for All Roles</div>,
+                element: <SettingsPage />,
+                // element: (
+                //   <div>Settings Dashboard - Available for All Roles</div>
+                // ),
               },
               {
                 path: "profile",
