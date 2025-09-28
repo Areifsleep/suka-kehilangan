@@ -1,8 +1,9 @@
 import { Navigate, useLocation, Outlet } from "react-router";
+
 import { useAuth } from "@/contexts/AuthContext";
 
 export const ROLE_DASHBOARD_PATH = {
-  USER: "/beranda",
+  USER: "/user",
   ADMIN: "/admin",
   PETUGAS: "/petugas",
 };
@@ -11,7 +12,7 @@ export const ProtectedRoute = () => {
   const { user } = useAuth();
   const location = useLocation();
 
-  // 1. Jika tidak ada user (belum login), alihkan ke halaman utama/login.
+  // Jika tidak ada user (belum login), alihkan ke halaman utama/login.
   //    Simpan lokasi asal agar setelah login bisa kembali ke halaman yang dituju.
   if (!user) {
     return (
@@ -23,15 +24,16 @@ export const ProtectedRoute = () => {
     );
   }
 
-  // 2. Cek apakah role user ada dalam mapping dasbor.
+  //  Cek apakah role user ada dalam mapping dasbor.
   const designatedPath = ROLE_DASHBOARD_PATH[user.role];
 
-  // Jika user tidak memiliki role yang dikenali ATAU
-  // jika user sudah berada di halaman dasbor yang benar untuk rolenya,
-  // maka tampilkan halaman yang dituju (children).
-  // Di sini kita menggunakan <Outlet /> yang merupakan praktik standar
-  // untuk nested routing di React Router v6.
-  if (!designatedPath || location.pathname === designatedPath) {
+  // Exception: Path yang diawali dengan "/settings" dapat diakses oleh semua role
+  if (location.pathname.startsWith("/settings")) {
+    return <Outlet />;
+  }
+
+  // Cek apakah path saat ini DIAWALI DENGAN path dasbor yang seharusnya.
+  if (!designatedPath || location.pathname.startsWith(designatedPath)) {
     return <Outlet />;
   }
 

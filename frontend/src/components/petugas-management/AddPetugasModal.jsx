@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
@@ -36,7 +37,7 @@ const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   // Reset form when modal closes
@@ -47,21 +48,27 @@ const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
   }, [open]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Tambah Petugas Baru</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleFormSubmit} className="grid grid-cols-12 gap-4 mt-4">
+        <form
+          onSubmit={handleFormSubmit}
+          className="grid grid-cols-12 gap-4 mt-4"
+        >
           <div className="col-span-4 flex items-center">
             <Label>Nama</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Nama" 
+            <Input
+              placeholder="Nama"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={(e) => handleInputChange("name", e.target.value)}
             />
           </div>
 
@@ -69,10 +76,10 @@ const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
             <Label>Username</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Username" 
+            <Input
+              placeholder="Username"
               value={formData.username}
-              onChange={(e) => handleInputChange('username', e.target.value)}
+              onChange={(e) => handleInputChange("username", e.target.value)}
             />
           </div>
 
@@ -80,11 +87,11 @@ const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
             <Label>Email</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Email" 
+            <Input
+              placeholder="Email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={(e) => handleInputChange("email", e.target.value)}
             />
           </div>
 
@@ -92,11 +99,11 @@ const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
             <Label>Password</Label>
           </div>
           <div className="col-span-8">
-            <Input 
-              placeholder="Password" 
-              type="password" 
+            <Input
+              placeholder="Password"
+              type="password"
               value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
+              onChange={(e) => handleInputChange("password", e.target.value)}
             />
           </div>
 
@@ -104,20 +111,34 @@ const AddPetugasModal = ({ open, onOpenChange, onSubmit, posOptions }) => {
             <Label>Pos</Label>
           </div>
           <div className="col-span-8">
-            <Select onValueChange={(val) => handleInputChange('pos', val)} value={formData.pos}>
+            <Select
+              onValueChange={(val) => handleInputChange("pos", val)}
+              value={formData.pos}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pilih Pos" />
               </SelectTrigger>
               <SelectContent>
                 {posOptions.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                  <SelectItem
+                    key={p}
+                    value={p}
+                  >
+                    {p}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="col-span-12 flex justify-end gap-3 mt-4">
-            <Button variant="outline" type="button" onClick={handleClose}>Cancel</Button>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={handleClose}
+            >
+              Cancel
+            </Button>
             <Button type="submit">Tambah</Button>
           </div>
         </form>
