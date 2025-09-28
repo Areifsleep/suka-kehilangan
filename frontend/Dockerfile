@@ -1,8 +1,12 @@
 # Stage 1: build React/Vite
-FROM node:18-alpine AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+
+RUN npm install @rollup/rollup-linux-x64-gnu
+
+RUN npm ci
+
 COPY . .
 RUN npm run build
 
