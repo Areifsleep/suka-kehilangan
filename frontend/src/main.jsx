@@ -5,14 +5,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
 
-import App from "./App.jsx";
 import "./styles/global.css";
 import LoginPage from "./pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminSettings from "./pages/AdminSettings.jsx";
 import ManagementUser from "./pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./pages/ManagementPetugas.jsx";
+import PetugasDashboard from "./pages/PetugasDashboard.jsx";
+import UserLostItemsList from "./pages/UserLostItemsList.jsx";
+import UserLostItemDetail from "./pages/UserLostItemDetail.jsx";
+import UserReportLostItem from "./pages/UserReportLostItem.jsx";
+import UserMyReports from "./pages/UserMyReports.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
@@ -20,7 +25,11 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn.jsx";
 import { UserLayout } from "./layouts/UserLayout.jsx";
 import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
 import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
+
 import SettingsPage from "./pages/SettingsPage.jsx";
+
+import { AlertProvider } from "./components/AlertProvider.jsx";
+
 
 function MainLayout() {
   return (
@@ -38,8 +47,10 @@ function RootLayout() {
   return (
     <>
       <AuthProvider>
-        <ToastContainer />
-        <Outlet />
+        <AlertProvider>
+          <ToastContainer />
+          <Outlet />
+        </AlertProvider>
       </AuthProvider>
     </>
   );
@@ -56,7 +67,26 @@ const router = createBrowserRouter([
           {
             path: "/user",
             element: <UserLayout />,
-            children: [{ index: true, element: <div>Halaman User</div> }],
+
+            children: [
+              {
+                index: true,
+                element: <UserLostItemsList />,
+              },
+              {
+                path: "item/:id",
+                element: <UserLostItemDetail />,
+              },
+              {
+                path: "report",
+                element: <UserReportLostItem />,
+              },
+              {
+                path: "my-reports",
+                element: <UserMyReports />,
+              },
+            ],
+
           },
           {
             path: "/petugas",
@@ -64,7 +94,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <div>Halaman Petugas</div>,
+                element: <PetugasDashboard />,
               },
             ],
           },
@@ -93,26 +123,8 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <SettingsPage />,
-                // element: (
-                //   <div>Settings Dashboard - Available for All Roles</div>
-                // ),
-              },
-              {
-                path: "profile",
-                element: <div>Profile Settings Page</div>,
-              },
-              {
-                path: "account",
-                element: <div>Account Settings Page</div>,
-              },
-              {
-                path: "notifications",
-                element: <div>Notification Settings Page</div>,
-              },
-              {
-                path: "privacy",
-                element: <div>Privacy Settings Page</div>,
+                element: <AdminSettings />,
+
               },
             ],
           },
