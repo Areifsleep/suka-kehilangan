@@ -38,7 +38,7 @@ export const BaseLayout = ({ menu = [] }) => {
           </button>
         </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto scrollbar-stable">
           {menu.map((m) => {
             return (
               <Link
@@ -74,8 +74,8 @@ export const BaseLayout = ({ menu = [] }) => {
       </aside>
 
       {/* Main content */}
-      <main className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-200 ${collapsed ? "ml-16" : "ml-64"}`}>
-        <div className="max-w-7xl mx-auto">
+      <main className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-200 prevent-shift ${collapsed ? "ml-16" : "ml-64"}`}>
+        <div className="max-w-7xl mx-auto scrollbar-gutter-stable">
           <Outlet />
         </div>
       </main>

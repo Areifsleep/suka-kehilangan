@@ -35,7 +35,7 @@ export default function LoginPage() {
   });
 
   // Get the intended destination from location state
-  const from = location.state?.from?.pathname || "/beranda";
+  const from = location.state?.from?.pathname || "/user";
 
   // Login mutation
   const loginMutation = useMutation({
@@ -98,14 +98,19 @@ export default function LoginPage() {
             <form
               onSubmit={handleSubmit}
               className="space-y-4"
+              autoComplete="on"
             >
               <div>
                 <Label className="sr-only">Username</Label>
                 <Input
                   ref={usernameRef}
+                  name="username"
+                  id="username"
                   placeholder="Username"
                   value={username}
                   autoComplete="username"
+                  autoCapitalize="off"
+                  spellCheck="false"
                   onChange={(e) => {
                     setUsername(e.target.value);
                     if (errors.username) {
@@ -124,6 +129,8 @@ export default function LoginPage() {
                 <Label className="sr-only">Password</Label>
                 <div className="relative">
                   <Input
+                    name="password"
+                    id="password"
                     placeholder="Password"
                     type={showPassword ? "text" : "password"}
                     value={password}

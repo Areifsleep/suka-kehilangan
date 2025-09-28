@@ -151,6 +151,64 @@
   }
 }
 
+/* Prevent layout shift by always reserving scrollbar space */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Alternative approach for better browser compatibility */
+body {
+  overflow-y: scroll;
+}
+
+/* For containers that might have scrollbars */
+.scrollbar-stable {
+  scrollbar-gutter: stable;
+}
+
+/* For containers that should always show vertical scrollbar space */
+.overflow-y-scroll-stable {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+/* Prevent content shift when scrollbar appears/disappears */
+.prevent-layout-shift {
+  scrollbar-gutter: stable both-edges;
+}
+
+/* For content areas that might overflow */
+.content-container {
+  scrollbar-gutter: stable;
+  overflow-x: hidden;
+}
+
+/* Ensure consistent width regardless of scrollbar */
+.stable-width {
+  width: calc(100% - env(scrollbar-inline-size, 0px));
+}
+
+/* Tailwind utilities for scrollbar handling */
+@layer utilities {
+  .scrollbar-gutter-stable {
+    scrollbar-gutter: stable;
+  }
+
+  .scrollbar-gutter-both {
+    scrollbar-gutter: stable both-edges;
+  }
+
+  .overflow-y-scroll-gutter {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
+  .prevent-shift {
+    scrollbar-gutter: stable;
+    overflow-x: hidden;
+  }
+}
+
 button {
   cursor: pointer;
 }

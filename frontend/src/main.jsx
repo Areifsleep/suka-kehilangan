@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
 
-import App from "./App.jsx";
 import "./styles/global.css";
 import LoginPage from "./pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
@@ -18,7 +17,6 @@ import PetugasDashboard from "./pages/PetugasDashboard.jsx";
 import UserLostItemsList from "./pages/UserLostItemsList.jsx";
 import UserLostItemDetail from "./pages/UserLostItemDetail.jsx";
 import UserReportLostItem from "./pages/UserReportLostItem.jsx";
-import UserSearchItems from "./pages/UserSearchItems.jsx";
 import UserMyReports from "./pages/UserMyReports.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
@@ -79,10 +77,6 @@ const router = createBrowserRouter([
                 element: <UserReportLostItem />,
               },
               {
-                path: "search",
-                element: <UserSearchItems />,
-              },
-              {
                 path: "my-reports",
                 element: <UserMyReports />,
               },
@@ -123,22 +117,6 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <AdminSettings />,
-              },
-              {
-                path: "profile",
-                element: <div>Profile Settings Page</div>,
-              },
-              {
-                path: "account",
-                element: <div>Account Settings Page</div>,
-              },
-              {
-                path: "notifications",
-                element: <div>Notification Settings Page</div>,
-              },
-              {
-                path: "privacy",
-                element: <div>Privacy Settings Page</div>,
               },
             ],
           },
