@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export default function AdminSettings() {
   const { showSuccess, showError } = useAlert();
-  
+
   // Loading states
   const [profileLoading, setProfileLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -44,11 +44,11 @@ export default function AdminSettings() {
   }, [profile]);
 
   const handleProfileInputChange = (field, value) => {
-    setProfileFormData(prev => ({ ...prev, [field]: value }));
+    setProfileFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handlePasswordInputChange = (field, value) => {
-    setPasswordFormData(prev => ({ ...prev, [field]: value }));
+    setPasswordFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const resetPasswordForm = () => {
@@ -62,21 +62,20 @@ export default function AdminSettings() {
   // Handle image upload
   const handleImageChange = async (file) => {
     setImageLoading(true);
-    
-    try {      
+
+    try {
       // const uploadUrl = await uploadToCloudStorage(file);
-      
+
       // For demo: create object URL for preview
       const imageUrl = URL.createObjectURL(file);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setProfile(prev => ({
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      setProfile((prev) => ({
         ...prev,
-        profilePhoto: imageUrl
+        profilePhoto: imageUrl,
       }));
-      
     } catch {
       showError("Gagal mengunggah foto profil. Silakan coba lagi.");
     } finally {
@@ -87,23 +86,22 @@ export default function AdminSettings() {
   // Handle image removal
   const handleImageRemove = async () => {
     setImageLoading(true);
-    
-    try {      
+
+    try {
       // await deleteFromCloudStorage(profile.profilePhoto);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Revoke object URL to prevent memory leaks
-      if (profile.profilePhoto && profile.profilePhoto.startsWith('blob:')) {
+      if (profile.profilePhoto && profile.profilePhoto.startsWith("blob:")) {
         URL.revokeObjectURL(profile.profilePhoto);
       }
-      
-      setProfile(prev => ({
+
+      setProfile((prev) => ({
         ...prev,
-        profilePhoto: null
+        profilePhoto: null,
       }));
-      
     } catch {
       showError("Gagal menghapus foto profil. Silakan coba lagi.");
     } finally {
@@ -114,11 +112,11 @@ export default function AdminSettings() {
   const onSaveInfo = async (e) => {
     e.preventDefault();
     setProfileLoading(true);
-    
+
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // in real app: call API to save profile
       setProfile((p) => ({ ...p, name: profileFormData.name, email: profileFormData.email }));
       showSuccess("Perubahan profil berhasil disimpan!");
@@ -131,7 +129,7 @@ export default function AdminSettings() {
 
   const onChangePassword = async (e) => {
     e.preventDefault();
-    
+
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
       showError("Konfirmasi password tidak cocok!");
       return;
@@ -146,8 +144,8 @@ export default function AdminSettings() {
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // real app: call API to change password
       resetPasswordForm();
       showSuccess("Password berhasil diubah!");
@@ -162,11 +160,11 @@ export default function AdminSettings() {
     <>
       <HeaderDashboard title="Settings" />
 
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-6 scrollbar-gutter-stable">
         {/* Profile Card with Image Upload */}
         <div className="space-y-4">
           <ProfileCard profile={profile} />
-          
+
           {/* Photo Upload Section */}
           <Card>
             <CardContent className="p-4 sm:p-6">
