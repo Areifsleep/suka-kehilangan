@@ -1,0 +1,15 @@
+services:
+  # Nama service kita, bisa apa saja
+  frontend_krs_react:
+    # Memberi nama pada container agar mudah diidentifikasi
+    container_name: frontend_krs_react
+    # Perintah untuk membangun image dari Dockerfile di direktori saat ini (.)
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Memetakan port 8080 di mesin Anda ke port 80 di dalam container
+    # Anda bisa mengganti 8080 dengan port lain yang Anda inginkan
+    ports:
+      - "3000:3000"
+    # Opsi agar container otomatis restart jika terjadi error atau saat Docker dimulai
+    restart: unless-stopped
