@@ -10,6 +10,7 @@ import "./styles/global.css";
 import LoginPage from "./pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminSettings from "./pages/AdminSettings.jsx";
 import ManagementUser from "./pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./pages/ManagementPetugas.jsx";
@@ -26,6 +27,7 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn.jsx";
 import { UserLayout } from "./layouts/UserLayout.jsx";
 import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
 import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
+import { AlertProvider } from "./components/AlertProvider.jsx";
 
 function MainLayout() {
   return (
@@ -43,8 +45,10 @@ function RootLayout() {
   return (
     <>
       <AuthProvider>
-        <ToastContainer />
-        <Outlet />
+        <AlertProvider>
+          <ToastContainer />
+          <Outlet />
+        </AlertProvider>
       </AuthProvider>
     </>
   );
@@ -118,9 +122,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: (
-                  <div>Settings Dashboard - Available for All Roles</div>
-                ),
+                element: <AdminSettings />,
               },
               {
                 path: "profile",
