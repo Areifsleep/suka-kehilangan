@@ -25,7 +25,11 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn.jsx";
 import { UserLayout } from "./layouts/UserLayout.jsx";
 import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
 import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
+
+import SettingsPage from "./pages/SettingsPage.jsx";
+
 import { AlertProvider } from "./components/AlertProvider.jsx";
+
 
 function MainLayout() {
   return (
@@ -63,6 +67,7 @@ const router = createBrowserRouter([
           {
             path: "/user",
             element: <UserLayout />,
+
             children: [
               {
                 index: true,
@@ -81,6 +86,7 @@ const router = createBrowserRouter([
                 element: <UserMyReports />,
               },
             ],
+
           },
           {
             path: "/petugas",
@@ -112,11 +118,13 @@ const router = createBrowserRouter([
           },
           {
             path: "/settings",
+            // element: <SettingsPage />,
             element: <RoleBasedLayout />,
             children: [
               {
                 index: true,
                 element: <AdminSettings />,
+
               },
             ],
           },

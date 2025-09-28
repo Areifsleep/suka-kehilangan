@@ -7,9 +7,17 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { SeederModule } from './seeder/seeder.module';
 import { UserModule } from './user/user.module';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({}), PrismaModule, AuthModule, SeederModule, UserModule],
+  imports: [
+    ConfigModule.forRoot({}),
+    PrismaModule,
+    AuthModule,
+    SeederModule,
+    UserModule,
+    SettingsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
