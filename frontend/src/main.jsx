@@ -17,6 +17,9 @@ import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn.jsx";
+import { UserLayout } from "./layouts/UserLayout.jsx";
+import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
+import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 
 function MainLayout() {
   return (
@@ -49,8 +52,17 @@ const router = createBrowserRouter([
       {
         element: <MainLayout />,
         children: [
-          { path: "/beranda", element: <App /> },
-          { path: "/petugas", element: <App /> },
+          { path: "/user", element: <UserLayout />, children: [{ index: true, element: <div>Halaman User</div> }] },
+          {
+            path: "/petugas",
+            element: <PetugasLayout />,
+            children: [
+              {
+                index: true,
+                element: <div>Halaman Petugas</div>,
+              },
+            ],
+          },
           {
             path: "/admin",
             element: <AdminLayout />,
@@ -66,6 +78,32 @@ const router = createBrowserRouter([
               {
                 path: "manage-officers",
                 element: <ManagementPetugas />,
+              },
+            ],
+          },
+          {
+            path: "/settings",
+            element: <RoleBasedLayout />,
+            children: [
+              {
+                index: true,
+                element: <div>Settings Dashboard - Available for All Roles</div>,
+              },
+              {
+                path: "profile",
+                element: <div>Profile Settings Page</div>,
+              },
+              {
+                path: "account",
+                element: <div>Account Settings Page</div>,
+              },
+              {
+                path: "notifications",
+                element: <div>Notification Settings Page</div>,
+              },
+              {
+                path: "privacy",
+                element: <div>Privacy Settings Page</div>,
               },
             ],
           },

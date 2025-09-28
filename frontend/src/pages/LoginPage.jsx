@@ -99,7 +99,7 @@ export default function LoginPage() {
               onSubmit={handleSubmit}
               className="space-y-4"
             >
-              <div className="h-12">
+              <div>
                 <Label className="sr-only">Username</Label>
                 <Input
                   ref={usernameRef}
@@ -112,100 +112,102 @@ export default function LoginPage() {
                       clearError("username");
                     }
                   }}
-                  className={`rounded-lg shadow-sm px-4 py-3 text-sm sm:text-base h-full ${
+                  className={`rounded-lg shadow-sm px-4 py-3 text-sm sm:text-base h-12 ${
                     errors.username ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
                   }`}
                   disabled={loginMutation.isPending}
                 />
-                {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+                {errors.username && <p className="mt-1 text-sm text-red-600 animate-in slide-in-from-top-1 duration-200">{errors.username}</p>}
               </div>
 
-              <div className="relative h-12">
+              <div>
                 <Label className="sr-only">Password</Label>
-                <Input
-                  placeholder="Password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  autoComplete="current-password"
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (errors.password) {
-                      clearError("password");
-                    }
-                  }}
-                  className={`rounded-lg shadow-sm pr-10 px-4 py-3 text-sm sm:text-base h-full ${
-                    errors.password ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
-                  }`}
-                  disabled={loginMutation.isPending}
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    autoComplete="current-password"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (errors.password) {
+                        clearError("password");
+                      }
+                    }}
+                    className={`rounded-lg shadow-sm pr-10 px-4 py-3 text-sm sm:text-base h-12 ${
+                      errors.password ? "border-red-300 focus:border-red-500 focus:ring-red-500" : "border-gray-300"
+                    }`}
+                    disabled={loginMutation.isPending}
+                  />
 
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  aria-label="toggle password"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
-                >
-                  {showPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M3 3l18 18"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10.584 10.587a2 2 0 0 0 2.828 2.83"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9.363 5.365A9.466 9.466 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.172 2.435"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6.584 6.584C4.284 8.15 2.454 10.696 2 12c0 0 3 7 10 7a9.716 9.716 0 0 0 5.417-1.584"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                      />
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  )}
-                </button>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    aria-label="toggle password"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 3l18 18"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10.584 10.587a2 2 0 0 0 2.828 2.83"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9.363 5.365A9.466 9.466 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.172 2.435"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M6.584 6.584C4.284 8.15 2.454 10.696 2 12c0 0 3 7 10 7a9.716 9.716 0 0 0 5.417-1.584"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+                {errors.password && <p className="mt-1 text-sm text-red-600 animate-in slide-in-from-top-1 duration-200">{errors.password}</p>}
               </div>
-              <div className="text-right -mt-2">
+              <div className="text-right">
                 <a
                   href="#"
                   className="text-sm text-blue-600 hover:underline"
