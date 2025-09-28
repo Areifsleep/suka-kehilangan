@@ -3,7 +3,7 @@ import { BaseLayout } from "./BaseLayout";
 
 export const UserLayout = () => {
   const menu = [
-    { key: "/user", label: "Dashboard", icon: FiHome },
+    { key: "/user", label: "Beranda", icon: FiHome },
     { key: "/user/search", label: "Cari Barang", icon: FiSearch },
     { key: "/user/report", label: "Laporkan Kehilangan", icon: FiPlusCircle },
     { key: "/user/my-reports", label: "Laporan Saya", icon: FiFileText },

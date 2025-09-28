@@ -14,6 +14,12 @@ import AdminSettings from "./pages/AdminSettings.jsx";
 import ManagementUser from "./pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./pages/ManagementPetugas.jsx";
+import PetugasDashboard from "./pages/PetugasDashboard.jsx";
+import UserLostItemsList from "./pages/UserLostItemsList.jsx";
+import UserLostItemDetail from "./pages/UserLostItemDetail.jsx";
+import UserReportLostItem from "./pages/UserReportLostItem.jsx";
+import UserSearchItems from "./pages/UserSearchItems.jsx";
+import UserMyReports from "./pages/UserMyReports.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
@@ -56,14 +62,39 @@ const router = createBrowserRouter([
       {
         element: <MainLayout />,
         children: [
-          { path: "/user", element: <UserLayout />, children: [{ index: true, element: <div>Halaman User</div> }] },
+          {
+            path: "/user",
+            element: <UserLayout />,
+            children: [
+              {
+                index: true,
+                element: <UserLostItemsList />,
+              },
+              {
+                path: "item/:id",
+                element: <UserLostItemDetail />,
+              },
+              {
+                path: "report",
+                element: <UserReportLostItem />,
+              },
+              {
+                path: "search",
+                element: <UserSearchItems />,
+              },
+              {
+                path: "my-reports",
+                element: <UserMyReports />,
+              },
+            ],
+          },
           {
             path: "/petugas",
             element: <PetugasLayout />,
             children: [
               {
                 index: true,
-                element: <div>Halaman Petugas</div>,
+                element: <PetugasDashboard />,
               },
             ],
           },
