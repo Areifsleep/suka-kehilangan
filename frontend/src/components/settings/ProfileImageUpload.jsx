@@ -1,16 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FiCamera, FiTrash2, FiUpload } from "react-icons/fi";
-import { useAlert } from "@/components/AlertProvider";
 
-export const ProfileImageUpload = ({ 
-  currentImage, 
-  onImageChange, 
-  onImageRemove, 
-  loading = false,
-  className = "" 
-}) => {
-  const { showError, showSuccess } = useAlert();
+export const ProfileImageUpload = ({ currentImage, onImageChange, onImageRemove, loading = false, className = "" }) => {
   const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(currentImage);
 
@@ -21,17 +13,17 @@ export const ProfileImageUpload = ({
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    
+
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        showError('Harap pilih file gambar yang valid (JPG, PNG, GIF)');
+      if (!file.type.startsWith("image/")) {
+        toast.error("Harap pilih file gambar yang valid (JPG, PNG, GIF)");
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        showError('Ukuran file harus kurang dari 5MB');
+        toast.error("Ukuran file harus kurang dari 5MB");
         return;
       }
 
@@ -41,20 +33,20 @@ export const ProfileImageUpload = ({
         setPreview(e.target.result);
       };
       reader.readAsDataURL(file);
-      
+
       // Call parent handler
       onImageChange(file);
-      showSuccess('Foto profil berhasil diunggah!');
+      toast.success("Foto profil berhasil diunggah!");
     }
   };
 
   const handleRemoveImage = () => {
     setPreview(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
     onImageRemove();
-    showSuccess('Foto profil berhasil dihapus!');
+    toast.success("Foto profil berhasil dihapus!");
   };
 
   const handleUploadClick = () => {
@@ -71,7 +63,7 @@ export const ProfileImageUpload = ({
         className="hidden"
         disabled={loading}
       />
-      
+
       <div className="flex gap-2">
         <Button
           type="button"
@@ -85,7 +77,7 @@ export const ProfileImageUpload = ({
           <span className="hidden sm:inline">Change Photo</span>
           <FiUpload className="w-4 h-4 sm:hidden" />
         </Button>
-        
+
         {(preview || currentImage) && (
           <Button
             type="button"
@@ -100,7 +92,7 @@ export const ProfileImageUpload = ({
           </Button>
         )}
       </div>
-      
+
       <div className="text-xs text-gray-500 text-center sm:text-left">
         <div>Max size: 5MB</div>
         <div>Formats: JPG, PNG, GIF</div>

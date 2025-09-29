@@ -153,12 +153,13 @@
 
 /* Prevent layout shift by always reserving scrollbar space */
 html {
-  scrollbar-gutter: stable;
+  scrollbar-gutter: auto;
 }
 
 /* Alternative approach for better browser compatibility */
 body {
   overflow-y: scroll;
+  scrollbar-gutter: auto;
 }
 
 /* For containers that might have scrollbars */
@@ -204,8 +205,24 @@ body {
   }
 
   .prevent-shift {
-    scrollbar-gutter: stable;
     overflow-x: hidden;
+  }
+
+  /* Fix untuk select dropdown agar tidak double scrollbar */
+  .select-content-no-gutter {
+    scrollbar-gutter: auto !important;
+  }
+
+  /* Reset scrollbar gutter untuk semua dropdown content */
+  [data-radix-select-content],
+  [data-radix-popper-content-wrapper],
+  .radix-select-content {
+    scrollbar-gutter: auto !important;
+  }
+
+  /* Specific fix untuk Radix Select Portal */
+  [data-radix-portal] [data-radix-select-content] {
+    scrollbar-gutter: auto !important;
   }
 }
 
@@ -233,4 +250,147 @@ button {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -30px, 0);
+  }
+  70% {
+    transform: translate3d(0, -15px, 0);
+  }
+  90% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Enhanced button hover effects */
+.btn-hover-lift {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced card hover effects */
+.card-hover {
+  transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient text utilities */
+.gradient-text {
+  background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Enhanced focus styles */
+.focus-ring {
+  @apply focus:ring-2 focus:ring-green-500/50 focus:outline-none;
+}
+
+/* Smooth transitions for interactive elements */
+.smooth-transition {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced shadow utilities */
+.shadow-soft {
+  box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.08);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
+}
+
+.shadow-strong {
+  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.12);
 }

@@ -43,14 +43,13 @@ export const AuthProvider = ({ children }) => {
   const logout = useMutation({
     mutationFn: () => api.post("/auth/logout"),
     onSuccess: () => {
-      queryClient.setQueryData(["auth-session"], null);
+      queryClient.clear();
       setUnauthenticated();
       navigate("/", { replace: true });
     },
     onError: (error) => {
       console.error("Logout error:", error);
-      // Even if logout fails, clear local session
-      queryClient.setQueryData(["auth-session"], null);
+      queryClient.clear();
       setUnauthenticated();
       navigate("/", { replace: true });
     },

@@ -38,7 +38,7 @@ export const BaseLayout = ({ menu = [] }) => {
           </button>
         </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto scrollbar-stable">
+        <nav className="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
           {menu.map((m) => {
             return (
               <Link
@@ -46,7 +46,8 @@ export const BaseLayout = ({ menu = [] }) => {
                 to={m.key}
                 className={`flex items-center gap-3 w-full text-left px-3 py-3 rounded-lg transition-colors duration-150 ${
                   isActive(m.key) ? "bg-green-200 text-black" : "text-gray-700 hover:bg-green-100"
-                }`}
+                } ${collapsed ? "justify-center" : ""}`}
+                title={collapsed ? m.label : undefined}
               >
                 <span className="text-xl">{m.icon && typeof m.icon === "function" ? <m.icon /> : m.icon}</span>
                 {!collapsed && <span className="font-medium">{m.label}</span>}
@@ -60,13 +61,17 @@ export const BaseLayout = ({ menu = [] }) => {
             to="/settings"
             className={`flex items-center gap-3 w-full px-3 py-3 rounded-lg transition-colors duration-150 ${
               location.pathname.startsWith("/settings") ? "bg-green-200 text-black" : "text-gray-700 hover:bg-green-100"
-            }`}
+            } ${collapsed ? "justify-center" : ""}`}
+            title={collapsed ? "Settings" : undefined}
           >
             <FiSettings className="text-xl" /> {!collapsed && <span>Settings</span>}
           </Link>
           <button
             onClick={logout}
-            className="flex items-center gap-3 w-full px-3 py-3 rounded-lg text-gray-700 hover:bg-green-100 mt-2"
+            className={`flex items-center gap-3 w-full px-3 py-3 rounded-lg text-gray-700 hover:bg-green-100 mt-2 ${
+              collapsed ? "justify-center" : ""
+            }`}
+            title={collapsed ? "Logout" : undefined}
           >
             <FiLogOut className="text-xl" /> {!collapsed && <span>Logout</span>}
           </button>
@@ -74,8 +79,8 @@ export const BaseLayout = ({ menu = [] }) => {
       </aside>
 
       {/* Main content */}
-      <main className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-200 prevent-shift ${collapsed ? "ml-16" : "ml-64"}`}>
-        <div className="max-w-7xl mx-auto scrollbar-gutter-stable">
+      <main className={`flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-200 ${collapsed ? "ml-16" : "ml-64"}`}>
+        <div className="max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>

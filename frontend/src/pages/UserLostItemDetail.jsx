@@ -1,16 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router";
-import {
-  FiArrowLeft,
-  FiMapPin,
-  FiCalendar,
-  FiUser,
-  FiPhone,
-  FiMail,
-  FiClock,
-  FiPackage,
-  FiMessageCircle,
-} from "react-icons/fi";
+import { FiArrowLeft, FiMapPin, FiCalendar, FiUser, FiPhone, FiMail, FiClock, FiPackage, FiMessageCircle } from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
@@ -38,8 +28,7 @@ const itemDetails = {
     category: "Dompet",
     itemCondition: "Baik",
     identificationRequired: true,
-    claimProcess:
-      "Datang langsung ke Pos Satpam dengan membawa identitas diri dan bukti kepemilikan",
+    claimProcess: "Datang langsung ke Pos Satpam dengan membawa identitas diri dan bukti kepemilikan",
   },
 };
 
@@ -50,11 +39,9 @@ export default function UserLostItemDetail() {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Item Tidak Ditemukan
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Item Tidak Ditemukan</h2>
           <Button
             onClick={() => navigate("/user")}
             className="bg-green-600 hover:bg-green-700"
@@ -80,13 +67,13 @@ export default function UserLostItemDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <HeaderDashboard
         title="Detail Barang Hilang"
         subtitle="Informasi lengkap tentang barang yang dilaporkan"
       />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div>
         {/* Back button */}
         <div className="mb-6">
           <Button
@@ -107,29 +94,17 @@ export default function UserLostItemDetail() {
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                      {item.title}
-                    </h1>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{item.title}</h1>
                     <div className="flex items-center gap-2">
                       <FiPackage className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">
-                        {item.category}
-                      </span>
+                      <span className="text-sm text-gray-600">{item.category}</span>
                     </div>
                   </div>
-                  <span
-                    className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(
-                      item.status
-                    )}`}
-                  >
-                    {item.status}
-                  </span>
+                  <span className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(item.status)}`}>{item.status}</span>
                 </div>
 
                 <div className="prose max-w-none">
-                  <p className="text-gray-700 leading-relaxed mb-4">
-                    {item.fullDescription}
-                  </p>
+                  <p className="text-gray-700 leading-relaxed mb-4">{item.fullDescription}</p>
                 </div>
               </CardContent>
             </Card>
@@ -145,9 +120,7 @@ export default function UserLostItemDetail() {
                       className="aspect-video bg-gray-200 rounded-lg overflow-hidden"
                     >
                       <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                        <span className="text-gray-600 text-sm">
-                          Foto {index + 1}
-                        </span>
+                        <span className="text-gray-600 text-sm">Foto {index + 1}</span>
                       </div>
                     </div>
                   ))}
@@ -159,25 +132,16 @@ export default function UserLostItemDetail() {
             {item.status.toLowerCase() === "ditemukan" && (
               <Card className="border-l-4 border-l-green-500">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-4 text-green-800">
-                    Cara Mengambil Barang
-                  </h3>
+                  <h3 className="font-semibold text-lg mb-4 text-green-800">Cara Mengambil Barang</h3>
                   <div className="bg-green-50 rounded-lg p-4 mb-4">
-                    <p className="text-green-800 text-sm">
-                      {item.claimProcess}
-                    </p>
+                    <p className="text-green-800 text-sm">{item.claimProcess}</p>
                   </div>
                   {item.identificationRequired && (
                     <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded-lg">
                       <div className="w-5 h-5 bg-yellow-400 rounded-full flex-shrink-0 mt-0.5"></div>
                       <div>
-                        <p className="text-yellow-800 text-sm font-medium">
-                          Verifikasi Identitas Diperlukan
-                        </p>
-                        <p className="text-yellow-700 text-xs mt-1">
-                          Siapkan bukti kepemilikan dan identitas diri yang
-                          valid
-                        </p>
+                        <p className="text-yellow-800 text-sm font-medium">Verifikasi Identitas Diperlukan</p>
+                        <p className="text-yellow-700 text-xs mt-1">Siapkan bukti kepemilikan dan identitas diri yang valid</p>
                       </div>
                     </div>
                   )}
@@ -196,9 +160,7 @@ export default function UserLostItemDetail() {
                   <div className="flex items-start gap-3">
                     <FiCalendar className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Tanggal Ditemukan
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">Tanggal Ditemukan</p>
                       <p className="text-sm text-gray-600">{item.date}</p>
                     </div>
                   </div>
@@ -206,9 +168,7 @@ export default function UserLostItemDetail() {
                   <div className="flex items-start gap-3">
                     <FiClock className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Waktu Ditemukan
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">Waktu Ditemukan</p>
                       <p className="text-sm text-gray-600">{item.time}</p>
                     </div>
                   </div>
@@ -216,27 +176,17 @@ export default function UserLostItemDetail() {
                   <div className="flex items-start gap-3">
                     <FiMapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Lokasi Ditemukan
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">Lokasi Ditemukan</p>
                       <p className="text-sm text-gray-600">{item.location}</p>
-                      {item.specificLocation && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {item.specificLocation}
-                        </p>
-                      )}
+                      {item.specificLocation && <p className="text-xs text-gray-500 mt-1">{item.specificLocation}</p>}
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
                     <FiPackage className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Kondisi Barang
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {item.itemCondition}
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">Kondisi Barang</p>
+                      <p className="text-sm text-gray-600">{item.itemCondition}</p>
                     </div>
                   </div>
                 </div>
@@ -251,9 +201,7 @@ export default function UserLostItemDetail() {
                   <div className="flex items-center gap-3">
                     <FiUser className="w-5 h-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {item.reporter}
-                      </p>
+                      <p className="text-sm font-medium text-gray-900">{item.reporter}</p>
                     </div>
                   </div>
 
@@ -261,9 +209,7 @@ export default function UserLostItemDetail() {
                     <div className="flex items-center gap-3">
                       <FiPhone className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-gray-600">
-                          {item.reporterContact.phone}
-                        </p>
+                        <p className="text-sm text-gray-600">{item.reporterContact.phone}</p>
                       </div>
                     </div>
                   )}
@@ -272,9 +218,7 @@ export default function UserLostItemDetail() {
                     <div className="flex items-center gap-3">
                       <FiMail className="w-5 h-5 text-gray-400" />
                       <div>
-                        <p className="text-sm text-gray-600">
-                          {item.reporterContact.email}
-                        </p>
+                        <p className="text-sm text-gray-600">{item.reporterContact.email}</p>
                       </div>
                     </div>
                   )}
