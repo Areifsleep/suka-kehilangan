@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { SeederModule } from './seeder/seeder.module';
 import { UserModule } from './user/user.module';
 import { SettingsModule } from './settings/settings.module';
+import { ManagementModule } from './management/management.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SettingsModule } from './settings/settings.module';
     SeederModule,
     UserModule,
     SettingsModule,
+    ManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
