@@ -30,8 +30,8 @@ export default function LoginPage() {
 
   // Form validation setup
   const { errors, validate, clearError } = useFormValidation({
-    username: [validationRules.required("Username is required")],
-    password: [validationRules.required("Password is required"), validationRules.minLength(6, "Password must be at least 6 characters")],
+    username: [validationRules.required("Username diperlukan")],
+    password: [validationRules.required("Password diperlukan"), validationRules.minLength(6, "Password harus minimal 6 karakter")],
   });
 
   // Get the intended destination from location state
@@ -251,7 +251,7 @@ export default function LoginPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      Logging in...
+                      Masuk...
                     </div>
                   ) : (
                     "LOGIN"
@@ -262,7 +262,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <div className="mt-8 text-center text-xs text-gray-500">&copy; {new Date().getFullYear()} UIN Sunan Kalijaga. All rights reserved</div>
+        <div className="mt-8 text-center text-xs text-gray-500">&copy; {new Date().getFullYear()} UIN Sunan Kalijaga. Hak cipta dilindungi</div>
       </div>
     </div>
   );

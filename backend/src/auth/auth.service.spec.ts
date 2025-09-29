@@ -129,7 +129,7 @@ describe('AuthService', () => {
       await expect(
         service.validateUser('unknownuser', 'password'),
       ).rejects.toThrow(
-        new UnauthorizedException('Invalid username or password'),
+        new UnauthorizedException('Username atau password salah'),
       );
     });
 
@@ -142,7 +142,7 @@ describe('AuthService', () => {
       await expect(
         service.validateUser('testuser', 'wrongpassword'),
       ).rejects.toThrow(
-        new UnauthorizedException('Invalid username or password'),
+        new UnauthorizedException('Username atau password salah'),
       );
     });
   });

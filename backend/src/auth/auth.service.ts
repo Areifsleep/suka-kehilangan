@@ -27,7 +27,7 @@ export class AuthService {
       (await argon2.verify(existingUser.password, password)) === false;
 
     if (unauthorizedConditions) {
-      throw new UnauthorizedException('Invalid username or password');
+      throw new UnauthorizedException('Username atau password salah');
     }
 
     return { id: existingUser.id };

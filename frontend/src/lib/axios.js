@@ -26,7 +26,7 @@ api.interceptors.response.use(
 
     // Jika error 401 terjadi pada request refresh itu sendiri, reject.
     if (originalRequest.url === "/auth/refresh") {
-      console.error("Refresh token tidak valid, proses logout...");
+      console.error("Token refresh tidak valid, proses logout...");
       useAuthStore.getState().setUnauthenticated(); // <-- Update state
       // Lakukan redirect atau tindakan logout lain di sini
       return Promise.reject(error);
@@ -38,7 +38,7 @@ api.interceptors.response.use(
 
     // Jika ini adalah percobaan ulang (retry), jangan coba lagi.
     if (originalRequest._isRetry) {
-      console.error("Percobaan ulang request setelah refresh token juga gagal.");
+      console.error("Percobaan ulang permintaan setelah token refresh juga gagal.");
       useAuthStore.getState().setUnauthenticated(); // <-- Update state
       return Promise.reject(error);
     }
@@ -46,7 +46,7 @@ api.interceptors.response.use(
     // Jika user BELUM PERNAH TERAUTENTIKASI sebelumnya, jangan coba refresh.
     // Ini menangani kasus pengguna baru yang membuka page.
     if (!isAuthenticated) {
-      console.log("User belum terautentikasi, skip refresh token.");
+      console.log("Pengguna belum terautentikasi, lewati token refresh.");
       return Promise.reject(error);
     }
 
@@ -55,12 +55,12 @@ api.interceptors.response.use(
     // sesinya kedaluwarsa dan perlu di-refresh.
     originalRequest._isRetry = true;
     try {
-      console.log("Sesi kedaluwarsa, mencoba refresh token...");
+      console.log("Sesi kedaluwarsa, mencoba token refresh...");
       await api.get("/auth/refresh");
-      console.log("Refresh token berhasil, mengulang request asli.");
+      console.log("Token refresh berhasil, mengulang permintaan asli.");
       return api(originalRequest);
     } catch (refreshError) {
-      console.error("Refresh token gagal.", refreshError);
+      console.error("Token refresh gagal.", refreshError);
       useAuthStore.getState().setUnauthenticated(); // <-- Update state
       return Promise.reject(refreshError);
     }

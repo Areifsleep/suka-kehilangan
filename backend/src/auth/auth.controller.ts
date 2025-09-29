@@ -54,14 +54,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<WebResponseModel<LoginResponse>> {
     if (!req.user?.id) {
-      throw new UnauthorizedException('Invalid authentication credentials');
+      throw new UnauthorizedException('Kredensial autentikasi tidak valid');
     }
 
     const token = await this.authService.signIn(req.user.id);
 
     if (!token.accessToken || !token.refreshToken) {
       throw new InternalServerErrorException(
-        'Failed to generate authentication tokens',
+        'Gagal menghasilkan token autentikasi',
       );
     }
 
@@ -123,7 +123,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
   ): Promise<WebResponseModel<SessionResponse>> {
     if (!req.user?.id) {
-      throw new UnauthorizedException('Invalid session');
+      throw new UnauthorizedException('Sesi tidak valid');
     }
 
     return {
@@ -140,14 +140,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<WebResponseModel<RefreshResponse>> {
     if (!req.user?.id) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Token refresh tidak valid');
     }
 
     const { newAccessToken } = await this.authService.refresh(req.user.id);
 
     if (!newAccessToken) {
       throw new InternalServerErrorException(
-        'Failed to generate new access token',
+        'Gagal menghasilkan token akses baru',
       );
     }
 

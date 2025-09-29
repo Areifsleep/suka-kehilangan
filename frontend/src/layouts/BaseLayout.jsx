@@ -62,7 +62,7 @@ export const BaseLayout = ({ menu = [] }) => {
             className={`flex items-center gap-3 w-full px-3 py-3 rounded-lg transition-colors duration-150 ${
               location.pathname.startsWith("/settings") ? "bg-green-200 text-black" : "text-gray-700 hover:bg-green-100"
             } ${collapsed ? "justify-center" : ""}`}
-            title={collapsed ? "Settings" : undefined}
+            title={collapsed ? "Pengaturan" : undefined}
           >
             <FiSettings className="text-xl" /> {!collapsed && <span>Settings</span>}
           </Link>

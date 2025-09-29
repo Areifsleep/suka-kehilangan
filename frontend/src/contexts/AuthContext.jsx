@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       navigate("/", { replace: true });
     },
     onError: (error) => {
-      console.error("Logout error:", error);
+      console.error("Error logout:", error);
       queryClient.clear();
       setUnauthenticated();
       navigate("/", { replace: true });
@@ -76,13 +76,13 @@ export const AuthProvider = ({ children }) => {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
           <div className="max-w-md text-center p-6 bg-white rounded-lg shadow-lg">
             <div className="text-6xl font-bold text-red-500 mb-4">⚠️</div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Connection Error</h1>
-            <p className="text-gray-600 mb-4">Unable to connect to the server. Please check your internet connection.</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Kesalahan Koneksi</h1>
+            <p className="text-gray-600 mb-4">Tidak dapat terhubung ke server. Silakan periksa koneksi internet Anda.</p>
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
-              Retry
+              Coba Lagi
             </button>
           </div>
         </div>
@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth harus digunakan dalam AuthProvider");
   }
   return context;
 };

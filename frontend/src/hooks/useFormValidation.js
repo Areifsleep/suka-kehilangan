@@ -52,23 +52,23 @@ export const useFormValidation = (validationRules) => {
 
 // Common validation rules
 export const validationRules = {
-  required: (message = "This field is required") => ({
+  required: (message = "Field ini diperlukan") => ({
     test: (value) => value && value.trim().length > 0,
     message,
   }),
   minLength: (min, message) => ({
     test: (value) => !value || value.length >= min,
-    message: message || `Minimum ${min} characters required`,
+    message: message || `Minimal ${min} karakter diperlukan`,
   }),
   maxLength: (max, message) => ({
     test: (value) => !value || value.length <= max,
-    message: message || `Maximum ${max} characters allowed`,
+    message: message || `Maksimal ${max} karakter diizinkan`,
   }),
-  email: (message = "Invalid email format") => ({
+  email: (message = "Format email tidak valid") => ({
     test: (value) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
     message,
   }),
-  username: (message = "Username must contain only letters, numbers, and underscores") => ({
+  username: (message = "Username hanya boleh berisi huruf, angka, dan garis bawah") => ({
     test: (value) => !value || /^[a-zA-Z0-9_]+$/.test(value),
     message,
   }),

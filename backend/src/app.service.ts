@@ -7,7 +7,7 @@ export class AppService {
 
   getHello(): any {
     return {
-      message: 'OK',
+      message: 'Baik',
     };
   }
 }
