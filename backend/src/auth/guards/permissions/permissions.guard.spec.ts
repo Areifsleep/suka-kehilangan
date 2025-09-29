@@ -72,7 +72,7 @@ describe('PermissionsGuard', () => {
         ForbiddenException,
       );
       expect(() => guard.canActivate(mockExecutionContext)).toThrow(
-        'Insufficient permissions',
+        'Izin tidak memadai',
       );
     });
 
@@ -95,7 +95,7 @@ describe('PermissionsGuard', () => {
         ForbiddenException,
       );
       expect(() => guard.canActivate(mockExecutionContext)).toThrow(
-        'Insufficient permissions',
+        'Izin tidak memadai',
       );
     });
 
@@ -174,7 +174,7 @@ describe('PermissionsGuard', () => {
         ForbiddenException,
       );
       expect(() => guard.canActivate(mockExecutionContext)).toThrow(
-        'Insufficient permissions',
+        'Izin tidak memadai',
       );
     });
 
@@ -199,7 +199,7 @@ describe('PermissionsGuard', () => {
         ForbiddenException,
       );
       expect(() => guard.canActivate(mockExecutionContext)).toThrow(
-        'Insufficient permissions',
+        'Izin tidak memadai',
       );
     });
 
@@ -224,7 +224,7 @@ describe('PermissionsGuard', () => {
         ForbiddenException,
       );
       expect(() => guard.canActivate(mockExecutionContext)).toThrow(
-        'Insufficient permissions',
+        'Izin tidak memadai',
       );
     });
 

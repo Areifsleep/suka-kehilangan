@@ -15,7 +15,7 @@ export const HeaderDashboard = ({ title = "dashboard" }) => {
 
       <div className="flex items-center gap-4">
         <div className="text-sm text-gray-600 hidden md:block">{user.full_name ? user.full_name : "Nama Seorang Admin"}</div>
-        <Avatar className="size-10 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-gray-800">
+        <Avatar className="size-10 bg-gray-200 rounded-full flex items-center justify-center text-lg font-bold text-[#035d37]">
           {getInitials(user.full_name)}
         </Avatar>
       </div>

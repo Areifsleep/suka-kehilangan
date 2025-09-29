@@ -6,16 +6,30 @@ import {
 } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { TokenService } from './token.service';
 import { type AuthenticatedRequest } from './types/authenticated-request';
 
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
+  let tokenService: TokenService;
 
   const mockAuthService = {
     signIn: jest.fn(),
     signOut: jest.fn(),
     refresh: jest.fn(),
+    signOutAll: jest.fn(),
+    getUserSessions: jest.fn(),
+  };
+
+  const mockTokenService = {
+    revokeAccessTokenForLogout: jest.fn(),
+    revokeJti: jest.fn(),
+    generateTokens: jest.fn(),
+    generateAccessToken: jest.fn(),
+    isBlacklisted: jest.fn(),
+    decode: jest.fn(),
+    decodeAccessToken: jest.fn(),
   };
 
   const mockUser = {
@@ -25,6 +39,7 @@ describe('AuthController', () => {
     email: 'test@example.com',
     role: 'admin',
     permissions: ['read', 'write'],
+    jti: 'acc_test-jti-123',
   };
 
   const mockTokens = {
@@ -51,11 +66,16 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: mockAuthService,
         },
+        {
+          provide: TokenService,
+          useValue: mockTokenService,
+        },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
+    tokenService = module.get<TokenService>(TokenService);
 
     jest.clearAllMocks();
   });
@@ -122,11 +142,15 @@ describe('AuthController', () => {
 
   describe('logout', () => {
     it('should logout user successfully', async () => {
+      mockTokenService.revokeAccessTokenForLogout.mockResolvedValue(undefined);
       mockAuthService.signOut.mockResolvedValue(undefined);
 
       const result = await controller.logout(mockRequest, mockResponse);
 
-      expect(authService.signOut).toHaveBeenCalledWith('1');
+      expect(tokenService.revokeAccessTokenForLogout).toHaveBeenCalledWith(
+        'acc_test-jti-123',
+      );
+      expect(authService.signOut).toHaveBeenCalledWith('1', 'ref_test-jti-123');
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('access_token');
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('refresh_token', {
         httpOnly: true,

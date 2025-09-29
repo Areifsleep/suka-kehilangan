@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }) => {
     },
 
     retry: false,
+    refetchOnWindowFocus: false,
   });
 
   // Logout mutation

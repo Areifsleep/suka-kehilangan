@@ -35,7 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtAuthPayload) {
+  async validate(payload: JwtAuthPayload, req: any) {
     if (!payload) {
       throw new UnauthorizedException('Token tidak disediakan');
     }
@@ -52,14 +52,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const userToSendinRequest: AuthUserObject = {
+    const userToSendinRequest: AuthUserObject & { jti: string } = {
       id: user.id,
       full_name: user.profile?.full_name!,
       username: user.username,
       email: user.profile?.email!,
       role: user.role.name,
       permissions: user.role.role_permissions.map((p) => p.permission.name),
+      jti: payload.jti, // Include JTI in user object
     };
+
     return userToSendinRequest;
   }
 }

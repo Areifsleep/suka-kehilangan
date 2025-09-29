@@ -9,4 +9,5 @@ export type AuthUserObject = {
   email: string;
   role: string;
   permissions: string[];
+  jti?: string; // Optional JTI for logout purposes
 };
