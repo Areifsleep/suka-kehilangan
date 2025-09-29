@@ -26,6 +26,7 @@ jest.mock('../../process_data/angkatan-2023.json', () => [
   {
     NIM: 12345678,
     NAMA: 'Test Student',
+    FORMATED_NAMA: 'Test Student',
     KODE_PRODI: 'TI',
   },
 ]);
@@ -401,7 +402,7 @@ describe('SeederService', () => {
           profile: {
             create: {
               full_name: 'Administrator',
-              email: 'admin@kampus.ac.id',
+              email: 'admin@uin-suka.ac.id',
             },
           },
         },
@@ -480,7 +481,7 @@ describe('SeederService', () => {
           profile: {
             create: {
               full_name: 'Bapak Petugas',
-              email: 'petugas01@kampus.ac.id',
+              email: 'petugas01@uin-suka.ac.id',
             },
           },
         },

@@ -1,4 +1,4 @@
-Tentu, untuk mendukung unggahan banyak gambar per laporan menggunakan _presigned URL_ S3, Anda perlu membuat satu tabel baru bernama `report_images`.
+Untuk mendukung unggahan banyak gambar per laporan menggunakan _presigned URL_ S3, Anda perlu membuat satu tabel baru bernama `report_images`.
 
 Tabel ini akan memiliki hubungan **satu-ke-banyak** dengan tabel `reports` Anda—satu laporan bisa memiliki banyak gambar.
 

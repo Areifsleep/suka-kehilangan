@@ -1,11 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-
 import { v7 as uuidv7 } from 'uuid';
-import { JwtAuthPayload } from './types/jwt-claims';
 import { JwtService } from '@nestjs/jwt';
-import refreshJwtConfig from './config/refresh.jwt.config';
 import { type ConfigType } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+
+import { JwtAuthPayload } from './types/jwt-claims';
+import { PrismaService } from '../prisma/prisma.service';
+import refreshJwtConfig from './config/refresh.jwt.config';
 
 @Injectable()
 export class TokenService {
@@ -25,22 +25,36 @@ export class TokenService {
   }
 
   async generateTokens(userId: string) {
-    const payload: JwtAuthPayload = {
-      jti: uuidv7(),
+    const baseUuid = uuidv7();
+    const accessJti = `acc_${baseUuid}`;
+    const refreshJti = `ref_${baseUuid}`;
+
+    const accessPayload: JwtAuthPayload = {
+      jti: accessJti,
+      sub: userId,
+    };
+
+    const refreshPayload: JwtAuthPayload = {
+      jti: refreshJti,
       sub: userId,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, this.refreshTokenConfig),
+      this.jwtService.signAsync(accessPayload),
+      this.jwtService.signAsync(refreshPayload, this.refreshTokenConfig),
     ]);
 
-    return { accessToken, refreshToken, jti: payload.jti };
+    return {
+      accessToken,
+      refreshToken,
+      accessJti,
+      refreshJti,
+    };
   }
 
   async generateAccessToken(userId: string) {
     const payload: JwtAuthPayload = {
-      jti: uuidv7(),
+      jti: `acc_${uuidv7()}`,
       sub: userId,
     };
 
@@ -53,10 +67,50 @@ export class TokenService {
     });
   }
 
+  async revokeMultipleJtis(jtis: string[]) {
+    if (jtis.length === 0) return;
+
+    await this.prismaService.revokedJwt.createMany({
+      data: jtis.map((jti) => ({
+        jti,
+        expires_at: new Date(),
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  async revokeTokenPair(accessJti: string, refreshJti: string) {
+    await this.prismaService.revokedJwt.createMany({
+      data: [
+        { jti: accessJti, expires_at: new Date() },
+        { jti: refreshJti, expires_at: new Date() },
+      ],
+    });
+  }
+
+  async revokeAccessTokenForLogout(accessJti: string) {
+    // Revoke current access token during logout
+    await this.revokeJti(accessJti);
+  }
+
   async decode(token: string) {
     return this.jwtService.verifyAsync<JwtAuthPayload>(token, {
       ignoreExpiration: false,
       secret: this.refreshTokenConfig.secret,
     });
+  }
+
+  async decodeAccessToken(token: string) {
+    return this.jwtService.verifyAsync<JwtAuthPayload>(token, {
+      ignoreExpiration: false,
+    });
+  }
+
+  isAccessTokenJti(jti: string): boolean {
+    return jti.startsWith('acc_');
+  }
+
+  isRefreshTokenJti(jti: string): boolean {
+    return jti.startsWith('ref_');
   }
 }

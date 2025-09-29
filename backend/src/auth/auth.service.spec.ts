@@ -43,7 +43,8 @@ describe('AuthService', () => {
   const mockTokens = {
     accessToken: 'access-token',
     refreshToken: 'refresh-token',
-    jti: 'test-jti',
+    accessJti: 'acc_test-uuid',
+    refreshJti: 'ref_test-uuid',
   };
 
   const mockUserService = {
@@ -52,8 +53,11 @@ describe('AuthService', () => {
 
   const mockPrismaService = {
     session: {
-      upsert: jest.fn(),
+      create: jest.fn(),
       delete: jest.fn(),
+      deleteMany: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
     },
     $transaction: jest.fn(),
   };
@@ -62,6 +66,8 @@ describe('AuthService', () => {
     generateTokens: jest.fn(),
     generateAccessToken: jest.fn(),
     revokeJti: jest.fn(),
+    revokeMultipleJtis: jest.fn(),
+    revokeAccessTokenForLogout: jest.fn(),
   };
 
   const mockRefreshConfig = {
@@ -155,25 +161,19 @@ describe('AuthService', () => {
       mockTokenService.generateTokens.mockResolvedValue(mockTokens);
       (ms as jest.Mock).mockReturnValue(86400000); // 1 day in ms
       (argon2.hash as jest.Mock).mockResolvedValue('hashed-refresh-token');
-      mockPrismaService.session.upsert.mockResolvedValue({});
+      mockPrismaService.session.create.mockResolvedValue({});
 
       const result = await service.signIn(userId);
 
       expect(result).toEqual(mockTokens);
       expect(tokenService.generateTokens).toHaveBeenCalledWith(userId);
       expect(argon2.hash).toHaveBeenCalledWith(mockTokens.refreshToken);
-      expect(prismaService.session.upsert).toHaveBeenCalledWith({
-        where: { user_id: userId },
-        update: {
-          hashed_refresh_token: 'hashed-refresh-token',
-          expires_at: expect.any(Date),
-          jti: mockTokens.jti,
-        },
-        create: {
+      expect(prismaService.session.create).toHaveBeenCalledWith({
+        data: {
           user_id: userId,
           hashed_refresh_token: 'hashed-refresh-token',
           expires_at: expect.any(Date),
-          jti: mockTokens.jti,
+          jti: mockTokens.refreshJti,
         },
       });
     });
@@ -194,18 +194,12 @@ describe('AuthService', () => {
 
           const hashedRefreshToken = await argon2.hash(tokens.refreshToken);
 
-          await prismaService.session.upsert({
-            where: { user_id: userId },
-            update: {
-              hashed_refresh_token: hashedRefreshToken,
-              expires_at: expiresAt,
-              jti: tokens.jti,
-            },
-            create: {
+          await prismaService.session.create({
+            data: {
               user_id: userId,
               hashed_refresh_token: hashedRefreshToken,
               expires_at: expiresAt,
-              jti: tokens.jti,
+              jti: tokens.refreshJti,
             },
           });
 
@@ -214,7 +208,7 @@ describe('AuthService', () => {
 
       mockTokenService.generateTokens.mockResolvedValue(mockTokens);
       (argon2.hash as jest.Mock).mockResolvedValue('hashed-refresh-token');
-      mockPrismaService.session.upsert.mockResolvedValue({});
+      mockPrismaService.session.create.mockResolvedValue({});
 
       const result = await service.signIn(userId);
       expect(result).toEqual(mockTokens);
@@ -236,30 +230,229 @@ describe('AuthService', () => {
   });
 
   describe('signOut', () => {
-    it('should delete session and revoke jti', async () => {
+    it('should delete specific session and revoke jti when session exists', async () => {
       const userId = '1';
-      const sessionData = { jti: 'test-jti', user_id: userId };
+      const sessionJti = 'ref_test-uuid';
+      const sessionData = { jti: sessionJti, user_id: userId };
 
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         const mockTx = {
           session: {
+            findUnique: jest.fn().mockResolvedValue(sessionData),
             delete: jest.fn().mockResolvedValue(sessionData),
           },
         };
         return callback(mockTx);
       });
 
-      await service.signOut(userId);
+      await service.signOut(userId, sessionJti);
 
       expect(prismaService.$transaction).toHaveBeenCalled();
-      expect(tokenService.revokeJti).toHaveBeenCalledWith('test-jti');
+      expect(tokenService.revokeJti).toHaveBeenCalledWith(sessionJti);
+    });
+
+    it('should handle gracefully when session does not exist', async () => {
+      const userId = '1';
+      const sessionJti = 'ref_test-uuid';
+
+      mockPrismaService.$transaction.mockImplementation(async (callback) => {
+        const mockTx = {
+          session: {
+            findUnique: jest.fn().mockResolvedValue(null),
+            delete: jest.fn(),
+          },
+        };
+        return callback(mockTx);
+      });
+
+      await service.signOut(userId, sessionJti);
+
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      // Should not call delete or revokeJti when session doesn't exist
+      expect(tokenService.revokeJti).not.toHaveBeenCalled();
+    });
+
+    it('should throw UnauthorizedException when session belongs to different user', async () => {
+      const userId = '1';
+      const sessionJti = 'ref_test-uuid';
+      const sessionData = { jti: sessionJti, user_id: '2' }; // Different user
+
+      mockPrismaService.$transaction.mockImplementation(async (callback) => {
+        const mockTx = {
+          session: {
+            findUnique: jest.fn().mockResolvedValue(sessionData),
+            delete: jest.fn(),
+          },
+        };
+        return callback(mockTx);
+      });
+
+      await expect(service.signOut(userId, sessionJti)).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(tokenService.revokeJti).not.toHaveBeenCalled();
     });
   });
 
-  describe('getSession', () => {
-    it('should be defined', async () => {
-      const result = await service.getSession();
-      expect(result).toBeUndefined();
+  describe('signOutAll', () => {
+    it('should delete all sessions and revoke all jtis', async () => {
+      const userId = '1';
+      const sessions = [{ jti: 'ref_uuid1' }, { jti: 'ref_uuid2' }];
+
+      mockPrismaService.$transaction.mockImplementation(async (callback) => {
+        const mockTx = {
+          session: {
+            findMany: jest.fn().mockResolvedValue(sessions),
+            deleteMany: jest.fn().mockResolvedValue({ count: 2 }),
+          },
+        };
+        return callback(mockTx);
+      });
+
+      await service.signOutAll(userId);
+
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      expect(tokenService.revokeMultipleJtis).toHaveBeenCalledWith([
+        'ref_uuid1',
+        'ref_uuid2',
+      ]);
+    });
+
+    it('should handle empty sessions array', async () => {
+      const userId = '1';
+      const sessions: any[] = [];
+
+      mockPrismaService.$transaction.mockImplementation(async (callback) => {
+        const mockTx = {
+          session: {
+            findMany: jest.fn().mockResolvedValue(sessions),
+            deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+          },
+        };
+        return callback(mockTx);
+      });
+
+      await service.signOutAll(userId);
+
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      expect(tokenService.revokeMultipleJtis).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getUserSessions', () => {
+    it('should return active user sessions', async () => {
+      const userId = '1';
+      const mockSessions = [
+        {
+          id: 'session1',
+          jti: 'ref_uuid1',
+          expires_at: new Date(Date.now() + 86400000),
+        },
+        {
+          id: 'session2',
+          jti: 'ref_uuid2',
+          expires_at: new Date(Date.now() + 86400000),
+        },
+      ];
+
+      mockPrismaService.session.findMany.mockResolvedValue(mockSessions);
+
+      const result = await service.getUserSessions(userId);
+
+      expect(result).toEqual(mockSessions);
+      expect(prismaService.session.findMany).toHaveBeenCalledWith({
+        where: {
+          user_id: userId,
+          expires_at: {
+            gt: expect.any(Date),
+          },
+        },
+        select: {
+          id: true,
+          jti: true,
+          expires_at: true,
+        },
+      });
+    });
+  });
+
+  describe('validateRefreshToken', () => {
+    it('should validate refresh token successfully', async () => {
+      const refreshToken = 'valid-refresh-token';
+      const sessionJti = 'ref_test-uuid';
+      const mockSession = {
+        jti: sessionJti,
+        hashed_refresh_token: 'hashed-token',
+        expires_at: new Date(Date.now() + 86400000),
+        user_id: '1',
+      };
+
+      mockPrismaService.session.findUnique.mockResolvedValue(mockSession);
+      (argon2.verify as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.validateRefreshToken(
+        refreshToken,
+        sessionJti,
+      );
+
+      expect(result).toEqual(mockSession);
+      expect(prismaService.session.findUnique).toHaveBeenCalledWith({
+        where: { jti: sessionJti },
+      });
+      expect(argon2.verify).toHaveBeenCalledWith(
+        mockSession.hashed_refresh_token,
+        refreshToken,
+      );
+    });
+
+    it('should throw UnauthorizedException when session not found', async () => {
+      const refreshToken = 'valid-refresh-token';
+      const sessionJti = 'ref_test-uuid';
+
+      mockPrismaService.session.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.validateRefreshToken(refreshToken, sessionJti),
+      ).rejects.toThrow(
+        new UnauthorizedException('Session expired or invalid'),
+      );
+    });
+
+    it('should throw UnauthorizedException when session expired', async () => {
+      const refreshToken = 'valid-refresh-token';
+      const sessionJti = 'ref_test-uuid';
+      const expiredSession = {
+        jti: sessionJti,
+        hashed_refresh_token: 'hashed-token',
+        expires_at: new Date(Date.now() - 86400000), // expired
+        user_id: '1',
+      };
+
+      mockPrismaService.session.findUnique.mockResolvedValue(expiredSession);
+
+      await expect(
+        service.validateRefreshToken(refreshToken, sessionJti),
+      ).rejects.toThrow(
+        new UnauthorizedException('Session expired or invalid'),
+      );
+    });
+
+    it('should throw UnauthorizedException when refresh token is invalid', async () => {
+      const refreshToken = 'invalid-refresh-token';
+      const sessionJti = 'ref_test-uuid';
+      const mockSession = {
+        jti: sessionJti,
+        hashed_refresh_token: 'hashed-token',
+        expires_at: new Date(Date.now() + 86400000),
+        user_id: '1',
+      };
+
+      mockPrismaService.session.findUnique.mockResolvedValue(mockSession);
+      (argon2.verify as jest.Mock).mockResolvedValue(false);
+
+      await expect(
+        service.validateRefreshToken(refreshToken, sessionJti),
+      ).rejects.toThrow(new UnauthorizedException('Invalid refresh token'));
     });
   });
 

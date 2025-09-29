@@ -68,7 +68,7 @@ model User {
   created_at           DateTime @default(now()) @db.Timestamp(6)
   updated_at           DateTime @updatedAt @db.Timestamp(6)
 
-  sessions        Session?
+  sessions        Session[]
   profile         UserProfile?
   created_reports Report[]     @relation("created_reports")
   claimed_reports Report[]     @relation("claimed_reports")
@@ -132,7 +132,7 @@ model RolePermissions {
 model Session {
   id                   String   @id @default(uuid(7)) @db.VarChar(255)
   jti                  String   @unique @db.VarChar(255)
-  user_id              String   @unique @db.VarChar(255)
+  user_id              String   @db.VarChar(255)
   hashed_refresh_token String   @db.VarChar(255)
   expires_at           DateTime @db.Timestamp(6)
 

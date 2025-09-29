@@ -18,7 +18,7 @@ describe('AppController', () => {
   describe('root', () => {
     it('should return "OK" message object', () => {
       expect(appController.getHello()).toStrictEqual({
-        message: 'OK',
+        message: 'Baik',
       });
     });
   });

@@ -1,9 +1,8 @@
 // External libraries
-import type { Response } from 'express';
+import type { Response, Request } from 'express';
 
 // NestJS decorators and utilities
 import {
-  Body,
   Controller,
   Get,
   HttpCode,
@@ -18,6 +17,7 @@ import {
 
 // Internal modules and services
 import { AuthService } from './auth.service';
+import { TokenService } from './token.service';
 import { WebResponseModel } from 'src/models/web';
 
 // Guards
@@ -44,7 +44,10 @@ interface SessionResponse {
   version: '1',
 })
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
+  ) {}
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
@@ -97,23 +100,58 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response,
   ): Promise<WebResponseModel<{ success: boolean }>> {
-    await this.authService.signOut(req.user?.id!);
+    try {
+      // Get JTI from user object (set by JWT strategy)
+      const accessJti = req.user?.jti;
 
-    // Hapus access_token
-    res.clearCookie('access_token');
+      if (!accessJti) {
+        throw new UnauthorizedException('Token sudah tidak valid');
+      }
 
-    // Hapus refresh_token
-    res.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
-    return {
-      data: {
-        success: true,
-      },
-      pagination: null,
-    };
+      // Revoke current access token immediately
+      await this.tokenService.revokeAccessTokenForLogout(accessJti);
+
+      // For refresh token, we need to find the corresponding session
+      // We'll determine refresh JTI based on access JTI pattern
+      const refreshJti = accessJti.replace('acc_', 'ref_');
+
+      // Sign out specific session (removes refresh token from session and revokes it)
+      await this.authService.signOut(req.user?.id!, refreshJti);
+
+      // Clear cookies (even if they're already cleared)
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      return {
+        data: {
+          success: true,
+        },
+        pagination: null,
+      };
+    } catch (error) {
+      // Even if there's an error, clear cookies for security
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      // Log the error for debugging but don't expose details to client
+      console.error('Logout error:', error);
+
+      // Return success anyway since cookies are cleared and user is effectively logged out
+      return {
+        data: {
+          success: true,
+        },
+        pagination: null,
+      };
+    }
   }
 
   @Get('session')
@@ -162,6 +200,79 @@ export class AuthController {
       data: {
         access_token: newAccessToken,
       },
+      pagination: null,
+    };
+  }
+
+  @Post('logout-all')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async logoutAll(
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<WebResponseModel<{ success: boolean }>> {
+    try {
+      // Get JTI from user object (set by JWT strategy)
+      const accessJti = req.user?.jti;
+
+      if (accessJti) {
+        // Revoke current access token
+        await this.tokenService.revokeAccessTokenForLogout(accessJti);
+      }
+
+      // Sign out from all sessions
+      await this.authService.signOutAll(req.user?.id!);
+
+      // Clear cookies
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      return {
+        data: {
+          success: true,
+        },
+        pagination: null,
+      };
+    } catch (error) {
+      // Even if there's an error, clear cookies for security
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      // Log the error for debugging but don't expose details to client
+      console.error('Logout all error:', error);
+
+      // Return success anyway since cookies are cleared and user is effectively logged out
+      return {
+        data: {
+          success: true,
+        },
+        pagination: null,
+      };
+    }
+  }
+
+  @Get('sessions')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  async getUserSessions(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<WebResponseModel<any[]>> {
+    if (!req.user?.id) {
+      throw new UnauthorizedException('Sesi tidak valid');
+    }
+
+    const sessions = await this.authService.getUserSessions(req.user.id);
+
+    return {
+      data: sessions,
       pagination: null,
     };
   }
