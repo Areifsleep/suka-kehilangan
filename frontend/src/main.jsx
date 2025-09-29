@@ -14,6 +14,10 @@ import ManagementUser from "./pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./pages/ManagementPetugas.jsx";
 import PetugasDashboard from "./pages/PetugasDashboard.jsx";
+import PetugasUploadPage from "./pages/PetugasUploadPage.jsx";
+import PetugasManageReportsPage from "./pages/PetugasManageReportsPage.jsx";
+import PetugasVerifyReportsPage from "./pages/PetugasVerifyReportsPage.jsx";
+import PetugasReportsPage from "./pages/PetugasReportsPage.jsx";
 import UserLostItemsList from "./pages/UserLostItemsList.jsx";
 import UserLostItemDetail from "./pages/UserLostItemDetail.jsx";
 import UserReportLostItem from "./pages/UserReportLostItem.jsx";
@@ -89,6 +93,22 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <PetugasDashboard />,
+              },
+              {
+                path: "upload",
+                element: <PetugasUploadPage />,
+              },
+              {
+                path: "manage-reports",
+                element: <PetugasManageReportsPage />,
+              },
+              {
+                path: "verify-reports",
+                element: <PetugasVerifyReportsPage />,
+              },
+              {
+                path: "reports",
+                element: <PetugasReportsPage />,
               },
             ],
           },
