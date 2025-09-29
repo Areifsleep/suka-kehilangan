@@ -44,13 +44,13 @@ export class RefreshJwtStrategy extends PassportStrategy(
 
   async validate(req: Request, payload: JwtAuthPayload) {
     if (!payload || !payload.jti) {
-      throw new UnauthorizedException('Invalid token payload');
+      throw new UnauthorizedException('Payload token tidak valid');
     }
 
     // Cek blacklist dulu jika Anda masih mau menggunakannya
     const isBlacklisted = await this.tokenService.isBlacklisted(payload.jti);
     if (isBlacklisted) {
-      throw new UnauthorizedException('Token has been revoked');
+      throw new UnauthorizedException('Token telah dicabut');
     }
 
     // Cari sesi SPESIFIK berdasarkan JTI. Ini sangat cepat!
@@ -60,7 +60,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
 
     if (!userSession) {
       throw new UnauthorizedException(
-        'Session not found. Please log in again.',
+        'Sesi tidak ditemukan. Silakan masuk lagi.',
       );
     }
 
@@ -69,7 +69,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
       req?.cookies?.['refresh_token'] ??
       req?.headers?.['authorization']?.split(' ')[1];
     if (!rawRefreshToken) {
-      throw new UnauthorizedException('Refresh token is missing');
+      throw new UnauthorizedException('Token refresh hilang');
     }
 
     //  Bandingkan hash
@@ -78,7 +78,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
       rawRefreshToken,
     );
     if (!isTokenMatch) {
-      throw new UnauthorizedException('Invalid refresh token.');
+      throw new UnauthorizedException('Token refresh tidak valid.');
     }
 
     // Jika semua validasi lolos

@@ -12,44 +12,46 @@ import {
 
 export class UpdateProfileDto {
   @IsOptional()
-  @IsString({ message: 'Full name must be a string' })
-  @IsNotEmpty({ message: 'Full name cannot be empty when provided' })
-  @MaxLength(255, { message: 'Full name must not exceed 255 characters' })
-  @MinLength(1, { message: 'Full name must be at least 1 character' })
+  @IsString({ message: 'Nama lengkap harus berupa string' })
+  @IsNotEmpty({ message: 'Nama lengkap tidak boleh kosong ketika disediakan' })
+  @MaxLength(255, { message: 'Nama lengkap tidak boleh melebihi 255 karakter' })
+  @MinLength(1, { message: 'Nama lengkap harus minimal 1 karakter' })
   fullName?: string;
 
   @IsOptional()
-  @IsEmail({}, { message: 'Email must be a valid email address' })
-  @MaxLength(255, { message: 'Email must not exceed 255 characters' })
+  @IsEmail({}, { message: 'Email harus berupa alamat email yang valid' })
+  @MaxLength(255, { message: 'Email tidak boleh melebihi 255 karakter' })
   email?: string;
 
   @IsOptional()
-  @IsString({ message: 'NIM must be a string' })
-  @MaxLength(255, { message: 'NIM must not exceed 255 characters' })
-  @Matches(/^[0-9]+$/, { message: 'NIM must contain only numbers' })
+  @IsString({ message: 'NIM harus berupa string' })
+  @MaxLength(255, { message: 'NIM tidak boleh melebihi 255 karakter' })
+  @Matches(/^[0-9]+$/, { message: 'NIM hanya boleh berisi angka' })
   nim?: string;
 
   @IsOptional()
-  @IsString({ message: 'NIP must be a string' })
-  @MaxLength(255, { message: 'NIP must not exceed 255 characters' })
+  @IsString({ message: 'NIP harus berupa string' })
+  @MaxLength(255, { message: 'NIP tidak boleh melebihi 255 karakter' })
   nip?: string;
 
   @IsOptional()
-  @IsString({ message: 'Study program ID must be a string' })
+  @IsString({ message: 'ID program studi harus berupa string' })
   studyProgramId?: string;
 }
 
 export class ChangePasswordDto {
-  @IsString({ message: 'Current password is required' })
-  @IsNotEmpty({ message: 'Current password cannot be empty' })
+  @IsString({ message: 'Kata sandi saat ini diperlukan' })
+  @IsNotEmpty({ message: 'Kata sandi saat ini tidak boleh kosong' })
   currentPassword: string;
 
-  @IsString({ message: 'New password is required' })
-  @MinLength(8, { message: 'New password must be at least 8 characters' })
-  @MaxLength(128, { message: 'New password must not exceed 128 characters' })
+  @IsString({ message: 'Kata sandi baru diperlukan' })
+  @MinLength(8, { message: 'Kata sandi baru harus minimal 8 karakter' })
+  @MaxLength(128, {
+    message: 'Kata sandi baru tidak boleh melebihi 128 karakter',
+  })
   newPassword: string;
 
-  @IsString({ message: 'Confirm password is required' })
-  @IsNotEmpty({ message: 'Confirm password cannot be empty' })
+  @IsString({ message: 'Konfirmasi kata sandi diperlukan' })
+  @IsNotEmpty({ message: 'Konfirmasi kata sandi tidak boleh kosong' })
   confirmPassword: string;
 }

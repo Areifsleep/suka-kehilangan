@@ -14,7 +14,7 @@ export class UserController {
   @Permissions([Permission.ManageUsers])
   async getUser() {
     return {
-      message: 'ok',
+      message: 'baik',
     };
   }
 }

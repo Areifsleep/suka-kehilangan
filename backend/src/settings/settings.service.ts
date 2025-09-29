@@ -17,7 +17,7 @@ export class SettingsService {
   //  Get user profile - Based on your schema
   async getProfile(userId: string) {
     if (!userId || userId.trim() === '') {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException('ID pengguna diperlukan');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -66,12 +66,12 @@ export class SettingsService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Pengguna tidak ditemukan');
     }
 
     return {
       success: true,
-      message: 'Profile retrieved successfully',
+      message: 'Profil berhasil diambil',
       data: {
         id: user.id,
         username: user.username,
@@ -105,13 +105,13 @@ export class SettingsService {
     const { fullName, email, nim, nip, studyProgramId } = updateProfileDto;
 
     if (!userId || userId.trim() === '') {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException('ID pengguna diperlukan');
     }
 
     // Check if at least one field is provided
     if (!fullName && !email && !nim && !nip && !studyProgramId) {
       throw new BadRequestException(
-        'At least one field must be provided for update',
+        'Setidaknya satu field harus disediakan untuk pembaruan',
       );
     }
 
@@ -131,7 +131,7 @@ export class SettingsService {
     });
 
     if (!existingUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Pengguna tidak ditemukan');
     }
 
     //  Check email uniqueness (if email is being updated)
@@ -144,7 +144,7 @@ export class SettingsService {
       });
 
       if (emailExists) {
-        throw new ConflictException('Email is already in use by another user');
+        throw new ConflictException('Email sudah digunakan oleh pengguna lain');
       }
     }
 
@@ -158,7 +158,7 @@ export class SettingsService {
       });
 
       if (nimExists) {
-        throw new ConflictException('NIM is already in use by another user');
+        throw new ConflictException('NIM sudah digunakan oleh pengguna lain');
       }
     }
 
@@ -172,7 +172,7 @@ export class SettingsService {
       });
 
       if (nipExists) {
-        throw new ConflictException('NIP is already in use by another user');
+        throw new ConflictException('NIP sudah digunakan oleh pengguna lain');
       }
     }
 
@@ -183,7 +183,7 @@ export class SettingsService {
       });
 
       if (!studyProgramExists) {
-        throw new BadRequestException('Study program not found');
+        throw new BadRequestException('Program studi tidak ditemukan');
       }
     }
 
@@ -236,7 +236,7 @@ export class SettingsService {
 
     return {
       success: true,
-      message: 'Profile updated successfully',
+      message: 'Profil berhasil diperbarui',
       data: {
         id: updatedProfile.user.id,
         username: updatedProfile.user.username,
@@ -256,13 +256,13 @@ export class SettingsService {
     const { currentPassword, newPassword, confirmPassword } = changePasswordDto;
 
     if (!userId || userId.trim() === '') {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException('ID pengguna diperlukan');
     }
 
     // Password confirmation validation
     if (newPassword !== confirmPassword) {
       throw new BadRequestException(
-        'New password and confirmation do not match',
+        'Kata sandi baru dan konfirmasi tidak cocok',
       );
     }
 
@@ -276,17 +276,17 @@ export class SettingsService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Pengguna tidak ditemukan');
     }
 
     // Verify current password
     try {
       const passwordValid = await argon2.verify(user.password, currentPassword);
       if (!passwordValid) {
-        throw new UnauthorizedException('Current password is incorrect');
+        throw new UnauthorizedException('Kata sandi saat ini salah');
       }
     } catch (error) {
-      throw new UnauthorizedException('Current password is incorrect');
+      throw new UnauthorizedException('Kata sandi saat ini salah');
     }
 
     // Check if new password is different from current
@@ -294,7 +294,7 @@ export class SettingsService {
       const isSamePassword = await argon2.verify(user.password, newPassword);
       if (isSamePassword) {
         throw new BadRequestException(
-          'New password must be different from current password',
+          'Kata sandi baru harus berbeda dari kata sandi saat ini',
         );
       }
     } catch (error) {
@@ -315,7 +315,7 @@ export class SettingsService {
 
     return {
       success: true,
-      message: 'Password changed successfully',
+      message: 'Kata sandi berhasil diubah',
     };
   }
 }

@@ -37,13 +37,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtAuthPayload) {
     if (!payload) {
-      throw new UnauthorizedException('Token is not provided');
+      throw new UnauthorizedException('Token tidak disediakan');
     }
     //  cek apakah token di-blacklist
     const isBlacklisted = await this.tokenService.isBlacklisted(payload.jti);
 
     if (isBlacklisted) {
-      throw new UnauthorizedException('This token is not valid');
+      throw new UnauthorizedException('Token ini tidak valid');
     }
 
     // Populate Permissions User

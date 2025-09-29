@@ -357,7 +357,7 @@ describe('SeederService', () => {
         skipDuplicates: true,
       });
       expect(loggerSpy).toHaveBeenCalledWith(
-        'Successfully seeded report categories data.',
+        'Berhasil melakukan seeding data kategori laporan.',
       );
     });
 
@@ -370,7 +370,7 @@ describe('SeederService', () => {
       await (service as any).seedReportCatgories();
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'Failed to seed report categories data.',
+        'Gagal melakukan seeding data kategori laporan.',
         error.stack,
       );
     });

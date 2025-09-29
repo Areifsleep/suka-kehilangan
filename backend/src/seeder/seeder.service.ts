@@ -184,9 +184,12 @@ export class SeederService {
         skipDuplicates: true,
       });
 
-      this.logger.log('Successfully seeded report categories data.');
+      this.logger.log('Berhasil melakukan seeding data kategori laporan.');
     } catch (error) {
-      this.logger.error('Failed to seed report categories data.', error.stack);
+      this.logger.error(
+        'Gagal melakukan seeding data kategori laporan.',
+        error.stack,
+      );
     }
   }
 

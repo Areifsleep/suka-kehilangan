@@ -30,7 +30,7 @@ export class PermissionsGuard implements CanActivate {
 
     // Jika user tidak ada atau tidak punya property permissions, tolak akses
     if (!user || !user.permissions) {
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException('Izin tidak memadai');
     }
 
     // Membandingkan permissions yang dimiliki user dengan yang dibutuhkan oleh route
@@ -39,7 +39,7 @@ export class PermissionsGuard implements CanActivate {
     );
 
     if (!hasAllPermissions) {
-      throw new ForbiddenException('Insufficient permissions');
+      throw new ForbiddenException('Izin tidak memadai');
     }
 
     // Jika semua permissions yang dibutuhkan ada, izinkan akses
