@@ -10,41 +10,36 @@ import { getInitials } from "@/utils/initials";
  * 2. Utility classes `scrollbar-gutter-stable`, `prevent-shift` tersedia
  * 3. BaseLayout dan container utama sudah menggunakan classes tersebut
  */
-// frontend/src/components/settings/ProfileCard.jsx - Alternative version
+
 export const ProfileCard = ({ profile }) => {
   // Function untuk cek apakah value valid
   const isValidValue = (value) => {
-    return (
-      value &&
-      value !== null &&
-      value !== "N/A" &&
-      value !== "" &&
-      value !== undefined
-    );
+    return value && value !== null && value !== "N/A" && value !== "" && value !== undefined;
   };
 
   // Build array of profile fields yang akan ditampilkan
   const buildProfileFields = () => {
     const fields = [];
 
-    // Username (always show if valid)
-    if (isValidValue(profile.username)) {
-      fields.push({ label: "Username", value: profile.username });
+    // ID field logic berdasarkan requirement baru:
+    // 1. Jika NIM null → render NIP
+    // 2. Jika NIP null → render NIM
+    // 3. Jika keduanya null → berarti PETUGAS/ADMIN (tidak render ID field)
+    const hasNim = isValidValue(profile.nim);
+    const hasNip = isValidValue(profile.nip);
+
+    if (!hasNim && hasNip) {
+      // NIM null, render NIP
+      fields.push({ label: "NIP", value: profile.nip });
+    } else if (hasNim && !hasNip) {
+      // NIP null, render NIM
+      fields.push({ label: "NIM", value: profile.nim });
     }
+    // Jika keduanya null, tidak render ID field (PETUGAS/ADMIN tanpa ID)
 
     // Role (always show if valid)
     if (isValidValue(profile.role)) {
       fields.push({ label: "Role", value: profile.role });
-    }
-
-    // ID field based on role
-    if (profile.role === "USER" && isValidValue(profile.nim)) {
-      fields.push({ label: "NIM", value: profile.nim });
-    } else if (
-      (profile.role === "PETUGAS" || profile.role === "ADMIN") &&
-      isValidValue(profile.nip)
-    ) {
-      fields.push({ label: "NIP", value: profile.nip });
     }
 
     // Email
@@ -54,7 +49,7 @@ export const ProfileCard = ({ profile }) => {
 
     // Fakultas (mainly for students)
     if (isValidValue(profile.faculty)) {
-      fields.push({ label: "Fakultas", value: profile.faculty });
+      fields.push({ label: "Fakultas", value: `${profile.faculty} (${profile.facultyAbbreviation})` });
     }
 
     // Program Studi (mainly for students)
@@ -80,9 +75,7 @@ export const ProfileCard = ({ profile }) => {
 
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left w-full">
-            <h3 className="text-lg sm:text-xl font-semibold mb-2 md:mb-3">
-              {profile.name}
-            </h3>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2 md:mb-3">{profile.name}</h3>
 
             {profileFields.length > 0 ? (
               <div className="space-y-1 sm:space-y-2 text-sm sm:text-base text-gray-700">
@@ -91,21 +84,13 @@ export const ProfileCard = ({ profile }) => {
                     key={index}
                     className="flex flex-col sm:flex-row sm:items-center"
                   >
-                    <span className="font-medium sm:min-w-[120px]">
-                      {field.label}
-                    </span>
-                    <span
-                      className={`sm:ml-2 ${field.breakAll ? "break-all" : ""}`}
-                    >
-                      : {field.value}
-                    </span>
+                    <span className="font-medium sm:min-w-[120px]">{field.label}</span>
+                    <span className={`sm:ml-2 ${field.breakAll ? "break-all" : ""}`}>: {field.value}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">
-                No additional profile information available
-              </p>
+              <p className="text-sm text-gray-500">No additional profile information available</p>
             )}
           </div>
         </div>

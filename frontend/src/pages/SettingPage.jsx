@@ -1,32 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
-import {
-  ProfileCard,
-  EditProfileForm,
-  ChangePasswordForm,
-} from "@/components/settings";
-import { useAlert } from "@/components/AlertProvider";
+import { ProfileCard, EditProfileForm, ChangePasswordForm } from "@/components/settings";
 import { useProfile } from "@/hooks/api/useSettings";
-import {
-  useUpdateProfile,
-  useChangePassword,
-} from "@/hooks/mutations/useSettingsMutations";
+import { useUpdateProfile, useChangePassword } from "@/hooks/mutations/useSettingsMutations";
 import { SettingsSkeleton } from "@/components/loader/SettingsSkeleton";
+import { toast } from "react-toastify";
 
 export default function SettingsPage() {
-  const { showSuccess, showError } = useAlert();
-
   //  React Query hooks untuk data dan mutations
-  const {
-    data: profile,
-    isLoading: profileLoading,
-    error: profileError,
-  } = useProfile();
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile();
   const updateProfileMutation = useUpdateProfile();
   const changePasswordMutation = useChangePassword();
-
-  // UI Loading states
-  const [imageLoading, setImageLoading] = useState(false);
 
   //  Profile form state - akan di-sync dengan data backend
   const [profileFormData, setProfileFormData] = useState({
@@ -86,36 +70,27 @@ export default function SettingsPage() {
   const onSaveInfo = async (e) => {
     e.preventDefault();
 
-    try {
-      //  Build changes object - hanya kirim field yang berubah
-      const changes = {};
-      if (profileFormData.fullName !== (profile.fullName || "")) {
-        changes.fullName = profileFormData.fullName;
-      }
-      if (profileFormData.email !== (profile.email || "")) {
-        changes.email = profileFormData.email;
-      }
-      if (profileFormData.nim !== (profile.nim || "")) {
-        changes.nim = profileFormData.nim;
-      }
-      if (profileFormData.nip !== (profile.nip || "")) {
-        changes.nip = profileFormData.nip;
-      }
-
-      if (Object.keys(changes).length === 0) {
-        showError("Tidak ada perubahan yang terdeteksi!");
-        return;
-      }
-
-      //  Call backend update profile mutation
-      await updateProfileMutation.mutateAsync(changes);
-      showSuccess("Perubahan profil berhasil disimpan!");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Gagal menyimpan perubahan profil. Silakan coba lagi.";
-      showError(errorMessage);
+    //  Build changes object - hanya kirim field yang berubah
+    const changes = {};
+    if (profileFormData.fullName !== (profile.fullName || "")) {
+      changes.fullName = profileFormData.fullName;
     }
+    if (profileFormData.email !== (profile.email || "")) {
+      changes.email = profileFormData.email;
+    }
+    if (profileFormData.nim !== (profile.nim || "")) {
+      changes.nim = profileFormData.nim;
+    }
+    if (profileFormData.nip !== (profile.nip || "")) {
+      changes.nip = profileFormData.nip;
+    }
+
+    if (Object.keys(changes).length === 0) {
+      toast.error("Tidak ada perubahan yang terdeteksi!");
+      return;
+    }
+
+    updateProfileMutation.mutate(changes);
   };
 
   //  Handle password change dengan backend integration
@@ -124,78 +99,27 @@ export default function SettingsPage() {
 
     // Frontend validation
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
-      showError("Konfirmasi password tidak cocok!");
+      toast.error("Konfirmasi password tidak cocok!");
       return;
     }
 
     if (passwordFormData.newPassword.length < 8) {
-      showError("Password baru harus minimal 8 karakter!");
+      toast.error("Password baru harus minimal 8 karakter!");
       return;
     }
 
     if (!passwordFormData.currentPassword) {
-      showError("Password saat ini harus diisi!");
+      toast.error("Password saat ini harus diisi!");
       return;
     }
 
-    try {
-      //  Call backend change password mutation
-      await changePasswordMutation.mutateAsync({
-        currentPassword: passwordFormData.currentPassword,
-        newPassword: passwordFormData.newPassword,
-        confirmPassword: passwordFormData.confirmPassword,
-      });
+    changePasswordMutation.mutate({
+      currentPassword: passwordFormData.currentPassword,
+      newPassword: passwordFormData.newPassword,
+      confirmPassword: passwordFormData.confirmPassword,
+    });
 
-      resetPasswordForm();
-      showSuccess("Password berhasil diubah!");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Gagal mengubah password. Silakan coba lagi.";
-      showError(errorMessage);
-    }
-  };
-
-  //  Handle image upload (masih menggunakan mock karena belum ada backend endpoint)
-  const handleImageChange = async (file) => {
-    setImageLoading(true);
-
-    try {
-      // TODO: Implement actual image upload to backend
-      // const uploadUrl = await uploadToCloudStorage(file);
-
-      // For demo: create object URL for preview
-      const imageUrl = URL.createObjectURL(file);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // TODO: Update profile dengan image URL di backend
-      showSuccess("Foto profil berhasil diupload!");
-    } catch (error) {
-      showError("Gagal mengunggah foto profil. Silakan coba lagi.");
-    } finally {
-      setImageLoading(false);
-    }
-  };
-
-  //  Handle image removal (masih menggunakan mock)
-  const handleImageRemove = async () => {
-    setImageLoading(true);
-
-    try {
-      // TODO: Implement actual image deletion from backend
-      // await deleteFromCloudStorage(profile.profilePhoto);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      showSuccess("Foto profil berhasil dihapus!");
-    } catch (error) {
-      showError("Gagal menghapus foto profil. Silakan coba lagi.");
-    } finally {
-      setImageLoading(false);
-    }
+    resetPasswordForm();
   };
 
   //  Transform backend data untuk komponen UI
@@ -205,6 +129,7 @@ export default function SettingsPage() {
     nim: profile?.nim || "N/A",
     email: profile?.email || "N/A",
     faculty: profile?.faculty || "N/A",
+    facultyAbbreviation: profile?.facultyAbbreviation || "N/A",
     program: profile?.studyProgram || "N/A",
     profilePhoto: null, // TODO: Add profile photo from backend
     role: profile?.role || "N/A",
@@ -219,20 +144,6 @@ export default function SettingsPage() {
         {/*  Profile Card dengan data dari backend */}
         <div className="space-y-4">
           <ProfileCard profile={profileForUI} />
-
-          {/* <Card>
-            <CardContent className="p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-semibold mb-4">
-                Foto Profil
-              </h3>
-              <ProfileImageUpload
-                currentImage={profileForUI.profilePhoto}
-                onImageChange={handleImageChange}
-                onImageRemove={handleImageRemove}
-                loading={imageLoading}
-              />
-            </CardContent>
-          </Card> */}
         </div>
 
         <EditProfileForm
@@ -249,11 +160,7 @@ export default function SettingsPage() {
           onInputChange={handlePasswordInputChange}
           onSubmit={onChangePassword}
           loading={changePasswordMutation.isLoading}
-          lastUpdated={
-            profile?.lastUpdatePassword
-              ? new Date(profile.lastUpdatePassword).toLocaleDateString()
-              : "Belum pernah diubah"
-          }
+          lastUpdated={profile?.lastUpdatePassword ? new Date(profile.lastUpdatePassword).toLocaleDateString() : "Belum pernah diubah"}
         />
       </div>
     </>

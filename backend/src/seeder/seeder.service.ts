@@ -338,7 +338,7 @@ export class SeederService {
             role_id: studentRole.id,
             profile: {
               create: {
-                full_name: student.NAMA,
+                full_name: student.FORMATED_NAMA,
                 email: `${username}@student.uin-suka.ac.id`,
                 nim: username,
                 study_program_id: studyProgramId,
@@ -391,7 +391,7 @@ export class SeederService {
           profile: {
             create: {
               full_name: 'Bapak Petugas',
-              email: 'petugas01@kampus.ac.id',
+              email: 'petugas01@uin-suka.ac.id',
             },
           },
         },
@@ -435,7 +435,7 @@ export class SeederService {
           profile: {
             create: {
               full_name: 'Administrator',
-              email: 'admin@kampus.ac.id',
+              email: 'admin@uin-suka.ac.id',
             },
           },
         },

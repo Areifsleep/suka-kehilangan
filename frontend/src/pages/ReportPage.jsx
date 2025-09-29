@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  FiPlus,
-  FiUpload,
-  FiMapPin,
-  FiCalendar,
-  FiPhone,
-  FiMail,
-  FiFileText,
-  FiCheck,
-  FiAlertCircle,
-} from "react-icons/fi";
+import { FiPlus, FiUpload, FiCheck, FiAlertCircle } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
@@ -31,17 +21,7 @@ export default function ReportPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const categories = [
-    "Pilih Kategori",
-    "Elektronik",
-    "Tas & Dompet",
-    "Kunci",
-    "Pakaian",
-    "Perhiasan",
-    "Dokumen",
-    "Alat Tulis",
-    "Lainnya",
-  ];
+  const categories = ["Pilih Kategori", "Elektronik", "Tas & Dompet", "Kunci", "Pakaian", "Perhiasan", "Dokumen", "Alat Tulis", "Lainnya"];
 
   const locations = [
     "Pilih Lokasi",
@@ -96,12 +76,7 @@ export default function ReportPage() {
     e.preventDefault();
 
     // Basic validation
-    if (
-      !formData.itemName ||
-      !formData.category ||
-      !formData.location ||
-      !formData.lostDate
-    ) {
+    if (!formData.itemName || !formData.category || !formData.location || !formData.lostDate) {
       alert("Mohon lengkapi semua field yang wajib diisi");
       return;
     }
@@ -136,26 +111,18 @@ export default function ReportPage() {
   if (submitSuccess) {
     return (
       <div className="space-y-6">
-        <HeaderDashboard
-          title="Laporkan Kehilangan"
-          subtitle="Laporkan barang yang hilang untuk membantu proses pencarian"
-        />
+        <HeaderDashboard title="Laporkan Kehilangan" />
 
         <Card className="border-green-200 bg-green-50">
           <CardContent className="p-12 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FiCheck className="text-2xl text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-green-800 mb-2">
-              Laporan Berhasil Dikirim!
-            </h3>
+            <h3 className="text-xl font-semibold text-green-800 mb-2">Laporan Berhasil Dikirim!</h3>
             <p className="text-green-700 mb-6">
-              Terima kasih telah melaporkan kehilangan. Tim kami akan segera
-              memproses laporan Anda dan menghubungi jika ada perkembangan.
+              Terima kasih telah melaporkan kehilangan. Tim kami akan segera memproses laporan Anda dan menghubungi jika ada perkembangan.
             </p>
-            <p className="text-sm text-green-600">
-              Nomor Laporan: #LH{Date.now().toString().slice(-6)}
-            </p>
+            <p className="text-sm text-green-600">Nomor Laporan: #LH{Date.now().toString().slice(-6)}</p>
           </CardContent>
         </Card>
       </div>
@@ -169,13 +136,14 @@ export default function ReportPage() {
         subtitle="Laporkan barang yang hilang untuk membantu proses pencarian"
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+      >
         {/* Basic Information */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="font-semibold text-lg text-gray-900 mb-4">
-              Informasi Barang
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-900 mb-4">Informasi Barang</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -217,9 +185,7 @@ export default function ReportPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Deskripsi Detail
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Deskripsi Detail</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -236,9 +202,7 @@ export default function ReportPage() {
         {/* Location and Time */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="font-semibold text-lg text-gray-900 mb-4">
-              Lokasi dan Waktu Kehilangan
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-900 mb-4">Lokasi dan Waktu Kehilangan</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -279,9 +243,7 @@ export default function ReportPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Perkiraan Waktu
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Perkiraan Waktu</label>
                 <input
                   type="time"
                   name="lostTime"
@@ -292,9 +254,7 @@ export default function ReportPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Informasi Tambahan Lokasi
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Informasi Tambahan Lokasi</label>
                 <input
                   type="text"
                   name="additionalInfo"
@@ -311,15 +271,11 @@ export default function ReportPage() {
         {/* Contact Information */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="font-semibold text-lg text-gray-900 mb-4">
-              Informasi Kontak
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-900 mb-4">Informasi Kontak</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nama Lengkap
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
                 <input
                   type="text"
                   name="contactName"
@@ -331,9 +287,7 @@ export default function ReportPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nomor Telepon
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
                 <input
                   type="tel"
                   name="contactPhone"
@@ -345,9 +299,7 @@ export default function ReportPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   name="contactEmail"
@@ -364,19 +316,17 @@ export default function ReportPage() {
         {/* Photo Upload */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="font-semibold text-lg text-gray-900 mb-4">
-              Foto Barang (Opsional)
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Unggah foto barang untuk membantu proses identifikasi. Maksimal 3
-              foto.
-            </p>
+            <h3 className="font-semibold text-lg text-gray-900 mb-4">Foto Barang (Opsional)</h3>
+            <p className="text-sm text-gray-600 mb-4">Unggah foto barang untuk membantu proses identifikasi. Maksimal 3 foto.</p>
 
             <div className="space-y-4">
               {formData.images.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {formData.images.map((image) => (
-                    <div key={image.id} className="relative group">
+                    <div
+                      key={image.id}
+                      className="relative group"
+                    >
                       <img
                         src={image.preview}
                         alt={image.name}
@@ -399,8 +349,7 @@ export default function ReportPage() {
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <FiUpload className="text-2xl text-gray-400 mb-2" />
                     <p className="text-sm text-gray-600">
-                      <span className="font-medium">Klik untuk unggah</span>{" "}
-                      atau seret foto ke sini
+                      <span className="font-medium">Klik untuk unggah</span> atau seret foto ke sini
                     </p>
                     <p className="text-xs text-gray-500">PNG, JPG hingga 5MB</p>
                   </div>
@@ -425,17 +374,9 @@ export default function ReportPage() {
               <div>
                 <h4 className="font-medium text-yellow-800 mb-2">Penting!</h4>
                 <ul className="text-sm text-yellow-700 space-y-1">
-                  <li>
-                    • Pastikan informasi yang Anda berikan akurat dan lengkap
-                  </li>
-                  <li>
-                    • Kami akan menghubungi Anda jika ada perkembangan terkait
-                    laporan ini
-                  </li>
-                  <li>
-                    • Laporan palsu dapat dikenakan sanksi sesuai peraturan yang
-                    berlaku
-                  </li>
+                  <li>• Pastikan informasi yang Anda berikan akurat dan lengkap</li>
+                  <li>• Kami akan menghubungi Anda jika ada perkembangan terkait laporan ini</li>
+                  <li>• Laporan palsu dapat dikenakan sanksi sesuai peraturan yang berlaku</li>
                 </ul>
               </div>
             </div>

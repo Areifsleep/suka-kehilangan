@@ -28,8 +28,6 @@ import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 
 import SettingPage from "./pages/SettingPage.jsx";
 
-import { AlertProvider } from "./components/AlertProvider.jsx";
-
 function MainLayout() {
   return (
     <ProtectedRoute>
@@ -46,10 +44,8 @@ function RootLayout() {
   return (
     <>
       <AuthProvider>
-        <AlertProvider>
-          <ToastContainer />
-          <Outlet />
-        </AlertProvider>
+        <ToastContainer />
+        <Outlet />
       </AuthProvider>
     </>
   );
