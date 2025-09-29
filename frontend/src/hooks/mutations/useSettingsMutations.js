@@ -11,13 +11,13 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: (profileData) => api.put("/settings/profile", profileData),
     onSuccess: (response) => {
-      // ✅ Update specific user cache
+      // Update specific user cache
       queryClient.setQueryData(
         ["settings", "profile", user?.id],
         response.data.data
       );
 
-      // ✅ Invalidate related caches for current user
+      // Invalidate related caches for current user
       queryClient.invalidateQueries({
         queryKey: ["auth-session"],
       });
@@ -40,7 +40,7 @@ export const useChangePassword = () => {
     mutationFn: (passwordData) =>
       api.put("/settings/change-password", passwordData),
     onSuccess: () => {
-      // ✅ Optionally invalidate user session after password change
+      // Optionally invalidate user session after password change
       queryClient.invalidateQueries({
         queryKey: ["auth-session"],
       });

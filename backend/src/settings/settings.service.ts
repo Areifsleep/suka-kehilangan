@@ -14,7 +14,7 @@ import { UpdateProfileDto, ChangePasswordDto } from './dto/settings.dto';
 export class SettingsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ✅ Get user profile - Based on your schema
+  //  Get user profile - Based on your schema
   async getProfile(userId: string) {
     if (!userId || userId.trim() === '') {
       throw new BadRequestException('User ID is required');
@@ -28,7 +28,7 @@ export class SettingsService {
         last_update_password: true,
         created_at: true,
         updated_at: true,
-        // ✅ Include UserProfile relation
+        //  Include UserProfile relation
         profile: {
           select: {
             email: true,
@@ -55,7 +55,7 @@ export class SettingsService {
             },
           },
         },
-        // ✅ Include Role relation
+        //  Include Role relation
         role: {
           select: {
             id: true,
@@ -100,7 +100,7 @@ export class SettingsService {
     };
   }
 
-  // ✅ Update profile - Based on your schema structure
+  //  Update profile - Based on your schema structure
   async updateProfile(userId: string, updateProfileDto: UpdateProfileDto) {
     const { fullName, email, nim, nip, studyProgramId } = updateProfileDto;
 
@@ -134,7 +134,7 @@ export class SettingsService {
       throw new NotFoundException('User not found');
     }
 
-    // ✅ Check email uniqueness (if email is being updated)
+    //  Check email uniqueness (if email is being updated)
     if (email && email !== existingUser.profile?.email) {
       const emailExists = await this.prisma.userProfile.findFirst({
         where: {
@@ -148,7 +148,7 @@ export class SettingsService {
       }
     }
 
-    // ✅ Check NIM uniqueness (if NIM is being updated)
+    //  Check NIM uniqueness (if NIM is being updated)
     if (nim && nim !== existingUser.profile?.nim) {
       const nimExists = await this.prisma.userProfile.findFirst({
         where: {
@@ -162,7 +162,7 @@ export class SettingsService {
       }
     }
 
-    // ✅ Check NIP uniqueness (if NIP is being updated)
+    //  Check NIP uniqueness (if NIP is being updated)
     if (nip && nip !== existingUser.profile?.nip) {
       const nipExists = await this.prisma.userProfile.findFirst({
         where: {
@@ -176,7 +176,7 @@ export class SettingsService {
       }
     }
 
-    // ✅ Validate study program exists (if provided)
+    //  Validate study program exists (if provided)
     if (studyProgramId) {
       const studyProgramExists = await this.prisma.studyProgram.findUnique({
         where: { id: studyProgramId },
@@ -196,7 +196,7 @@ export class SettingsService {
     if (studyProgramId !== undefined)
       updateData.study_program_id = studyProgramId;
 
-    // ✅ Update or create user profile
+    //  Update or create user profile
     const updatedProfile = await this.prisma.userProfile.upsert({
       where: { user_id: userId },
       update: updateData,
@@ -251,7 +251,7 @@ export class SettingsService {
     };
   }
 
-  // ✅ Change password - Based on your schema
+  //  Change password - Based on your schema
   async changePassword(userId: string, changePasswordDto: ChangePasswordDto) {
     const { currentPassword, newPassword, confirmPassword } = changePasswordDto;
 
@@ -304,7 +304,7 @@ export class SettingsService {
     // Hash new password
     const hashedNewPassword = await argon2.hash(newPassword);
 
-    // ✅ Update password and last_update_password timestamp
+    //  Update password and last_update_password timestamp
     await this.prisma.user.update({
       where: { id: userId },
       data: {
