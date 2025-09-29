@@ -18,14 +18,14 @@ import { UpdateProfileDto, ChangePasswordDto } from './dto/settings.dto';
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
-  // ✅ GET /api/v1/settings/profile
+  //  GET /api/v1/settings/profile
   @Get('profile')
   async getProfile(@Request() req) {
     const userId = req.user.id;
     return this.settingsService.getProfile(userId);
   }
 
-  // ✅ PUT /api/v1/settings/profile
+  //  PUT /api/v1/settings/profile
   @Put('profile')
   @HttpCode(HttpStatus.OK)
   async updateProfile(
@@ -36,7 +36,7 @@ export class SettingsController {
     return this.settingsService.updateProfile(userId, updateProfileDto);
   }
 
-  // ✅ PUT /api/v1/settings/change-password
+  //  PUT /api/v1/settings/change-password
   @Put('change-password')
   @HttpCode(HttpStatus.OK)
   async changePassword(
