@@ -23,6 +23,7 @@ import UserLostItemsList from "./pages/UserLostItemsList.jsx";
 import UserLostItemDetail from "./pages/UserLostItemDetail.jsx";
 import UserReportLostItem from "./pages/UserReportLostItem.jsx";
 import UserMyReports from "./pages/UserMyReports.jsx";
+import AuditReportsPage from "./pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
@@ -128,6 +129,10 @@ const router = createBrowserRouter([
               {
                 path: "manage-officers",
                 element: <ManagementPetugas />,
+              },
+              {
+                path: "audit-reports",
+                element: <AuditReportsPage />,
               },
             ],
           },

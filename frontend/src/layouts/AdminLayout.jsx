@@ -6,7 +6,7 @@ export const AdminLayout = () => {
     { key: "/admin", label: "Dashboard", icon: FiHome },
     { key: "/admin/manage-users", label: "Manajemen User", icon: FiUsers },
     { key: "/admin/manage-officers", label: "Manajemen Petugas", icon: FiUserCheck },
-    { key: "/admin/reports", label: "Laporan", icon: FiFileText },
+    { key: "/admin/audit-reports", label: "Audit", icon: FiFileText },
   ];
 
   return <BaseLayout menu={menu} />;
