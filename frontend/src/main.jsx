@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
 
 import "./styles/global.css";
+import "react-toastify/dist/ReactToastify.css";
 import LoginPage from "./pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
