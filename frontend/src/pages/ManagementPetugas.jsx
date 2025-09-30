@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Pagination,
-  CreateUserModal,
+  CreatePetugasModal,
   EditUserModal,
   DeleteUserModal,
   ResetPasswordModal,
@@ -24,6 +24,7 @@ import {
   useUpdateUser,
   useDeleteUser,
   useResetPassword,
+  useRoles,
 } from "@/hooks/api/management";
 
 export default function ManagementPetugas() {
@@ -63,6 +64,8 @@ export default function ManagementPetugas() {
     lokasiPos: lokasiPosFilter || undefined,
   });
 
+  const { data: roles } = useRoles();
+
   // API Mutations
   const createUserMutation = useCreateUser();
   const updateUserMutation = useUpdateUser();
@@ -92,11 +95,21 @@ export default function ManagementPetugas() {
   // Submit handlers
   const handleCreateSubmit = async (userData) => {
     try {
-      // Force role to petugas (will be handled by backend)
-      await createUserMutation.mutateAsync({
+      // Automatically assign PETUGAS role
+      const petugasRole = roles?.find(
+        (role) => role.name.toLowerCase() === "petugas"
+      );
+      if (!petugasRole) {
+        toast.error("Role PETUGAS tidak ditemukan");
+        return;
+      }
+
+      const petugasDataWithRole = {
         ...userData,
-        // Note: roleId will be set in the modal based on role selection
-      });
+        roleId: petugasRole.id,
+      };
+
+      await createUserMutation.mutateAsync(petugasDataWithRole);
       toast.success("Petugas berhasil dibuat");
       setCreateModalOpen(false);
     } catch (error) {
@@ -342,7 +355,7 @@ export default function ManagementPetugas() {
       </Card>
 
       {/* Create Petugas Modal */}
-      <CreateUserModal
+      <CreatePetugasModal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}

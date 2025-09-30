@@ -1,14 +1,14 @@
 // frontend/src/components/management/Pagination.jsx
-import React from 'react';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import React from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-export const Pagination = ({ 
-  currentPage, 
-  totalPages, 
-  hasNext, 
-  hasPrev, 
+export const Pagination = ({
+  currentPage,
+  totalPages,
+  hasNext,
+  hasPrev,
   onPageChange,
-  className = '' 
+  className = "",
 }) => {
   // Generate page numbers to show
   const getPageNumbers = () => {
@@ -16,14 +16,16 @@ export const Pagination = ({
     const range = [];
     const rangeWithDots = [];
 
-    for (let i = Math.max(2, currentPage - delta); 
-         i <= Math.min(totalPages - 1, currentPage + delta); 
-         i++) {
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
       range.push(i);
     }
 
     if (currentPage - delta > 2) {
-      rangeWithDots.push(1, '...');
+      rangeWithDots.push(1, "...");
     } else {
       rangeWithDots.push(1);
     }
@@ -31,7 +33,7 @@ export const Pagination = ({
     rangeWithDots.push(...range);
 
     if (currentPage + delta < totalPages - 1) {
-      rangeWithDots.push('...', totalPages);
+      rangeWithDots.push("...", totalPages);
     } else {
       rangeWithDots.push(totalPages);
     }
@@ -50,11 +52,8 @@ export const Pagination = ({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={!hasPrev}
         className={`
-          flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700
-          ${!hasPrev 
-            ? 'cursor-not-allowed opacity-50' 
-            : 'cursor-pointer'
-          }
+          flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-green-50 hover:text-green-700
+          ${!hasPrev ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
         `}
       >
         <FiChevronLeft className="w-4 h-4 mr-1" />
@@ -64,7 +63,7 @@ export const Pagination = ({
       {/* Page Numbers */}
       <div className="flex space-x-1">
         {pageNumbers.map((pageNumber, index) => {
-          if (pageNumber === '...') {
+          if (pageNumber === "...") {
             return (
               <span key={`dots-${index}`} className="px-3 py-2 text-gray-500">
                 ...
@@ -78,9 +77,10 @@ export const Pagination = ({
               onClick={() => onPageChange(pageNumber)}
               className={`
                 px-3 py-2 text-sm font-medium rounded-md
-                ${pageNumber === currentPage
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-900'
+                ${
+                  pageNumber === currentPage
+                    ? "bg-green-600 text-white border-green-600"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-green-50 hover:text-green-900"
                 }
               `}
             >
@@ -95,11 +95,8 @@ export const Pagination = ({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={!hasNext}
         className={`
-          flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700
-          ${!hasNext 
-            ? 'cursor-not-allowed opacity-50' 
-            : 'cursor-pointer'
-          }
+          flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-green-50 hover:text-green-700
+          ${!hasNext ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
         `}
       >
         Next
