@@ -3,6 +3,8 @@
 import http from "k6/http";
 import { sleep } from "k6";
 
+const ENDPOINT = "https://suka-kehilangan-demo.masako.my.id";
+
 export let options = {
   stages: [
     { duration: "1m", target: 10 }, // ramp up
@@ -12,6 +14,6 @@ export let options = {
 };
 
 export default function () {
-  http.get("https://suka-kehilangan-demo.masako.my.id", { responseType: "none" });
+  http.get(ENDPOINT, { responseType: "none" });
   sleep(1);
 }

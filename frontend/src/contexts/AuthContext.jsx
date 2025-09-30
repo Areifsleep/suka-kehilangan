@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     queryKey: ["auth-session"],
     queryFn: async () => {
       const response = await api.get("/auth/session");
-      return response.data.data;
+      return response.data?.data ?? null;
     },
 
     // Logika pemilahan error dipindahkan ke sini
@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }) => {
 
     retry: false,
     refetchOnWindowFocus: false,
+    initialData: null,
   });
 
   // Logout mutation
