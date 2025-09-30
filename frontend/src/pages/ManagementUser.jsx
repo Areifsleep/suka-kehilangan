@@ -12,11 +12,12 @@ import {
 } from "@/components/management";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
 import {
-  useUsers,
+  useRegularUsers,
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
   useResetPassword,
+  useRoles,
 } from "@/hooks/api/management";
 
 export default function ManagementUser() {
@@ -48,11 +49,13 @@ export default function ManagementUser() {
     isLoading,
     error,
     refetch,
-  } = useUsers({
+  } = useRegularUsers({
     page,
     limit: 20,
     search: searchTerm,
   });
+
+  const { data: roles } = useRoles();
 
   // API Mutations
   const createUserMutation = useCreateUser();
@@ -83,7 +86,21 @@ export default function ManagementUser() {
   // Submit handlers
   const handleCreateSubmit = async (userData) => {
     try {
-      await createUserMutation.mutateAsync(userData);
+      // Automatically assign USER role
+      const userRole = roles?.find(
+        (role) => role.name.toLowerCase() === "user"
+      );
+      if (!userRole) {
+        toast.error("Role USER tidak ditemukan");
+        return;
+      }
+
+      const userDataWithRole = {
+        ...userData,
+        roleId: userRole.id,
+      };
+
+      await createUserMutation.mutateAsync(userDataWithRole);
       toast.success("User berhasil dibuat");
       setCreateModalOpen(false);
     } catch (error) {

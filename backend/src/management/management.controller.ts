@@ -114,48 +114,20 @@ export class ManagementController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getPetugas(@Query() paginationDto: PaginationDto, @Request() req) {
     const requestingUserId = req.user.id;
-
-    // Get petugas role ID first
-    const roles = await this.managementService.getRoles(requestingUserId);
-    const petugasRole = roles.find(
-      (role) => role.name.toLowerCase() === 'petugas',
+    return this.managementService.getPetugasUsers(
+      paginationDto,
+      requestingUserId,
     );
-
-    if (!petugasRole) {
-      throw new BadRequestException('Role petugas tidak ditemukan');
-    }
-
-    // Add roleId filter for petugas
-    const petugasFilter = {
-      ...paginationDto,
-      roleId: petugasRole.id,
-    };
-
-    return this.managementService.getUsers(petugasFilter, requestingUserId);
   }
 
-  // GET /api/v1/management/mahasiswa
-  @Get('mahasiswa')
+  // GET /api/v1/management/regular-users
+  @Get('regular-users')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async getMahasiswa(@Query() paginationDto: PaginationDto, @Request() req) {
+  async getRegularUsers(@Query() paginationDto: PaginationDto, @Request() req) {
     const requestingUserId = req.user.id;
-
-    // Get mahasiswa role ID first
-    const roles = await this.managementService.getRoles(requestingUserId);
-    const mahasiswaRole = roles.find(
-      (role) => role.name.toLowerCase() === 'mahasiswa',
+    return this.managementService.getRegularUsers(
+      paginationDto,
+      requestingUserId,
     );
-
-    if (!mahasiswaRole) {
-      throw new BadRequestException('Role mahasiswa tidak ditemukan');
-    }
-
-    // Add roleId filter for mahasiswa
-    const mahasiswaFilter = {
-      ...paginationDto,
-      roleId: mahasiswaRole.id,
-    };
-
-    return this.managementService.getUsers(mahasiswaFilter, requestingUserId);
   }
 }

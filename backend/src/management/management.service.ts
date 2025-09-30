@@ -123,6 +123,214 @@ export class ManagementService {
     };
   }
 
+  // Get regular users (exclude admin and petugas)
+  async getRegularUsers(params: PaginationDto, requestingUserId: string) {
+    await this.validateAdminAccess(requestingUserId);
+
+    const { page = 1, limit = 20, search } = params;
+    const skip = (page - 1) * limit;
+
+    // Get USER role ID
+    const userRole = await this.prisma.role.findFirst({
+      where: { name: 'USER' },
+    });
+
+    if (!userRole) {
+      return {
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      };
+    }
+
+    // Build where conditions
+    const where: any = {
+      role_id: userRole.id,
+    };
+
+    if (search) {
+      where.OR = [
+        { username: { contains: search } },
+        {
+          profile: {
+            OR: [
+              { full_name: { contains: search } },
+              { email: { contains: search } },
+              { nim: { contains: search } },
+            ],
+          },
+        },
+      ];
+    }
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          username: true,
+          role_id: true,
+          created_at: true,
+          updated_at: true,
+          profile: {
+            select: {
+              email: true,
+              full_name: true,
+              nim: true,
+              study_program_id: true,
+              study_program: {
+                select: {
+                  id: true,
+                  name: true,
+                  code: true,
+                  level: true,
+                  faculty: {
+                    select: {
+                      id: true,
+                      name: true,
+                      abbreviation: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          role: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  // Get petugas users only
+  async getPetugasUsers(params: PaginationDto, requestingUserId: string) {
+    await this.validateAdminAccess(requestingUserId);
+
+    const { page = 1, limit = 20, search, lokasiPos } = params;
+    const skip = (page - 1) * limit;
+
+    // Get PETUGAS role ID
+    const petugasRole = await this.prisma.role.findFirst({
+      where: { name: 'PETUGAS' },
+    });
+
+    if (!petugasRole) {
+      return {
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
+        },
+      };
+    }
+
+    // Build where conditions
+    const where: any = {
+      role_id: petugasRole.id,
+    };
+
+    if (search) {
+      where.OR = [
+        { username: { contains: search } },
+        {
+          profile: {
+            OR: [
+              { full_name: { contains: search } },
+              { email: { contains: search } },
+            ],
+          },
+        },
+      ];
+    }
+
+    if (lokasiPos) {
+      where.profile = {
+        ...where.profile,
+        lokasi_pos: lokasiPos,
+      };
+    }
+
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          username: true,
+          role_id: true,
+          created_at: true,
+          updated_at: true,
+          profile: {
+            select: {
+              email: true,
+              full_name: true,
+              lokasi_pos: true,
+            },
+          },
+          role: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   // Get user by ID
   async getUserById(userId: string, requestingUserId: string) {
     await this.validateAdminAccess(requestingUserId);

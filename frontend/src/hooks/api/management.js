@@ -5,6 +5,7 @@ import { api } from "@/lib/axios";
 // Query Keys
 const QUERY_KEYS = {
   users: "management-users",
+  regularUsers: "management-regular-users",
   user: (id) => ["management-user", id],
   roles: "management-roles",
   studyPrograms: "management-study-programs",
@@ -66,6 +67,19 @@ const managementApi = {
     return response.data;
   },
 
+  getRegularUsers: async (params) => {
+    const searchParams = new URLSearchParams();
+
+    if (params.page) searchParams.append("page", params.page);
+    if (params.limit) searchParams.append("limit", params.limit);
+    if (params.search) searchParams.append("search", params.search);
+
+    const response = await api.get(
+      `/management/regular-users?${searchParams.toString()}`
+    );
+    return response.data;
+  },
+
   getPetugas: async (params) => {
     const searchParams = new URLSearchParams();
 
@@ -99,6 +113,14 @@ export const useUsers = (params = {}) => {
   return useQuery({
     queryKey: [QUERY_KEYS.users, params],
     queryFn: () => managementApi.getUsers(params),
+    keepPreviousData: true,
+  });
+};
+
+export const useRegularUsers = (params = {}) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.regularUsers, params],
+    queryFn: () => managementApi.getRegularUsers(params),
     keepPreviousData: true,
   });
 };
@@ -151,6 +173,7 @@ export const useCreateUser = () => {
     mutationFn: managementApi.createUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.users] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.regularUsers] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.petugas] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.mahasiswa] });
     },
@@ -164,6 +187,7 @@ export const useUpdateUser = () => {
     mutationFn: managementApi.updateUser,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.users] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.regularUsers] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.petugas] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.mahasiswa] });
       queryClient.invalidateQueries({
@@ -180,6 +204,7 @@ export const useDeleteUser = () => {
     mutationFn: managementApi.deleteUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.users] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.regularUsers] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.petugas] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.mahasiswa] });
     },

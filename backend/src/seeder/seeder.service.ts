@@ -1,5 +1,6 @@
 import * as argon2 from 'argon2';
 import { Injectable, Logger } from '@nestjs/common';
+import { LokasiPos } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import dataFakultas from '../../process_data/fakultas.json';
@@ -375,31 +376,51 @@ export class SeederService {
         return;
       }
 
-      const officerExists = await this.prismaService.user.findUnique({
-        where: { username: 'petugas01' },
-      });
-
-      if (officerExists) {
-        this.logger.log('User "petugas01" sudah ada, seeding dilewati.');
-        return;
-      }
-
-      const hashedPassword = await argon2.hash(GENERIC_PASSWORD);
-
-      await this.prismaService.user.create({
-        data: {
-          username: 'petugas01',
-          password: hashedPassword,
-          role_id: officerRole.id,
-          profile: {
-            create: {
-              full_name: 'Bapak Petugas',
-              email: 'petugas01@uin-suka.ac.id',
-            },
+      // Check if any petugas already exists
+      const existingOfficer = await this.prismaService.user.findFirst({
+        where: {
+          username: {
+            startsWith: 'petugas',
           },
         },
       });
-      this.logger.log('Berhasil membuat user "petugas01".');
+
+      if (existingOfficer) {
+        this.logger.log('User petugas sudah ada, seeding dilewati.');
+        return;
+      }
+
+      const hashedPassword = await argon2.hash('12345678');
+      const lokasiOptions: LokasiPos[] = [
+        LokasiPos.POS_BARAT,
+        LokasiPos.POS_TIMUR,
+      ];
+
+      // Create 21 petugas users
+      for (let i = 1; i <= 21; i++) {
+        const username = `petugas${i.toString().padStart(2, '0')}`;
+        const lokasiPos =
+          lokasiOptions[Math.floor(Math.random() * lokasiOptions.length)];
+
+        await this.prismaService.user.create({
+          data: {
+            username,
+            password: hashedPassword,
+            role_id: officerRole.id,
+            profile: {
+              create: {
+                full_name: `Petugas ${i.toString().padStart(2, '0')}`,
+                email: `${username}@uin-suka.ac.id`,
+                lokasi_pos: lokasiPos,
+              },
+            },
+          },
+        });
+
+        this.logger.log(
+          `Berhasil membuat user "${username}" dengan lokasi pos ${lokasiPos}.`,
+        );
+      }
     } catch (error) {
       this.logger.error('Gagal melakukan seeding user petugas.', error.stack);
     }
