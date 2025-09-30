@@ -1,271 +1,152 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { FiPlus, FiSearch, FiEdit2, FiTrash2 } from "react-icons/fi";
+import React, { useState } from "react";
+import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiKey } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { AddUserModal, EditUserModal, DeleteUserModal, Pagination } from "@/components/user-management";
+import {
+  Pagination,
+  CreateUserModal,
+  EditUserModal,
+  DeleteUserModal,
+  ResetPasswordModal,
+} from "@/components/management";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
+import {
+  useUsers,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  useResetPassword,
+} from "@/hooks/api/management";
 
 export default function ManagementUser() {
-  // data state
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-
-  // pagination
+  // State for filters and pagination
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
+  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Debounced search
 
-  // dialog state
-  const [addModalOpen, setAddModalOpen] = useState(false);
+  // Modal states
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const [deletingUser, setDeletingUser] = useState(null);
+  const [resetPasswordModalOpen, setResetPasswordModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  // dummy data fakultas dan prodi
-  const faculties = ["FST", "FISIP", "FEB"];
-  const programs = ["Informatika", "Sistem Informasi", "Teknik Komputer"];
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(search);
+      setPage(1); // Reset to first page when searching
+    }, 500);
 
-  // dummy data
-  useEffect(() => {
-    const dummyUsers = [
-      {
-        id: 1,
-        name: "Ahmad Rizki",
-        username: "ahmad.rizki",
-        email: "ahmad.rizki@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Informatika",
-      },
-      {
-        id: 2,
-        name: "Siti Aminah",
-        username: "siti.aminah",
-        email: "siti.aminah@student.uin-suka.ac.id",
-        faculty: "FISIP",
-        program: "Sistem Informasi",
-      },
-      {
-        id: 3,
-        name: "Muhammad Fauzan",
-        username: "muhammad.fauzan",
-        email: "muhammad.fauzan@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Teknik Komputer",
-      },
-      {
-        id: 4,
-        name: "Nur Hidayah",
-        username: "nur.hidayah",
-        email: "nur.hidayah@student.uin-suka.ac.id",
-        faculty: "FEB",
-        program: "Informatika",
-      },
-      {
-        id: 5,
-        name: "Abdul Rahman",
-        username: "abdul.rahman",
-        email: "abdul.rahman@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Sistem Informasi",
-      },
-      {
-        id: 6,
-        name: "Fatimah Zahra",
-        username: "fatimah.zahra",
-        email: "fatimah.zahra@student.uin-suka.ac.id",
-        faculty: "FISIP",
-        program: "Teknik Komputer",
-      },
-      {
-        id: 7,
-        name: "Yusuf Hakim",
-        username: "yusuf.hakim",
-        email: "yusuf.hakim@student.uin-suka.ac.id",
-        faculty: "FEB",
-        program: "Informatika",
-      },
-      {
-        id: 8,
-        name: "Khadijah Amara",
-        username: "khadijah.amara",
-        email: "khadijah.amara@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Sistem Informasi",
-      },
-      {
-        id: 9,
-        name: "Ibrahim Malik",
-        username: "ibrahim.malik",
-        email: "ibrahim.malik@student.uin-suka.ac.id",
-        faculty: "FISIP",
-        program: "Teknik Komputer",
-      },
-      {
-        id: 10,
-        name: "Maryam Salsabila",
-        username: "maryam.salsabila",
-        email: "maryam.salsabila@student.uin-suka.ac.id",
-        faculty: "FEB",
-        program: "Informatika",
-      },
-      {
-        id: 11,
-        name: "Omar Faruk",
-        username: "omar.faruk",
-        email: "omar.faruk@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Sistem Informasi",
-      },
-      {
-        id: 12,
-        name: "Aisha Putri",
-        username: "aisha.putri",
-        email: "aisha.putri@student.uin-suka.ac.id",
-        faculty: "FISIP",
-        program: "Teknik Komputer",
-      },
-      {
-        id: 13,
-        name: "Hamza Yusuf",
-        username: "hamza.yusuf",
-        email: "hamza.yusuf@student.uin-suka.ac.id",
-        faculty: "FEB",
-        program: "Informatika",
-      },
-      {
-        id: 14,
-        name: "Zainab Faris",
-        username: "zainab.faris",
-        email: "zainab.faris@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Sistem Informasi",
-      },
-      {
-        id: 15,
-        name: "Khalid Hassan",
-        username: "khalid.hassan",
-        email: "khalid.hassan@student.uin-suka.ac.id",
-        faculty: "FISIP",
-        program: "Teknik Komputer",
-      },
-      {
-        id: 16,
-        name: "Layla Nabila",
-        username: "layla.nabila",
-        email: "layla.nabila@student.uin-suka.ac.id",
-        faculty: "FEB",
-        program: "Informatika",
-      },
-      {
-        id: 17,
-        name: "Saad Qureshi",
-        username: "saad.qureshi",
-        email: "saad.qureshi@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Sistem Informasi",
-      },
-      {
-        id: 18,
-        name: "Hafsa Malik",
-        username: "hafsa.malik",
-        email: "hafsa.malik@student.uin-suka.ac.id",
-        faculty: "FISIP",
-        program: "Teknik Komputer",
-      },
-      {
-        id: 19,
-        name: "Tariq Aziz",
-        username: "tariq.aziz",
-        email: "tariq.aziz@student.uin-suka.ac.id",
-        faculty: "FEB",
-        program: "Informatika",
-      },
-      {
-        id: 20,
-        name: "Safiya Rahman",
-        username: "safiya.rahman",
-        email: "safiya.rahman@student.uin-suka.ac.id",
-        faculty: "FST",
-        program: "Sistem Informasi",
-      },
-    ];
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    setUsers(dummyUsers);
-  }, []);
+  // API Queries
+  const {
+    data: usersData,
+    isLoading,
+    error,
+    refetch,
+  } = useUsers({
+    page,
+    limit: 20,
+    search: searchTerm,
+  });
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return users;
-    return users.filter((u) => (u.name + u.email + u.username + u.faculty + u.program).toLowerCase().includes(q));
-  }, [users, search]);
-
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [totalPages, page]);
-
-  const current = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
-  }, [filtered, page, pageSize]);
+  // API Mutations
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
+  const resetPasswordMutation = useResetPassword();
 
   // Modal handlers
-  const handleAddUser = () => {
-    setAddModalOpen(true);
+  const handleCreateUser = () => {
+    setCreateModalOpen(true);
   };
 
   const handleEditUser = (user) => {
-    setEditingUser(user);
+    setSelectedUser(user);
     setEditModalOpen(true);
   };
 
   const handleDeleteUser = (user) => {
-    setDeletingUser(user);
+    setSelectedUser(user);
     setDeleteModalOpen(true);
   };
 
-  const handleAddSubmit = (data) => {
-    const newUser = {
-      id: users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1,
-      name: data.name,
-      username: data.username,
-      email: data.email,
-      faculty: data.faculty,
-      program: data.program,
-    };
-    setUsers((prev) => [newUser, ...prev]);
-    setAddModalOpen(false);
+  const handleResetPassword = (user) => {
+    setSelectedUser(user);
+    setResetPasswordModalOpen(true);
   };
 
-  const handleEditSubmit = (data) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === editingUser.id
-          ? {
-              ...u,
-              name: data.name,
-              username: data.username,
-              email: data.email,
-              faculty: data.faculty,
-              program: data.program,
-            }
-          : u
-      )
-    );
-    setEditModalOpen(false);
-    setEditingUser(null);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (deletingUser) {
-      setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
-      setDeletingUser(null);
-      setDeleteModalOpen(false);
+  // Submit handlers
+  const handleCreateSubmit = async (userData) => {
+    try {
+      await createUserMutation.mutateAsync(userData);
+      toast.success("User berhasil dibuat");
+      setCreateModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal membuat user");
     }
   };
+
+  const handleEditSubmit = async (userData) => {
+    try {
+      await updateUserMutation.mutateAsync(userData);
+      toast.success("User berhasil diupdate");
+      setEditModalOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal mengupdate user");
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteUserMutation.mutateAsync(selectedUser.id);
+      toast.success("User berhasil dihapus");
+      setDeleteModalOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal menghapus user");
+    }
+  };
+
+  const handleResetPasswordSubmit = async (passwordData) => {
+    try {
+      await resetPasswordMutation.mutateAsync(passwordData);
+      toast.success("Password berhasil direset");
+      setResetPasswordModalOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal mereset password");
+    }
+  };
+
+  // Handle API error
+  if (error) {
+    return (
+      <>
+        <HeaderDashboard title="Manajemen User" />
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <p className="text-red-600 mb-4">
+                Error: {error.response?.data?.message || error.message}
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Coba Lagi
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>
@@ -276,8 +157,8 @@ export default function ManagementUser() {
             <div className="flex items-center gap-3">
               <h3 className="text-lg font-medium">Daftar User</h3>
               <button
-                onClick={handleAddUser}
-                className="inline-flex items-center gap-2 border rounded px-2 py-1 text-sm hover:bg-green-100"
+                onClick={handleCreateUser}
+                className="inline-flex items-center gap-2 border rounded px-2 py-1 text-sm hover:bg-gray-50"
               >
                 <FiPlus />
               </button>
@@ -286,13 +167,10 @@ export default function ManagementUser() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <input
-                  placeholder="Search..."
+                  placeholder="Cari user..."
                   value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pl-10 pr-4 py-2 rounded-md shadow-sm border w-64 focus:outline-none"
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-md shadow-sm border w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
@@ -300,60 +178,126 @@ export default function ManagementUser() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="text-sm text-gray-600">
-                  <th className="p-3">Nama</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Username</th>
-                  <th className="p-3">Fakultas</th>
-                  <th className="p-3">Program Studi</th>
-                  <th className="p-3">Aksi</th>
+                <tr className="bg-gray-50">
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Nama
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Email
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Username
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Role
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Program Studi
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {loading ? (
+              <tbody className="bg-white divide-y divide-gray-200">
+                {isLoading ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="p-6 text-center"
-                    >
-                      Loading...
+                    <td colSpan={6} className="p-6 text-center">
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Memuat data...</span>
+                      </div>
                     </td>
                   </tr>
-                ) : current.length === 0 ? (
+                ) : !usersData?.data?.length ? (
                   <tr>
-                    <td
-                      colSpan={6}
-                      className="p-6 text-center"
-                    >
-                      No users found
+                    <td colSpan={6} className="p-6 text-center text-gray-500">
+                      {searchTerm
+                        ? "Tidak ada user yang ditemukan"
+                        : "Belum ada data user"}
                     </td>
                   </tr>
                 ) : (
-                  current.map((u) => (
-                    <tr
-                      key={u.id}
-                      className="align-top"
-                    >
-                      <td className="p-3">{u.name}</td>
-                      <td className="p-3">{u.email}</td>
-                      <td className="p-3">{u.username}</td>
-                      <td className="p-3">{u.faculty}</td>
-                      <td className="p-3">{u.program}</td>
-                      <td className="p-3 text-right">
-                        <div className="inline-flex items-center gap-2">
+                  usersData.data.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="p-3 max-w-xs">
+                        <div
+                          className="font-medium text-gray-900 truncate"
+                          title={user.profile?.full_name}
+                        >
+                          {user.profile?.full_name &&
+                          user.profile.full_name.length > 20
+                            ? `${user.profile.full_name.substring(0, 20)}...`
+                            : user.profile?.full_name}
+                        </div>
+                        {user.profile?.nim && (
+                          <div className="text-sm text-gray-500">
+                            NIM: {user.profile.nim}
+                          </div>
+                        )}
+                        {user.profile?.nip && (
+                          <div className="text-sm text-gray-500">
+                            NIP: {user.profile.nip}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-3 text-sm text-gray-900">
+                        {user.profile?.email}
+                      </td>
+                      <td className="p-3 text-sm text-gray-900">
+                        {user.username}
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role?.name === "admin"
+                              ? "bg-red-100 text-red-800"
+                              : user.role?.name === "petugas"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {user.role?.name}
+                        </span>
+                      </td>
+                      <td className="p-3 text-sm text-gray-900">
+                        {user.profile?.study_program ? (
+                          <div>
+                            <div className="font-medium">
+                              {user.profile.study_program.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {user.profile.study_program.faculty?.abbreviation}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleEditUser(u)}
-                            className="p-2 rounded-md hover:bg-gray-100"
+                            onClick={() => handleEditUser(user)}
+                            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md"
+                            title="Edit user"
                           >
-                            <FiEdit2 />
+                            <FiEdit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeleteUser(u)}
-                            className="p-2 rounded-md hover:bg-red-100 text-red-600"
+                            onClick={() => handleResetPassword(user)}
+                            className="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100 rounded-md"
+                            title="Reset password"
                           >
-                            <FiTrash2 />
+                            <FiKey className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md"
+                            title="Hapus user"
+                          >
+                            <FiTrash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -364,41 +308,63 @@ export default function ManagementUser() {
             </table>
           </div>
 
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            total={total}
-            currentCount={current.length}
-            onPageChange={setPage}
-          />
+          {/* Pagination */}
+          {usersData?.pagination && (
+            <div className="mt-4">
+              <Pagination
+                currentPage={usersData.pagination.page}
+                totalPages={usersData.pagination.totalPages}
+                hasNext={usersData.pagination.hasNext}
+                hasPrev={usersData.pagination.hasPrev}
+                onPageChange={setPage}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Add User Modal */}
-      <AddUserModal
-        open={addModalOpen}
-        onOpenChange={setAddModalOpen}
-        onSubmit={handleAddSubmit}
-        faculties={faculties}
-        programs={programs}
+      {/* Create User Modal */}
+      <CreateUserModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSubmit={handleCreateSubmit}
+        loading={createUserMutation.isPending}
       />
 
       {/* Edit User Modal */}
       <EditUserModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedUser(null);
+        }}
         onSubmit={handleEditSubmit}
-        editingUser={editingUser}
-        faculties={faculties}
-        programs={programs}
+        loading={updateUserMutation.isPending}
+        user={selectedUser}
       />
 
       {/* Delete User Modal */}
       <DeleteUserModal
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedUser(null);
+        }}
         onConfirm={handleDeleteConfirm}
-        deletingUser={deletingUser}
+        loading={deleteUserMutation.isPending}
+        user={selectedUser}
+      />
+
+      {/* Reset Password Modal */}
+      <ResetPasswordModal
+        isOpen={resetPasswordModalOpen}
+        onClose={() => {
+          setResetPasswordModalOpen(false);
+          setSelectedUser(null);
+        }}
+        onSubmit={handleResetPasswordSubmit}
+        loading={resetPasswordMutation.isPending}
+        user={selectedUser}
       />
     </>
   );

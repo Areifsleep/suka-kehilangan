@@ -1,249 +1,173 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { FiPlus, FiSearch, FiEdit2, FiTrash2 } from "react-icons/fi";
+import React, { useState } from "react";
+import {
+  FiPlus,
+  FiSearch,
+  FiEdit2,
+  FiTrash2,
+  FiKey,
+  FiFilter,
+} from "react-icons/fi";
+import { toast } from "react-toastify";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Pagination } from "@/components/user-management";
+import {
+  Pagination,
+  CreateUserModal,
+  EditUserModal,
+  DeleteUserModal,
+  ResetPasswordModal,
+} from "@/components/management";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
-import { AddPetugasModal, EditPetugasModal, DeletePetugasModal } from "@/components/petugas-management";
+import {
+  usePetugas,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  useResetPassword,
+} from "@/hooks/api/management";
 
 export default function ManagementPetugas() {
-  // data state
-  const [petugas, setPetugas] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-
-  // pagination
+  // State for filters and pagination
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(7);
+  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Debounced search
+  const [lokasiPosFilter, setLokasiPosFilter] = useState("");
 
-  // dialog state
-  const [addModalOpen, setAddModalOpen] = useState(false);
+  // Modal states
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [editingPetugas, setEditingPetugas] = useState(null);
-  const [deletingPetugas, setDeletingPetugas] = useState(null);
+  const [resetPasswordModalOpen, setResetPasswordModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  // dummy data pos
-  const posOptions = ["Gerbang Utama", "Masjid", "Perpustakaan", "Rektorat", "Fakultas FST", "Fakultas FISIP", "Fakultas FEB", "Asrama"];
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(search);
+      setPage(1); // Reset to first page when searching
+    }, 500);
 
-  // dummy data petugas
-  useEffect(() => {
-    const dummyPetugas = [
-      {
-        id: 1,
-        name: "Budi Santoso",
-        username: "budi.santoso",
-        email: "budi.santoso@uin-suka.ac.id",
-        pos: "Gerbang Utama",
-      },
-      {
-        id: 2,
-        name: "Andi Wijaya",
-        username: "andi.wijaya",
-        email: "andi.wijaya@uin-suka.ac.id",
-        pos: "Masjid",
-      },
-      {
-        id: 3,
-        name: "Deni Pratama",
-        username: "deni.pratama",
-        email: "deni.pratama@uin-suka.ac.id",
-        pos: "Perpustakaan",
-      },
-      {
-        id: 4,
-        name: "Eko Susanto",
-        username: "eko.susanto",
-        email: "eko.susanto@uin-suka.ac.id",
-        pos: "Rektorat",
-      },
-      {
-        id: 5,
-        name: "Farid Ahmad",
-        username: "farid.ahmad",
-        email: "farid.ahmad@uin-suka.ac.id",
-        pos: "Fakultas FST",
-      },
-      {
-        id: 6,
-        name: "Gunawan Saputra",
-        username: "gunawan.saputra",
-        email: "gunawan.saputra@uin-suka.ac.id",
-        pos: "Fakultas FISIP",
-      },
-      {
-        id: 7,
-        name: "Hadi Nugroho",
-        username: "hadi.nugroho",
-        email: "hadi.nugroho@uin-suka.ac.id",
-        pos: "Fakultas FEB",
-      },
-      {
-        id: 8,
-        name: "Indra Kusuma",
-        username: "indra.kusuma",
-        email: "indra.kusuma@uin-suka.ac.id",
-        pos: "Asrama",
-      },
-      {
-        id: 9,
-        name: "Joko Widodo",
-        username: "joko.widodo",
-        email: "joko.widodo@uin-suka.ac.id",
-        pos: "Gerbang Utama",
-      },
-      {
-        id: 10,
-        name: "Karno Sutrisno",
-        username: "karno.sutrisno",
-        email: "karno.sutrisno@uin-suka.ac.id",
-        pos: "Masjid",
-      },
-      {
-        id: 11,
-        name: "Lukman Hakim",
-        username: "lukman.hakim",
-        email: "lukman.hakim@uin-suka.ac.id",
-        pos: "Perpustakaan",
-      },
-      {
-        id: 12,
-        name: "Made Suwarta",
-        username: "made.suwarta",
-        email: "made.suwarta@uin-suka.ac.id",
-        pos: "Rektorat",
-      },
-      {
-        id: 13,
-        name: "Nanda Pratomo",
-        username: "nanda.pratomo",
-        email: "nanda.pratomo@uin-suka.ac.id",
-        pos: "Fakultas FST",
-      },
-      {
-        id: 14,
-        name: "Omar Bakri",
-        username: "omar.bakri",
-        email: "omar.bakri@uin-suka.ac.id",
-        pos: "Fakultas FISIP",
-      },
-      {
-        id: 15,
-        name: "Purnomo Adi",
-        username: "purnomo.adi",
-        email: "purnomo.adi@uin-suka.ac.id",
-        pos: "Fakultas FEB",
-      },
-      {
-        id: 16,
-        name: "Qasim Ridwan",
-        username: "qasim.ridwan",
-        email: "qasim.ridwan@uin-suka.ac.id",
-        pos: "Asrama",
-      },
-      {
-        id: 17,
-        name: "Rizal Effendi",
-        username: "rizal.effendi",
-        email: "rizal.effendi@uin-suka.ac.id",
-        pos: "Gerbang Utama",
-      },
-      {
-        id: 18,
-        name: "Suryadi Hasan",
-        username: "suryadi.hasan",
-        email: "suryadi.hasan@uin-suka.ac.id",
-        pos: "Masjid",
-      },
-      {
-        id: 19,
-        name: "Taufik Hidayat",
-        username: "taufik.hidayat",
-        email: "taufik.hidayat@uin-suka.ac.id",
-        pos: "Perpustakaan",
-      },
-      {
-        id: 20,
-        name: "Usman Ismail",
-        username: "usman.ismail",
-        email: "usman.ismail@uin-suka.ac.id",
-        pos: "Rektorat",
-      },
-    ];
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    setPetugas(dummyPetugas);
-  }, []);
+  // API Queries
+  const {
+    data: petugasData,
+    isLoading,
+    error,
+    refetch,
+  } = usePetugas({
+    page,
+    limit: 20,
+    search: searchTerm,
+    lokasiPos: lokasiPosFilter || undefined,
+  });
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return petugas;
-    return petugas.filter((p) => (p.name + p.email + p.username + p.pos).toLowerCase().includes(q));
-  }, [petugas, search]);
-
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [totalPages, page]);
-
-  const current = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
-  }, [filtered, page, pageSize]);
+  // API Mutations
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
+  const resetPasswordMutation = useResetPassword();
 
   // Modal handlers
-  const handleAddPetugas = () => {
-    setAddModalOpen(true);
+  const handleCreatePetugas = () => {
+    setCreateModalOpen(true);
   };
 
-  const handleEditPetugas = (petugas) => {
-    setEditingPetugas(petugas);
+  const handleEditPetugas = (user) => {
+    setSelectedUser(user);
     setEditModalOpen(true);
   };
 
-  const handleDeletePetugas = (petugas) => {
-    setDeletingPetugas(petugas);
+  const handleDeletePetugas = (user) => {
+    setSelectedUser(user);
     setDeleteModalOpen(true);
   };
 
-  const handleAddSubmit = (data) => {
-    const newPetugas = {
-      id: petugas.length ? Math.max(...petugas.map((p) => p.id)) + 1 : 1,
-      name: data.name,
-      username: data.username,
-      email: data.email,
-      pos: data.pos,
-    };
-    setPetugas((prev) => [newPetugas, ...prev]);
-    setAddModalOpen(false);
+  const handleResetPassword = (user) => {
+    setSelectedUser(user);
+    setResetPasswordModalOpen(true);
   };
 
-  const handleEditSubmit = (data) => {
-    setPetugas((prev) =>
-      prev.map((p) =>
-        p.id === editingPetugas.id
-          ? {
-              ...p,
-              name: data.name,
-              username: data.username,
-              email: data.email,
-              pos: data.pos,
-            }
-          : p
-      )
-    );
-    setEditModalOpen(false);
-    setEditingPetugas(null);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (deletingPetugas) {
-      setPetugas((prev) => prev.filter((p) => p.id !== deletingPetugas.id));
-      setDeletingPetugas(null);
-      setDeleteModalOpen(false);
+  // Submit handlers
+  const handleCreateSubmit = async (userData) => {
+    try {
+      // Force role to petugas (will be handled by backend)
+      await createUserMutation.mutateAsync({
+        ...userData,
+        // Note: roleId will be set in the modal based on role selection
+      });
+      toast.success("Petugas berhasil dibuat");
+      setCreateModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal membuat petugas");
     }
   };
+
+  const handleEditSubmit = async (userData) => {
+    try {
+      await updateUserMutation.mutateAsync(userData);
+      toast.success("Data petugas berhasil diupdate");
+      setEditModalOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Gagal mengupdate data petugas"
+      );
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteUserMutation.mutateAsync(selectedUser.id);
+      toast.success("Petugas berhasil dihapus");
+      setDeleteModalOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal menghapus petugas");
+    }
+  };
+
+  const handleResetPasswordSubmit = async (passwordData) => {
+    try {
+      await resetPasswordMutation.mutateAsync(passwordData);
+      toast.success("Password petugas berhasil direset");
+      setResetPasswordModalOpen(false);
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gagal mereset password");
+    }
+  };
+
+  // Handle filter change
+  const handleLokasiPosFilterChange = (value) => {
+    setLokasiPosFilter(value);
+    setPage(1);
+  };
+
+  // Handle API error
+  if (error) {
+    return (
+      <>
+        <HeaderDashboard title="Manajemen Petugas" />
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <p className="text-red-600 mb-4">
+                Error: {error.response?.data?.message || error.message}
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Coba Lagi
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>
@@ -254,23 +178,35 @@ export default function ManagementPetugas() {
             <div className="flex items-center gap-3">
               <h3 className="text-lg font-medium">Daftar Petugas</h3>
               <button
-                onClick={handleAddPetugas}
-                className="inline-flex items-center gap-2 border rounded px-2 py-1 text-sm hover:bg-green-100"
+                onClick={handleCreatePetugas}
+                className="inline-flex items-center gap-2 border rounded px-2 py-1 text-sm hover:bg-gray-50"
               >
                 <FiPlus />
               </button>
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Lokasi Pos Filter */}
+              <div className="flex items-center gap-2">
+                {/* <FiFilter className="text-gray-400" /> */}
+                <select
+                  value={lokasiPosFilter}
+                  onChange={(e) => handleLokasiPosFilterChange(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                >
+                  <option value="">Semua Lokasi</option>
+                  <option value="POS_BARAT">Pos Barat</option>
+                  <option value="POS_TIMUR">Pos Timur</option>
+                </select>
+              </div>
+
+              {/* Search */}
               <div className="relative">
                 <input
-                  placeholder="Search..."
+                  placeholder="Cari petugas..."
                   value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pl-10 pr-4 py-2 rounded-md shadow-sm border w-64 focus:outline-none"
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-md shadow-sm border w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
@@ -278,58 +214,108 @@ export default function ManagementPetugas() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="text-sm text-gray-600">
-                  <th className="p-3">Nama</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Username</th>
-                  <th className="p-3">Pos</th>
-                  <th className="p-3">Aksi</th>
+                <tr className="bg-gray-50">
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Nama
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Email
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Username
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Lokasi Pos
+                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {loading ? (
+              <tbody className="bg-white divide-y divide-gray-200">
+                {isLoading ? (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="p-6 text-center"
-                    >
-                      Loading...
+                    <td colSpan={5} className="p-6 text-center">
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span>Memuat data...</span>
+                      </div>
                     </td>
                   </tr>
-                ) : current.length === 0 ? (
+                ) : !petugasData?.data?.length ? (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="p-6 text-center"
-                    >
-                      No petugas found
+                    <td colSpan={5} className="p-6 text-center text-gray-500">
+                      {searchTerm || lokasiPosFilter
+                        ? "Tidak ada petugas yang ditemukan"
+                        : "Belum ada data petugas"}
                     </td>
                   </tr>
                 ) : (
-                  current.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="align-top"
-                    >
-                      <td className="p-3">{p.name}</td>
-                      <td className="p-3">{p.email}</td>
-                      <td className="p-3">{p.username}</td>
-                      <td className="p-3">{p.pos}</td>
-                      <td className="p-3 text-right">
-                        <div className="inline-flex items-center gap-2">
-                          <button
-                            onClick={() => handleEditPetugas(p)}
-                            className="p-2 rounded-md hover:bg-gray-100"
+                  petugasData.data.map((petugas) => (
+                    <tr key={petugas.id} className="hover:bg-gray-50">
+                      <td className="p-3 max-w-xs">
+                        <div
+                          className="font-medium text-gray-900 truncate"
+                          title={petugas.profile?.full_name}
+                        >
+                          {petugas.profile?.full_name &&
+                          petugas.profile.full_name.length > 20
+                            ? `${petugas.profile.full_name.substring(0, 20)}...`
+                            : petugas.profile?.full_name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ID: {petugas.id}
+                        </div>
+                      </td>
+                      <td className="p-3 text-sm text-gray-900">
+                        {petugas.profile?.email}
+                      </td>
+                      <td className="p-3 text-sm text-gray-900">
+                        {petugas.username}
+                      </td>
+                      <td className="p-3">
+                        {petugas.profile?.lokasi_pos ? (
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              petugas.profile.lokasi_pos === "POS_BARAT"
+                                ? "bg-orange-100 text-orange-800"
+                                : "bg-purple-100 text-purple-800"
+                            }`}
                           >
-                            <FiEdit2 />
+                            {petugas.profile.lokasi_pos === "POS_BARAT"
+                              ? "Pos Barat"
+                              : "Pos Timur"}
+                          </span>
+                        ) : (
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Belum ditentukan
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handleEditPetugas(petugas)}
+                            className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md"
+                            title="Edit petugas"
+                          >
+                            <FiEdit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeletePetugas(p)}
-                            className="p-2 rounded-md hover:bg-red-100 text-red-600"
+                            onClick={() => handleResetPassword(petugas)}
+                            className="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100 rounded-md"
+                            title="Reset password"
                           >
-                            <FiTrash2 />
+                            <FiKey className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeletePetugas(petugas)}
+                            className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md"
+                            title="Hapus petugas"
+                          >
+                            <FiTrash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -340,39 +326,63 @@ export default function ManagementPetugas() {
             </table>
           </div>
 
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            total={total}
-            currentCount={current.length}
-            onPageChange={setPage}
-          />
+          {/* Pagination */}
+          {petugasData?.pagination && (
+            <div className="mt-4">
+              <Pagination
+                currentPage={petugasData.pagination.page}
+                totalPages={petugasData.pagination.totalPages}
+                hasNext={petugasData.pagination.hasNext}
+                hasPrev={petugasData.pagination.hasPrev}
+                onPageChange={setPage}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Add Petugas Modal */}
-      <AddPetugasModal
-        open={addModalOpen}
-        onOpenChange={setAddModalOpen}
-        onSubmit={handleAddSubmit}
-        posOptions={posOptions}
+      {/* Create Petugas Modal */}
+      <CreateUserModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSubmit={handleCreateSubmit}
+        loading={createUserMutation.isPending}
       />
 
       {/* Edit Petugas Modal */}
-      <EditPetugasModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
+      <EditUserModal
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedUser(null);
+        }}
         onSubmit={handleEditSubmit}
-        editingPetugas={editingPetugas}
-        posOptions={posOptions}
+        loading={updateUserMutation.isPending}
+        user={selectedUser}
       />
 
       {/* Delete Petugas Modal */}
-      <DeletePetugasModal
-        open={deleteModalOpen}
-        onOpenChange={setDeleteModalOpen}
+      <DeleteUserModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedUser(null);
+        }}
         onConfirm={handleDeleteConfirm}
-        deletingPetugas={deletingPetugas}
+        loading={deleteUserMutation.isPending}
+        user={selectedUser}
+      />
+
+      {/* Reset Password Modal */}
+      <ResetPasswordModal
+        isOpen={resetPasswordModalOpen}
+        onClose={() => {
+          setResetPasswordModalOpen(false);
+          setSelectedUser(null);
+        }}
+        onSubmit={handleResetPasswordSubmit}
+        loading={resetPasswordMutation.isPending}
+        user={selectedUser}
       />
     </>
   );
