@@ -252,14 +252,16 @@ export default function ManagementPetugas() {
                       <td className="p-3">
                         {petugas.profile?.lokasi_pos ? (
                           <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            className={`inline-flex text-center px-2 py-1 text-xs font-semibold rounded-full ${
                               petugas.profile.lokasi_pos === "POS_BARAT" ? "bg-orange-100 text-orange-800" : "bg-purple-100 text-purple-800"
                             }`}
                           >
                             {petugas.profile.lokasi_pos === "POS_BARAT" ? "Pos Barat" : "Pos Timur"}
                           </span>
                         ) : (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Belum ditentukan</span>
+                          <span className="inline-flex text-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Belum ditentukan
+                          </span>
                         )}
                       </td>
                       <td className="p-3">

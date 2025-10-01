@@ -18,19 +18,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
 import { Pagination } from "@/components/user-management";
 
@@ -63,9 +52,7 @@ function StatusBadge({ status }) {
   const Icon = config.icon;
 
   return (
-    <span
-      className={`px-2 py-1 rounded-full text-xs font-medium ${config.className} flex items-center gap-1`}
-    >
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className} flex items-center gap-1`}>
       <Icon size={12} />
       {config.label}
     </span>
@@ -79,9 +66,7 @@ function ReportCard({ report, onView }) {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-800 mb-1">
-              {report.itemName}
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-800 mb-1">{report.itemName}</h3>
             <p className="text-sm text-gray-600 mb-2">{report.category}</p>
             <StatusBadge status={report.status} />
           </div>
@@ -98,24 +83,32 @@ function ReportCard({ report, onView }) {
 
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center">
-            <FiUser className="mr-2" size={14} />
+            <FiUser
+              className="mr-2"
+              size={14}
+            />
             <span>{report.reportedBy}</span>
           </div>
           <div className="flex items-center">
-            <FiMapPin className="mr-2" size={14} />
+            <FiMapPin
+              className="mr-2"
+              size={14}
+            />
             <span>{report.lastSeenLocation}</span>
           </div>
           <div className="flex items-center">
-            <FiCalendar className="mr-2" size={14} />
-            <span>
-              Hilang: {new Date(report.lostDate).toLocaleDateString()}
-            </span>
+            <FiCalendar
+              className="mr-2"
+              size={14}
+            />
+            <span>Hilang: {new Date(report.lostDate).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center">
-            <FiClock className="mr-2" size={14} />
-            <span>
-              Dilaporkan: {new Date(report.reportedAt).toLocaleDateString()}
-            </span>
+            <FiClock
+              className="mr-2"
+              size={14}
+            />
+            <span>Dilaporkan: {new Date(report.reportedAt).toLocaleDateString()}</span>
           </div>
         </div>
 
@@ -142,7 +135,10 @@ function ReportDetailModal({ report, isOpen, onClose }) {
   if (!report) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={onClose}
+    >
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
@@ -172,15 +168,11 @@ function ReportDetailModal({ report, isOpen, onClose }) {
           {/* Item Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Nama Barang
-              </label>
+              <label className="text-sm font-medium text-gray-700">Nama Barang</label>
               <p className="text-sm text-gray-900 mt-1">{report.itemName}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Kategori
-              </label>
+              <label className="text-sm font-medium text-gray-700">Kategori</label>
               <p className="text-sm text-gray-900 mt-1">{report.category}</p>
             </div>
             <div>
@@ -188,42 +180,26 @@ function ReportDetailModal({ report, isOpen, onClose }) {
               <p className="text-sm text-gray-900 mt-1">{report.color}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Merk/Brand
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {report.brand || "-"}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Merk/Brand</label>
+              <p className="text-sm text-gray-900 mt-1">{report.brand || "-"}</p>
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium text-gray-700">
-              Deskripsi
-            </label>
-            <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">
-              {report.description}
-            </p>
+            <label className="text-sm font-medium text-gray-700">Deskripsi</label>
+            <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">{report.description}</p>
           </div>
 
           {/* Location & Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Lokasi Terakhir
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {report.lastSeenLocation}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Lokasi Terakhir</label>
+              <p className="text-sm text-gray-900 mt-1">{report.lastSeenLocation}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Tanggal Hilang
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {new Date(report.lostDate).toLocaleDateString()}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Tanggal Hilang</label>
+              <p className="text-sm text-gray-900 mt-1">{new Date(report.lostDate).toLocaleDateString()}</p>
             </div>
           </div>
 
@@ -232,36 +208,20 @@ function ReportDetailModal({ report, isOpen, onClose }) {
             <h4 className="font-medium mb-3">Informasi Pelapor</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Nama
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {report.reportedBy}
-                </p>
+                <label className="text-sm font-medium text-gray-700">Nama</label>
+                <p className="text-sm text-gray-900 mt-1">{report.reportedBy}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {report.reporterEmail}
-                </p>
+                <label className="text-sm font-medium text-gray-700">Email</label>
+                <p className="text-sm text-gray-900 mt-1">{report.reporterEmail}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  No. Telepon
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {report.reporterPhone}
-                </p>
+                <label className="text-sm font-medium text-gray-700">No. Telepon</label>
+                <p className="text-sm text-gray-900 mt-1">{report.reporterPhone}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Tanggal Laporan
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {new Date(report.reportedAt).toLocaleDateString()}
-                </p>
+                <label className="text-sm font-medium text-gray-700">Tanggal Laporan</label>
+                <p className="text-sm text-gray-900 mt-1">{new Date(report.reportedAt).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -278,11 +238,7 @@ function ReportDetailModal({ report, isOpen, onClose }) {
                   >
                     <div>
                       <StatusBadge status={history.status} />
-                      {history.note && (
-                        <p className="text-sm text-gray-600 mt-1">
-                          {history.note}
-                        </p>
-                      )}
+                      {history.note && <p className="text-sm text-gray-600 mt-1">{history.note}</p>}
                     </div>
                     <div className="text-sm text-gray-500">
                       <p>{new Date(history.date).toLocaleDateString()}</p>
@@ -297,12 +253,8 @@ function ReportDetailModal({ report, isOpen, onClose }) {
           {/* Additional Notes */}
           {report.additionalNotes && (
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Catatan Tambahan
-              </label>
-              <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">
-                {report.additionalNotes}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Catatan Tambahan</label>
+              <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">{report.additionalNotes}</p>
             </div>
           )}
         </div>
@@ -330,8 +282,7 @@ export default function PetugasReportsPage() {
         id: 1,
         itemName: 'MacBook Pro 13"',
         category: "Elektronik",
-        description:
-          "MacBook Pro 13 inch warna silver, ada stiker Apple di bagian belakang",
+        description: "MacBook Pro 13 inch warna silver, ada stiker Apple di bagian belakang",
         color: "Silver",
         brand: "Apple",
         lastSeenLocation: "Perpustakaan Lantai 3",
@@ -362,8 +313,7 @@ export default function PetugasReportsPage() {
         id: 2,
         itemName: "Dompet Kulit Hitam",
         category: "Aksesoris",
-        description:
-          "Dompet kulit hitam merk Louis Vuitton, berisi KTP dan SIM",
+        description: "Dompet kulit hitam merk Louis Vuitton, berisi KTP dan SIM",
         color: "Hitam",
         brand: "Louis Vuitton",
         lastSeenLocation: "Kantin Gedung B",
@@ -429,8 +379,55 @@ export default function PetugasReportsPage() {
         id: 4,
         itemName: "Tas Ransel Adidas",
         category: "Tas",
-        description:
-          "Tas ransel Adidas warna hitam dengan logo putih, ukuran sedang",
+        description: "Tas ransel Adidas warna hitam dengan logo putih, ukuran sedang",
+        color: "Hitam",
+        brand: "Adidas",
+        lastSeenLocation: "Lapangan Basket",
+        lostDate: "2024-01-12",
+        reportedBy: "Dewi Mahasiswi",
+        reporterEmail: "dewi@student.ac.id",
+        reporterPhone: "08111222333",
+        reportedAt: "2024-01-12T16:45:00Z",
+        status: "PENDING",
+        images: ["https://placehold.co/600x400"],
+        statusHistory: [
+          {
+            status: "PENDING",
+            date: "2024-01-12T16:45:00Z",
+            updatedBy: "Sistem",
+            note: "Laporan baru diterima",
+          },
+        ],
+      },
+      {
+        id: 5,
+        itemName: "Tas Ransel Adidas",
+        category: "Tas",
+        description: "Tas ransel Adidas warna hitam dengan logo putih, ukuran sedang",
+        color: "Hitam",
+        brand: "Adidas",
+        lastSeenLocation: "Lapangan Basket",
+        lostDate: "2024-01-12",
+        reportedBy: "Dewi Mahasiswi",
+        reporterEmail: "dewi@student.ac.id",
+        reporterPhone: "08111222333",
+        reportedAt: "2024-01-12T16:45:00Z",
+        status: "PENDING",
+        images: ["https://placehold.co/600x400"],
+        statusHistory: [
+          {
+            status: "PENDING",
+            date: "2024-01-12T16:45:00Z",
+            updatedBy: "Sistem",
+            note: "Laporan baru diterima",
+          },
+        ],
+      },
+      {
+        id: 6,
+        itemName: "Tas Ransel Adidas",
+        category: "Tas",
+        description: "Tas ransel Adidas warna hitam dengan logo putih, ukuran sedang",
         color: "Hitam",
         brand: "Adidas",
         lastSeenLocation: "Lapangan Basket",
@@ -464,10 +461,8 @@ export default function PetugasReportsPage() {
       report.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.reportedBy.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || report.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || report.category === categoryFilter;
+    const matchesStatus = statusFilter === "all" || report.status === statusFilter;
+    const matchesCategory = categoryFilter === "all" || report.category === categoryFilter;
 
     let matchesDate = true;
     if (dateFilter !== "all") {
@@ -496,10 +491,7 @@ export default function PetugasReportsPage() {
 
   // Pagination
   const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
-  const paginatedReports = filteredReports.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedReports = filteredReports.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleView = (report) => {
     setSelectedReport(report);
@@ -512,9 +504,7 @@ export default function PetugasReportsPage() {
       "ID,Nama Barang,Kategori,Pelapor,Tanggal Hilang,Status",
       ...filteredReports.map(
         (report) =>
-          `${report.id},"${report.itemName}","${report.category}","${
-            report.reportedBy
-          }","${new Date(report.lostDate).toLocaleDateString()}","${
+          `${report.id},"${report.itemName}","${report.category}","${report.reportedBy}","${new Date(report.lostDate).toLocaleDateString()}","${
             report.status
           }"`
       ),
@@ -524,21 +514,12 @@ export default function PetugasReportsPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `laporan-kehilangan-${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
+    a.download = `laporan-kehilangan-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const categories = [
-    "Elektronik",
-    "Tas",
-    "Aksesoris",
-    "Dokumen",
-    "Kendaraan",
-    "Pakaian",
-  ];
+  const categories = ["Elektronik", "Tas", "Aksesoris", "Dokumen", "Kendaraan", "Pakaian"];
 
   return (
     <div>
@@ -547,7 +528,7 @@ export default function PetugasReportsPage() {
       {/* Filters */}
       <Card className="mb-6">
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
                 <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -560,9 +541,13 @@ export default function PetugasReportsPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[120px]">
+            {/* Filter group diubah menjadi grid yang responsif */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -574,22 +559,31 @@ export default function PetugasReportsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[120px]">
+              <Select
+                value={categoryFilter}
+                onValueChange={setCategoryFilter}
+              >
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kategori</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
+                    <SelectItem
+                      key={category}
+                      value={category}
+                    >
                       {category}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-[120px]">
+              <Select
+                value={dateFilter}
+                onValueChange={setDateFilter}
+              >
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Periode" />
                 </SelectTrigger>
                 <SelectContent>
@@ -600,9 +594,16 @@ export default function PetugasReportsPage() {
                 </SelectContent>
               </Select>
 
-              <Button onClick={handleExportReports} variant="outline">
-                <FiDownload className="mr-2" size={16} />
-                Export
+              <Button
+                onClick={handleExportReports}
+                variant="outline"
+                className="w-full"
+              >
+                <FiDownload
+                  className="mr-0 sm:mr-2"
+                  size={16}
+                />
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </div>
           </div>
@@ -616,9 +617,7 @@ export default function PetugasReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {reports.length}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{reports.length}</p>
               </div>
               <FiFileText className="h-8 w-8 text-blue-500" />
             </div>
@@ -630,12 +629,7 @@ export default function PetugasReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Menunggu</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {
-                    reports.filter((report) => report.status === "PENDING")
-                      .length
-                  }
-                </p>
+                <p className="text-2xl font-bold text-yellow-600">{reports.filter((report) => report.status === "PENDING").length}</p>
               </div>
               <FiClock className="h-8 w-8 text-yellow-500" />
             </div>
@@ -647,12 +641,7 @@ export default function PetugasReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Disetujui</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {
-                    reports.filter((report) => report.status === "APPROVED")
-                      .length
-                  }
-                </p>
+                <p className="text-2xl font-bold text-green-600">{reports.filter((report) => report.status === "APPROVED").length}</p>
               </div>
               <FiCheckCircle className="h-8 w-8 text-green-500" />
             </div>
@@ -664,9 +653,7 @@ export default function PetugasReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Ditemukan</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {reports.filter((report) => report.status === "FOUND").length}
-                </p>
+                <p className="text-2xl font-bold text-blue-600">{reports.filter((report) => report.status === "FOUND").length}</p>
               </div>
               <FiPackage className="h-8 w-8 text-blue-500" />
             </div>
@@ -678,12 +665,7 @@ export default function PetugasReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Ditolak</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {
-                    reports.filter((report) => report.status === "REJECTED")
-                      .length
-                  }
-                </p>
+                <p className="text-2xl font-bold text-red-600">{reports.filter((report) => report.status === "REJECTED").length}</p>
               </div>
               <FiXCircle className="h-8 w-8 text-red-500" />
             </div>
@@ -695,7 +677,10 @@ export default function PetugasReportsPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card
+              key={i}
+              className="animate-pulse"
+            >
               <CardContent className="p-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -712,7 +697,11 @@ export default function PetugasReportsPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             {paginatedReports.map((report) => (
-              <ReportCard key={report.id} report={report} onView={handleView} />
+              <ReportCard
+                key={report.id}
+                report={report}
+                onView={handleView}
+              />
             ))}
           </div>
 
@@ -730,9 +719,7 @@ export default function PetugasReportsPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <FiAlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Tidak ada laporan
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada laporan</h3>
             <p className="text-gray-500">
               {searchTerm || statusFilter !== "all" || categoryFilter !== "all"
                 ? "Tidak ada laporan yang sesuai dengan filter"
