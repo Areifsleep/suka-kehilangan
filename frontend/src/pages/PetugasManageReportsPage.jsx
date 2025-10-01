@@ -18,19 +18,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
 import { Pagination } from "@/components/user-management";
 
@@ -44,13 +33,7 @@ function StatusBadge({ status }) {
 
   const config = statusConfig[status] || statusConfig.AVAILABLE;
 
-  return (
-    <span
-      className={`px-2 py-1 rounded-full text-xs font-medium ${config.className}`}
-    >
-      {config.label}
-    </span>
-  );
+  return <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className}`}>{config.label}</span>;
 }
 
 // Item Card Component
@@ -62,9 +45,7 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-800 mb-1">
-              {item.name}
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-800 mb-1">{item.name}</h3>
             <p className="text-sm text-gray-600 mb-2">{item.category}</p>
             <StatusBadge status={item.status} />
           </div>
@@ -88,7 +69,10 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
                   }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center"
                 >
-                  <FiEye className="mr-2" size={14} />
+                  <FiEye
+                    className="mr-2"
+                    size={14}
+                  />
                   Lihat
                 </button>
                 <button
@@ -98,7 +82,10 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
                   }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center"
                 >
-                  <FiEdit2 className="mr-2" size={14} />
+                  <FiEdit2
+                    className="mr-2"
+                    size={14}
+                  />
                   Edit
                 </button>
                 <button
@@ -108,7 +95,10 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
                   }}
                   className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 text-red-600 flex items-center"
                 >
-                  <FiTrash2 className="mr-2" size={14} />
+                  <FiTrash2
+                    className="mr-2"
+                    size={14}
+                  />
                   Hapus
                 </button>
               </div>
@@ -118,15 +108,24 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
 
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center">
-            <FiMapPin className="mr-2" size={14} />
+            <FiMapPin
+              className="mr-2"
+              size={14}
+            />
             <span>{item.location}</span>
           </div>
           <div className="flex items-center">
-            <FiCalendar className="mr-2" size={14} />
+            <FiCalendar
+              className="mr-2"
+              size={14}
+            />
             <span>{new Date(item.dateFound).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center">
-            <FiUser className="mr-2" size={14} />
+            <FiUser
+              className="mr-2"
+              size={14}
+            />
             <span>{item.foundBy}</span>
           </div>
         </div>
@@ -138,11 +137,7 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
               alt={item.name}
               className="w-full h-32 object-cover rounded-lg"
             />
-            {item.images.length > 1 && (
-              <p className="text-xs text-gray-500 mt-1">
-                +{item.images.length - 1} foto lainnya
-              </p>
-            )}
+            {item.images.length > 1 && <p className="text-xs text-gray-500 mt-1">+{item.images.length - 1} foto lainnya</p>}
           </div>
         )}
       </CardContent>
@@ -155,12 +150,19 @@ function ItemDetailModal({ item, isOpen, onClose }) {
   if (!item) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={onClose}
+    >
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Detail Barang</span>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+            >
               <FiX size={16} />
             </Button>
           </DialogTitle>
@@ -182,76 +184,50 @@ function ItemDetailModal({ item, isOpen, onClose }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Nama Barang
-              </label>
+              <label className="text-sm font-medium text-gray-700">Nama Barang</label>
               <p className="text-sm text-gray-900 mt-1">{item.name}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Kategori
-              </label>
+              <label className="text-sm font-medium text-gray-700">Kategori</label>
               <p className="text-sm text-gray-900 mt-1">{item.category}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Status
-              </label>
+              <label className="text-sm font-medium text-gray-700">Status</label>
               <div className="mt-1">
                 <StatusBadge status={item.status} />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Kondisi
-              </label>
+              <label className="text-sm font-medium text-gray-700">Kondisi</label>
               <p className="text-sm text-gray-900 mt-1">{item.condition}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Lokasi Ditemukan
-              </label>
+              <label className="text-sm font-medium text-gray-700">Lokasi Ditemukan</label>
               <p className="text-sm text-gray-900 mt-1">{item.location}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Tanggal Ditemukan
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {new Date(item.dateFound).toLocaleDateString()}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Tanggal Ditemukan</label>
+              <p className="text-sm text-gray-900 mt-1">{new Date(item.dateFound).toLocaleDateString()}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Ditemukan Oleh
-              </label>
+              <label className="text-sm font-medium text-gray-700">Ditemukan Oleh</label>
               <p className="text-sm text-gray-900 mt-1">{item.foundBy}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Tanggal Input
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {new Date(item.createdAt).toLocaleDateString()}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Tanggal Input</label>
+              <p className="text-sm text-gray-900 mt-1">{new Date(item.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">
-              Deskripsi
-            </label>
+            <label className="text-sm font-medium text-gray-700">Deskripsi</label>
             <p className="text-sm text-gray-900 mt-1">{item.description}</p>
           </div>
 
           {item.additionalNotes && (
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Catatan Tambahan
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {item.additionalNotes}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Catatan Tambahan</label>
+              <p className="text-sm text-gray-900 mt-1">{item.additionalNotes}</p>
             </div>
           )}
         </div>
@@ -278,8 +254,7 @@ export default function PetugasManageReportsPage() {
         id: 1,
         name: "iPhone 13 Pro",
         category: "Elektronik",
-        description:
-          "iPhone 13 Pro warna biru, kondisi baik, ada casing transparan",
+        description: "iPhone 13 Pro warna biru, kondisi baik, ada casing transparan",
         location: "Perpustakaan Lantai 2",
         dateFound: "2024-01-15",
         condition: "Baik",
@@ -306,8 +281,7 @@ export default function PetugasManageReportsPage() {
         id: 3,
         name: "Kunci Motor Honda",
         category: "Kendaraan",
-        description:
-          "Kunci motor Honda dengan gantungan kunci bergambar doraemon",
+        description: "Kunci motor Honda dengan gantungan kunci bergambar doraemon",
         location: "Parkiran Motor",
         dateFound: "2024-01-13",
         condition: "Baik",
@@ -340,22 +314,16 @@ export default function PetugasManageReportsPage() {
   // Filter items
   const filteredItems = items.filter((item) => {
     const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || item.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || item.category === categoryFilter;
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) || item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
+    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
 
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
   // Pagination
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleView = (item) => {
     setSelectedItem(item);
@@ -372,14 +340,7 @@ export default function PetugasManageReportsPage() {
     }
   };
 
-  const categories = [
-    "Elektronik",
-    "Tas",
-    "Aksesoris",
-    "Dokumen",
-    "Kendaraan",
-    "Pakaian",
-  ];
+  const categories = ["Elektronik", "Tas", "Aksesoris", "Dokumen", "Kendaraan", "Pakaian"];
 
   return (
     <div>
@@ -402,7 +363,10 @@ export default function PetugasManageReportsPage() {
             </div>
 
             <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -414,14 +378,20 @@ export default function PetugasManageReportsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select
+                value={categoryFilter}
+                onValueChange={setCategoryFilter}
+              >
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kategori</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
+                    <SelectItem
+                      key={category}
+                      value={category}
+                    >
                       {category}
                     </SelectItem>
                   ))}
@@ -439,9 +409,7 @@ export default function PetugasManageReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Barang</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {items.length}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{items.length}</p>
               </div>
               <FiPackage className="h-8 w-8 text-blue-500" />
             </div>
@@ -453,9 +421,7 @@ export default function PetugasManageReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Tersedia</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {items.filter((item) => item.status === "AVAILABLE").length}
-                </p>
+                <p className="text-2xl font-bold text-green-600">{items.filter((item) => item.status === "AVAILABLE").length}</p>
               </div>
               <FiClock className="h-8 w-8 text-green-500" />
             </div>
@@ -467,9 +433,7 @@ export default function PetugasManageReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Diambil</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {items.filter((item) => item.status === "CLAIMED").length}
-                </p>
+                <p className="text-2xl font-bold text-blue-600">{items.filter((item) => item.status === "CLAIMED").length}</p>
               </div>
               <FiUser className="h-8 w-8 text-blue-500" />
             </div>
@@ -481,9 +445,7 @@ export default function PetugasManageReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Dimusnahkan</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {items.filter((item) => item.status === "DISPOSED").length}
-                </p>
+                <p className="text-2xl font-bold text-red-600">{items.filter((item) => item.status === "DISPOSED").length}</p>
               </div>
               <FiTrash2 className="h-8 w-8 text-red-500" />
             </div>
@@ -495,7 +457,10 @@ export default function PetugasManageReportsPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card
+              key={i}
+              className="animate-pulse"
+            >
               <CardContent className="p-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -536,9 +501,7 @@ export default function PetugasManageReportsPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <FiPackage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Tidak ada barang
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada barang</h3>
             <p className="text-gray-500">
               {searchTerm || statusFilter !== "all" || categoryFilter !== "all"
                 ? "Tidak ada barang yang sesuai dengan filter"

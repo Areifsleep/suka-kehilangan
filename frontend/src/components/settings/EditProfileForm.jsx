@@ -51,7 +51,7 @@ export const EditProfileForm = ({ formData, onInputChange, onSubmit, loading = f
             <Button
               type="submit"
               disabled={loading}
-              className="min-w-[120px]"
+              className="w-full lg:w-auto"
             >
               {loading ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>

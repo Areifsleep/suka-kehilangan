@@ -3,22 +3,9 @@ import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiKey } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Pagination,
-  CreateUserModal,
-  EditUserModal,
-  DeleteUserModal,
-  ResetPasswordModal,
-} from "@/components/management";
+import { Pagination, CreateUserModal, EditUserModal, DeleteUserModal, ResetPasswordModal } from "@/components/management";
 import { HeaderDashboard } from "@/components/HeaderDashboard";
-import {
-  useRegularUsers,
-  useCreateUser,
-  useUpdateUser,
-  useDeleteUser,
-  useResetPassword,
-  useRoles,
-} from "@/hooks/api/management";
+import { useRegularUsers, useCreateUser, useUpdateUser, useDeleteUser, useResetPassword, useRoles } from "@/hooks/api/management";
 
 export default function ManagementUser() {
   // State for filters and pagination
@@ -87,9 +74,7 @@ export default function ManagementUser() {
   const handleCreateSubmit = async (userData) => {
     try {
       // Automatically assign USER role
-      const userRole = roles?.find(
-        (role) => role.name.toLowerCase() === "user"
-      );
+      const userRole = roles?.find((role) => role.name.toLowerCase() === "user");
       if (!userRole) {
         toast.error("Role USER tidak ditemukan");
         return;
@@ -149,9 +134,7 @@ export default function ManagementUser() {
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
-              <p className="text-red-600 mb-4">
-                Error: {error.response?.data?.message || error.message}
-              </p>
+              <p className="text-red-600 mb-4">Error: {error.response?.data?.message || error.message}</p>
               <button
                 onClick={() => refetch()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -198,30 +181,21 @@ export default function ManagementUser() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Nama
-                  </th>
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Email
-                  </th>
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Username
-                  </th>
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Role
-                  </th>
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Program Studi
-                  </th>
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                    Aksi
-                  </th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Nama</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Email</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Username</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Role</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Program Studi</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Aksi</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center">
+                    <td
+                      colSpan={6}
+                      className="p-6 text-center"
+                    >
                       <div className="flex items-center justify-center space-x-2">
                         <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                         <span>Memuat data...</span>
@@ -230,42 +204,33 @@ export default function ManagementUser() {
                   </tr>
                 ) : !usersData?.data?.length ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center text-gray-500">
-                      {searchTerm
-                        ? "Tidak ada user yang ditemukan"
-                        : "Belum ada data user"}
+                    <td
+                      colSpan={6}
+                      className="p-6 text-center text-gray-500"
+                    >
+                      {searchTerm ? "Tidak ada user yang ditemukan" : "Belum ada data user"}
                     </td>
                   </tr>
                 ) : (
                   usersData.data.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-gray-50"
+                    >
                       <td className="p-3 max-w-xs">
                         <div
                           className="font-medium text-gray-900 truncate"
                           title={user.profile?.full_name}
                         >
-                          {user.profile?.full_name &&
-                          user.profile.full_name.length > 20
+                          {user.profile?.full_name && user.profile.full_name.length > 20
                             ? `${user.profile.full_name.substring(0, 20)}...`
                             : user.profile?.full_name}
                         </div>
-                        {user.profile?.nim && (
-                          <div className="text-sm text-gray-500">
-                            NIM: {user.profile.nim}
-                          </div>
-                        )}
-                        {user.profile?.nip && (
-                          <div className="text-sm text-gray-500">
-                            NIP: {user.profile.nip}
-                          </div>
-                        )}
+                        {user.profile?.nim && <div className="text-sm text-gray-500">NIM: {user.profile.nim}</div>}
+                        {user.profile?.nip && <div className="text-sm text-gray-500">NIP: {user.profile.nip}</div>}
                       </td>
-                      <td className="p-3 text-sm text-gray-900">
-                        {user.profile?.email}
-                      </td>
-                      <td className="p-3 text-sm text-gray-900">
-                        {user.username}
-                      </td>
+                      <td className="p-3 text-sm text-gray-900">{user.profile?.email}</td>
+                      <td className="p-3 text-sm text-gray-900">{user.username}</td>
                       <td className="p-3">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -282,12 +247,8 @@ export default function ManagementUser() {
                       <td className="p-3 text-sm text-gray-900">
                         {user.profile?.study_program ? (
                           <div>
-                            <div className="font-medium">
-                              {user.profile.study_program.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {user.profile.study_program.faculty?.abbreviation}
-                            </div>
+                            <div className="font-medium">{user.profile.study_program.name}</div>
+                            <div className="text-xs text-gray-500">{user.profile.study_program.faculty?.abbreviation}</div>
                           </div>
                         ) : (
                           <span className="text-gray-400">-</span>
