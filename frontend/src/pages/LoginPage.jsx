@@ -392,30 +392,30 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6">
       <div className="w-full max-w-md sm:max-w-lg">
-        {/* Logo & Title */}
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={UIN}
-            alt="UIN Sunan Kalijaga Logo"
-            className="mb-4 object-contain w-32 h-32 sm:w-48 sm:h-48"
-          />
-
-          <h1
-            className="text-2xl sm:text-3xl font-serif text-yellow-600 tracking-wide font-bold"
-            style={{ fontFamily: "'Cinzel', serif" }}
-          >
-            SUKA KEHILANGAN
-          </h1>
-          <p className="text-sm text-gray-600 mt-2 text-center max-w-xs">
-            Merasa kehilangan? Hubungi <b>Suka Kehilangan</b>
-            <br />
-            Temukan barang Anda di sini.
-          </p>
-        </div>
-
         {/* Login Card */}
         <Card className="shadow-md border border-gray-200">
           <CardContent className="p-6">
+            {/* Logo & Title */}
+            <div className="flex flex-col items-center mb-6">
+              <img
+                src={UIN}
+                alt="UIN Sunan Kalijaga Logo"
+                className="mb-4 object-contain w-32 h-32 sm:w-48 sm:h-48"
+              />
+
+              <h1
+                className="text-2xl sm:text-3xl font-serif text-yellow-600 tracking-wide font-bold"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                SUKA KEHILANGAN
+              </h1>
+              <p className="text-sm text-gray-600 mt-2 text-center max-w-xs">
+                Merasa kehilangan? Hubungi <b>Suka Kehilangan</b>
+                <br />
+                Temukan barang Anda di sini.
+              </p>
+            </div>
+
             <form
               onSubmit={handleSubmit}
               className="space-y-4"
