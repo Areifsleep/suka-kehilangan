@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
+import { LokasiPos } from '@prisma/client';
 import * as argon2 from 'argon2';
 
 import { SeederService } from './seeder.service';
@@ -85,6 +86,7 @@ describe('SeederService', () => {
       create: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
     },
   };
 
@@ -461,18 +463,22 @@ describe('SeederService', () => {
   });
 
   describe('seedUserPetugas', () => {
-    it('should successfully create petugas user', async () => {
+    it('should successfully create petugas users', async () => {
       mockPrismaService.role.findFirst.mockResolvedValue({
         id: 'petugas-role-id',
         name: 'PETUGAS',
       });
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
       mockPrismaService.user.create.mockResolvedValue({
         id: 'petugas-user-id',
       });
 
       await (service as any).seedUserPetugas();
 
+      // Should create 21 petugas users
+      expect(mockPrismaService.user.create).toHaveBeenCalledTimes(21);
+
+      // Check first user creation call
       expect(mockPrismaService.user.create).toHaveBeenCalledWith({
         data: {
           username: 'petugas01',
@@ -480,14 +486,18 @@ describe('SeederService', () => {
           role_id: 'petugas-role-id',
           profile: {
             create: {
-              full_name: 'Bapak Petugas',
+              full_name: 'Petugas 01',
               email: 'petugas01@uin-suka.ac.id',
+              lokasi_pos: expect.any(String),
             },
           },
         },
       });
+
       expect(loggerSpy).toHaveBeenCalledWith(
-        'Berhasil membuat user "petugas01".',
+        expect.stringMatching(
+          /Berhasil membuat user \"petugas\d{2}\" dengan lokasi pos (POS_BARAT|POS_TIMUR)\./,
+        ),
       );
     });
 
@@ -508,16 +518,43 @@ describe('SeederService', () => {
         id: 'petugas-role-id',
         name: 'PETUGAS',
       });
-      mockPrismaService.user.findUnique.mockResolvedValue({
+      mockPrismaService.user.findFirst.mockResolvedValue({
         id: 'existing-petugas',
       });
 
       await (service as any).seedUserPetugas();
 
+      expect(mockPrismaService.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          username: {
+            startsWith: 'petugas',
+          },
+        },
+      });
       expect(loggerSpy).toHaveBeenCalledWith(
-        'User "petugas01" sudah ada, seeding dilewati.',
+        'User petugas sudah ada, seeding dilewati.',
       );
       expect(mockPrismaService.user.create).not.toHaveBeenCalled();
+    });
+
+    it('should handle error when creating petugas users', async () => {
+      mockPrismaService.role.findFirst.mockResolvedValue({
+        id: 'petugas-role-id',
+        name: 'PETUGAS',
+      });
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
+
+      const error = new Error('User creation error');
+      mockPrismaService.user.create.mockRejectedValue(error);
+
+      const loggerErrorSpy = jest.spyOn(Logger.prototype, 'error');
+
+      await (service as any).seedUserPetugas();
+
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
+        'Gagal melakukan seeding user petugas.',
+        error.stack,
+      );
     });
   });
 
