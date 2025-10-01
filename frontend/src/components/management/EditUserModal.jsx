@@ -101,7 +101,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
   if (!isOpen || !user) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="text-lg font-semibold text-gray-900">Edit User</h3>
@@ -113,12 +113,13 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 space-y-4"
+        >
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <input
               type="text"
               name="username"
@@ -132,9 +133,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
             <select
               name="roleId"
               value={formData.roleId}
@@ -144,7 +143,10 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
             >
               <option value="">Pilih role</option>
               {roles?.map((role) => (
-                <option key={role.id} value={role.id}>
+                <option
+                  key={role.id}
+                  value={role.id}
+                >
                   {role.name}
                 </option>
               ))}
@@ -153,9 +155,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
 
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nama Lengkap
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
             <input
               type="text"
               name="fullName"
@@ -169,9 +169,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               name="email"
@@ -186,9 +184,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
           {/* NIM - Only for mahasiswa */}
           {isMahasiswa && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                NIM
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">NIM</label>
               <input
                 type="text"
                 name="nim"
@@ -204,9 +200,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
           {/* Study Program - Only for mahasiswa */}
           {isMahasiswa && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Program Studi
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
               <select
                 name="studyProgramId"
                 value={formData.studyProgramId}
@@ -215,7 +209,10 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
               >
                 <option value="">Pilih program studi</option>
                 {studyPrograms?.map((program) => (
-                  <option key={program.id} value={program.id}>
+                  <option
+                    key={program.id}
+                    value={program.id}
+                  >
                     {program.name} ({program.faculty.abbreviation})
                   </option>
                 ))}
@@ -226,9 +223,7 @@ export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
           {/* Lokasi Pos - Only for petugas */}
           {isPetugas && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Lokasi Pos
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi Pos</label>
               <select
                 name="lokasiPos"
                 value={formData.lokasiPos}

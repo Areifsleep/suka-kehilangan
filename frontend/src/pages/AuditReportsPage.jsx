@@ -352,8 +352,6 @@ export default function AuditReportsPage() {
     // Implement export functionality
   };
 
-  const actionTypes = ["all", "login", "logout", "create", "update", "delete", "view"];
-  const resourceTypes = ["all", "System", "Found Item", "Lost Report", "User Account", "Audit Log"];
   const statusTypes = ["all", "found", "lost", "claimed", "returned", "pending"];
   const categoryTypes = ["all", "Dokumen & Dompet", "Kendaraan", "Tas & Aksesoris", "Elektronik", "Alat Tulis", "Aksesoris"];
   const dateRanges = [
@@ -367,16 +365,8 @@ export default function AuditReportsPage() {
     <>
       <HeaderDashboard title="Laporan Audit" />
 
-      {/* Audit Barang Section */}
       <div className="mb-12">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-            <FiPackage className="text-orange-600 text-xl" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Audit Barang Laporan</h2>
-        </div>
-
-        {/* Stat cards untuk Audit Barang */}
+        {/* Stat cards sudah responsif */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Barang"
@@ -416,54 +406,52 @@ export default function AuditReportsPage() {
           />
         </div>
 
-        {/* Tabel Audit Barang */}
         <Card className="shadow-sm border-0">
           <CardContent className="p-0">
-            {/* Header with Search and Filters */}
-            <div className="p-6 border-b bg-gray-50/50">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            {/* Header dengan Search dan Filters - Dibuat responsif */}
+            <div className="p-4 sm:p-6 border-b bg-gray-50/50">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <h3 className="text-xl font-semibold text-gray-900">Log Barang Laporan</h3>
+                  <h3 className="text-xl font-semibold text-gray-900">Log Laporan Barang</h3>
                   <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">{filteredItemAudits.length} log</span>
                 </div>
-
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleRefresh}
                     disabled={loading}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm"
                   >
                     <FiRefreshCw className={`text-sm ${loading ? "animate-spin" : ""}`} />
-                    <span className="text-sm">Refresh</span>
+                    <span className="hidden sm:inline">Refresh</span>
                   </button>
                   <button
                     onClick={handleExport}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
                   >
                     <FiDownload className="text-sm" />
-                    <span className="text-sm">Export</span>
+                    <span className="hidden sm:inline">Export</span>
                   </button>
                 </div>
               </div>
 
-              {/* Search and Filter Bar */}
-              <div className="flex flex-col lg:flex-row gap-4 mt-6">
-                <div className="relative flex-1">
+              {/* Search and Filter Bar - Dibuat responsif */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                <div className="relative">
                   <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Cari nama barang, kategori, atau lokasi..."
+                    placeholder="Cari nama barang, kategori, lokasi..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-
-                <div className="flex gap-3">
+                {/* Filter dropdowns dibuat agar bisa wrap di layar kecil */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   >
                     {statusTypes.map((status) => (
                       <option
@@ -474,11 +462,10 @@ export default function AuditReportsPage() {
                       </option>
                     ))}
                   </select>
-
                   <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   >
                     {categoryTypes.map((category) => (
                       <option
@@ -489,11 +476,10 @@ export default function AuditReportsPage() {
                       </option>
                     ))}
                   </select>
-
                   <select
                     value={dateRange}
                     onChange={(e) => setDateRange(e.target.value)}
-                    className="px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   >
                     {dateRanges.map((range) => (
                       <option
@@ -508,8 +494,8 @@ export default function AuditReportsPage() {
               </div>
             </div>
 
-            {/* Table Content */}
-            <div className="overflow-x-auto">
+            {/* --- Tampilan Desktop (Tabel) --- */}
+            <div className="overflow-x-auto hidden md:block">
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-gray-50">
@@ -559,6 +545,30 @@ export default function AuditReportsPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* --- Tampilan Mobile (Kartu) --- */}
+            <div className="md:hidden bg-gray-50 p-4 space-y-4">
+              {loading ? (
+                <div className="p-12 text-center flex items-center justify-center">
+                  <FiRefreshCw className="animate-spin mr-2" />
+                  <span>Memuat data...</span>
+                </div>
+              ) : filteredItemAudits.length > 0 ? (
+                filteredItemAudits.map((audit) => (
+                  <ItemAuditCard
+                    key={audit.id}
+                    audit={audit}
+                    onView={handleViewAudit}
+                  />
+                ))
+              ) : (
+                <div className="p-12 text-center text-gray-500">
+                  {searchTerm || filterStatus !== "all" || filterCategory !== "all"
+                    ? "Tidak ada barang yang sesuai dengan filter"
+                    : "Tidak ada data barang"}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
