@@ -5,7 +5,7 @@ import { getInitials } from "@/utils/initials";
 export const HeaderDashboard = ({ title = "dashboard" }) => {
   const { user } = useAuth();
   return (
-    <header className="flex items-center justify-between mb-6">
+    <header className="flex items-center justify-between mb-5 mt-16 lg:mt-0">
       <div className="flex-1">
         <h2 className="relative w-max text-lg font-semibold pb-2">
           {title}

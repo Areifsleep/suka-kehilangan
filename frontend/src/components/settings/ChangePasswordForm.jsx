@@ -71,7 +71,7 @@ export const ChangePasswordForm = ({ formData, onInputChange, onSubmit, loading 
           <div className="flex justify-center sm:justify-end pt-4">
             <Button
               type="submit"
-              className="bg-red-500 hover:bg-red-600 w-full sm:w-auto min-w-[140px]"
+              className="bg-red-500 hover:bg-red-600 w-full lg:w-auto "
               disabled={loading}
             >
               {loading ? "Mengubah..." : "Ubah Password"}

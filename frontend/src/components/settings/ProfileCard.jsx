@@ -2,57 +2,37 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getInitials } from "@/utils/initials";
 
-/**
- * ProfileCard - Komponen untuk menampilkan kartu profil pengguna
- *
- * Catatan: Layout shift prevention sudah diterapkan di level global melalui:
- * 1. CSS `scrollbar-gutter: stable` di html dan body
- * 2. Utility classes `scrollbar-gutter-stable`, `prevent-shift` tersedia
- * 3. BaseLayout dan container utama sudah menggunakan classes tersebut
- */
-
 export const ProfileCard = ({ profile }) => {
-  // Function untuk cek apakah value valid
   const isValidValue = (value) => {
     return value && value !== null && value !== "N/A" && value !== "" && value !== undefined;
   };
 
-  // Build array of profile fields yang akan ditampilkan
   const buildProfileFields = () => {
     const fields = [];
-
-    // ID field logic berdasarkan requirement baru:
-    // 1. Jika NIM null → render NIP
-    // 2. Jika NIP null → render NIM
-    // 3. Jika keduanya null → berarti PETUGAS/ADMIN (tidak render ID field)
     const hasNim = isValidValue(profile.nim);
     const hasNip = isValidValue(profile.nip);
 
     if (!hasNim && hasNip) {
-      // NIM null, render NIP
       fields.push({ label: "NIP", value: profile.nip });
     } else if (hasNim && !hasNip) {
-      // NIP null, render NIM
       fields.push({ label: "NIM", value: profile.nim });
     }
-    // Jika keduanya null, tidak render ID field (PETUGAS/ADMIN tanpa ID)
 
-    // Role (always show if valid)
     if (isValidValue(profile.role)) {
       fields.push({ label: "Role", value: profile.role });
     }
 
-    // Email
     if (isValidValue(profile.email)) {
       fields.push({ label: "Email", value: profile.email, breakAll: true });
     }
 
-    // Fakultas (mainly for students)
     if (isValidValue(profile.faculty)) {
-      fields.push({ label: "Fakultas", value: `${profile.faculty} (${profile.facultyAbbreviation})` });
+      fields.push({
+        label: "Fakultas",
+        value: `${profile.faculty} (${profile.facultyAbbreviation})`,
+      });
     }
 
-    // Program Studi (mainly for students)
     if (isValidValue(profile.program)) {
       fields.push({ label: "Program Studi", value: profile.program });
     }
@@ -68,29 +48,45 @@ export const ProfileCard = ({ profile }) => {
         <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
           {/* Profile Photo */}
           <div className="flex-shrink-0">
-            <div className="w-20 h-20 lg:size-[168px] sm:w-24 sm:h-24 bg-[#d9d9d9] rounded-[5px] flex items-center justify-center text-[#035d37] text-xl lg:text-7xl sm:text-2xl font-semibold">
+            <div className="w-20 h-20 lg:w-[168px] lg:h-[168px] bg-[#d9d9d9] rounded-[6px] flex items-center justify-center text-[#035d37] text-xl l lg:text-7xl font-semibold">
               {getInitials(profile.name)}
             </div>
           </div>
 
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left w-full">
-            <h3 className="text-lg sm:text-xl font-semibold mb-2 md:mb-3">{profile.name}</h3>
+            <h3 className="text-lg md:text-xl font-semibold mb-5 lg:mb-2">{profile.name}</h3>
 
             {profileFields.length > 0 ? (
-              <div className="space-y-1 sm:space-y-2 text-sm sm:text-base text-gray-700">
-                {profileFields.map((field, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col sm:flex-row sm:items-center"
-                  >
-                    <span className="font-medium sm:min-w-[120px]">{field.label}</span>
-                    <span className={`sm:ml-2 ${field.breakAll ? "break-all" : ""}`}>: {field.value}</span>
-                  </div>
-                ))}
-              </div>
+              <>
+                {/* Mobile view: kotak-kotak */}
+                <div className="grid grid-cols-1 gap-2 sm:hidden">
+                  {profileFields.map((field, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-md p-2 text-left text-sm bg-gray-50"
+                    >
+                      <span className="block font-medium text-gray-600">{field.label}</span>
+                      <span className={`block mt-1 ${field.breakAll ? "break-all" : ""}`}>{field.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop view: tabel baris */}
+                <div className="hidden sm:block space-y-2 text-sm md:text-base text-gray-700">
+                  {profileFields.map((field, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col sm:flex-row sm:items-center"
+                    >
+                      <span className="font-medium sm:min-w-[120px] text-gray-600">{field.label}</span>
+                      <span className={`sm:ml-2 ${field.breakAll ? "break-all" : ""}`}>: {field.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
-              <p className="text-sm text-gray-500">No additional profile information available</p>
+              <p className="text-xs sm:text-sm text-gray-500">No additional profile information available</p>
             )}
           </div>
         </div>

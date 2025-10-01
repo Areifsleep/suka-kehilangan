@@ -64,12 +64,10 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Tambah User Baru
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900">Tambah User Baru</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -78,12 +76,13 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="p-4 space-y-4"
+        >
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
             <input
               type="text"
               name="username"
@@ -97,9 +96,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -116,20 +113,14 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
               >
-                {showPassword ? (
-                  <FiEyeOff className="w-4 h-4 text-gray-400" />
-                ) : (
-                  <FiEye className="w-4 h-4 text-gray-400" />
-                )}
+                {showPassword ? <FiEyeOff className="w-4 h-4 text-gray-400" /> : <FiEye className="w-4 h-4 text-gray-400" />}
               </button>
             </div>
           </div>
 
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nama Lengkap *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
             <input
               type="text"
               name="fullName"
@@ -143,9 +134,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
             <input
               type="email"
               name="email"
@@ -162,9 +151,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 NIM <span className="text-red-500">*</span>
-                <span className="text-xs text-gray-500 block">
-                  (Isi salah satu: NIM atau NIP)
-                </span>
+                <span className="text-xs text-gray-500 block">(Isi salah satu: NIM atau NIP)</span>
               </label>
               <input
                 type="text"
@@ -179,9 +166,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 NIP <span className="text-red-500">*</span>
-                <span className="text-xs text-gray-500 block">
-                  (Isi salah satu: NIM atau NIP)
-                </span>
+                <span className="text-xs text-gray-500 block">(Isi salah satu: NIM atau NIP)</span>
               </label>
               <input
                 type="text"
@@ -196,9 +181,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
 
           {/* Program Studi */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Program Studi *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Program Studi *</label>
             <select
               name="studyProgramId"
               value={formData.studyProgramId}
@@ -208,7 +191,10 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
             >
               <option value="">Pilih program studi</option>
               {studyPrograms?.map((program) => (
-                <option key={program.id} value={program.id}>
+                <option
+                  key={program.id}
+                  value={program.id}
+                >
                   {program.name} ({program.faculty.abbreviation})
                 </option>
               ))}
