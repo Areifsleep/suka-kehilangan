@@ -390,7 +390,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6">
+    <div className="min-h-screen  flex items-center justify-center px-4 sm:px-6">
       <div className="w-full max-w-md sm:max-w-lg">
         {/* Login Card */}
         <Card className="shadow-md border border-gray-200">
@@ -494,12 +494,15 @@ export default function LoginPage() {
 
               {/* Forgot Password */}
               <div className="text-right">
-                <a
-                  href="#"
+                <button
+                  type="button"
                   className="text-sm text-green-600 hover:underline"
+                  onClick={() => {
+                    toast.info("Mohon maaf fitur ini belum tersedia dan sedang di kembangkan.");
+                  }}
                 >
                   Lupa Password?
-                </a>
+                </button>
               </div>
 
               {/* Submit */}

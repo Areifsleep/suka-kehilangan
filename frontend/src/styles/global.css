@@ -160,6 +160,10 @@ html {
 body {
   overflow-y: scroll;
   scrollbar-gutter: auto;
+
+  background-image: url("/bg-img-khas-uin.png");
+  background-repeat: repeat;
+  background-attachment: fixed;
 }
 
 /* For containers that might have scrollbars */

@@ -11,6 +11,6 @@ export let options = {
 };
 
 export default function () {
-  http.get(ENDPOINT, { responseType: "none" });
+  http.get(ENDPOINT);
   sleep(1);
 }
