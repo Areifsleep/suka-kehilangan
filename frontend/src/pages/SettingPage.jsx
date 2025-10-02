@@ -125,8 +125,8 @@ export default function SettingsPage() {
   //  Transform backend data untuk komponen UI
   const profileForUI = {
     name: profile?.fullName || profile?.username || "N/A",
-    nip: profile?.nip || "N/A",
-    nim: profile?.nim || "N/A",
+    nip: profile?.nip,
+    nim: profile?.nim,
     email: profile?.email || "N/A",
     faculty: profile?.faculty || "N/A",
     facultyAbbreviation: profile?.facultyAbbreviation || "N/A",

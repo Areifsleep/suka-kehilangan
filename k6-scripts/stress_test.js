@@ -3,19 +3,22 @@
 import http from "k6/http";
 import { sleep } from "k6";
 
-const ENDPOINT = "https://suka-kehilangan-demo.masako.my.id";
+const ENDPOINT = "https://suka-kehilangan.masako.my.id";
 
 export let options = {
   stages: [
-    { duration: "30s", target: 20 },
-    { duration: "30s", target: 50 },
-    { duration: "30s", target: 100 },
-    { duration: "30s", target: 200 },
+    { duration: "10s", target: 20 },
+    { duration: "10s", target: 50 },
+    { duration: "10s", target: 100 },
+    { duration: "10s", target: 200 },
+    { duration: "10s", target: 300 },
+    { duration: "10s", target: 400 },
+    { duration: "10s", target: 500 },
     { duration: "30s", target: 0 },
   ],
 };
 
 export default function () {
-  http.get(ENDPOINT, { responseType: "none" });
+  http.get(ENDPOINT);
   sleep(1);
 }

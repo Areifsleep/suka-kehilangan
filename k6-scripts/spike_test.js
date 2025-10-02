@@ -3,7 +3,7 @@
 import http from "k6/http";
 import { sleep } from "k6";
 
-const ENDPOINT = "https://suka-kehilangan-demo.masako.my.id";
+const ENDPOINT = "https://suka-kehilangan.masako.my.id";
 export let options = {
   stages: [
     { duration: "10s", target: 100 }, // spike
@@ -13,6 +13,6 @@ export let options = {
 };
 
 export default function () {
-  http.get(ENDPOINT, { responseType: "none" });
+  http.get(ENDPOINT);
   sleep(1);
 }
