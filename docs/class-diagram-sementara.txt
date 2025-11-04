@@ -1,0 +1,126 @@
+@startuml ClassDiagram
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class User {
+  +userId: int
+  +name: String
+  +email: String
+  +passwordHash: String
+  +phoneNumber: String
+  +profilePhoto: String
+  +createdAt: DateTime
+  +isVerified: Boolean
+  +register()
+  +login()
+  +updateProfile()
+  +logout()
+}
+
+class Administrator {
+  +adminId: int
+  +username: String
+  +passwordHash: String
+  +role: String
+  +login()
+  +manageLaporan()
+  +verifyLaporan()
+  +deleteUser()
+  +viewStatistics()
+}
+
+class Laporan {
+  +laporanId: int
+  +userId: int
+  +tipe: String     -- (Hilang / Temuan)
+  +namaBarang: String
+  +kategoriId: int
+  +deskripsi: Text
+  +lokasi: String
+  +tanggal: Date
+  +status: String   -- (Aktif / Tersedia / Ditemukan / Closed)
+  +kontakInfo: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +createLaporan()
+  +updateLaporan()
+  +deleteLaporan()
+  +changeStatus()
+}
+
+class Foto {
+  +fotoId: int
+  +laporanId: int
+  +fileName: String
+  +filePath: String
+  +fileSize: int
+  +uploadDate: DateTime
+  +uploadFoto()
+  +deleteFoto()
+}
+
+class Kategori {
+  +kategoriId: int
+  +namaKategori: String
+  +deskripsi: String
+  +getAllKategori()
+}
+
+class Notifikasi {
+  +notifId: int
+  +userId: int
+  +laporanId: int
+  +message: Text
+  +type: String
+  +isRead: Boolean
+  +createdAt: DateTime
+  +sendNotifikasi()
+  +markAsRead()
+  +deleteNotifikasi()
+}
+
+class Match {
+  +matchId: int
+  +laporanHilangId: int
+  +laporanTemuanId: int
+  +skorKemiripan: Float
+  +status: String
+  +createdAt: DateTime
+  +calculateScore()
+  +createMatch()
+  +updateStatus()
+}
+
+class Komunikasi {
+  +komunikasiId: int
+  +senderId: int
+  +receiverId: int
+  +laporanId: int
+  +message: Text
+  +sentAt: DateTime
+  +sendMessage()
+  +getMessages()
+}
+
+class AuditLog {
+  +logId: int
+  +adminId: int
+  +action: String
+  +targetId: int
+  +targetType: String
+  +description: Text
+  +timestamp: DateTime
+  +createLog()
+  +getLogs()
+}
+
+' Relationships
+User "1" -- "0..*" Laporan : creates >
+Laporan "1" -- "0..*" Foto : contains >
+Kategori "1" <-- "0..*" Laporan : category >
+User "1" -- "0..*" Notifikasi : receives >
+Match "0..*" -- "1" Laporan : laporanHilang >
+Match "0..*" -- "1" Laporan : laporanTemuan >
+User "1" -- "0..*" Komunikasi : sender/receiver >
+Administrator "1" -- "0..*" AuditLog : logs >
+@enduml
