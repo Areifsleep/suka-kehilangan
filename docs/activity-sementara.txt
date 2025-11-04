@@ -1,0 +1,128 @@
+@startuml Activity_RegisterLogin
+|User|
+start
+:Open registration page;
+note right: Form: nama, email (@uin-suka.ac.id),\ntelepon, password, konfirmasi
+:Fill form and submit;
+if (email domain valid?) then (yes)
+  if (email not registered?) then (yes)
+    :Create account (db);
+    :Send verification email;
+    stop
+  else (no)
+    :Show error "Email sudah terdaftar";
+    stop
+  endif
+else (no)
+  :Show error "Email harus @uin-suka.ac.id";
+  stop
+endif
+@enduml
+
+@startuml Activity_Login
+|User|
+start
+:Open login page;
+:Enter email & password;
+:Submit;
+if (credentials valid?) then (yes)
+  :Create session / issue token;
+  :Redirect ke dashboard;
+  stop
+else (no)
+  :Show error "Login gagal";
+  stop
+endif
+@enduml
+
+@startuml Activity_ReportLost
+start
+:User pilih "Laporkan Barang Hilang";
+:Show form (nama,kategori,deskripsi,lokasi,tanggal,contact,foto[1-5]);
+:User mengisi & upload foto;
+if (all inputs valid?) then (yes)
+  :Validate file size/type;
+  :Store report & photos (db/storage) status=Aktif;
+  :Trigger automatic matching process;
+  if (matches found?) then (yes)
+    :Create match entries & send notifications;
+  else (no)
+    :No immediate matches;
+  endif
+  :Show success & redirect ke detail laporan;
+  stop
+else (no)
+  :Show validation errors;
+  stop
+endif
+@enduml
+
+@startuml Activity_ReportFound
+start
+:User pilih "Laporkan Barang Temuan";
+:Show form (nama,kategori,deskripsi,lokasi,tanggal,kondisi,contact,foto[1-5]);
+:User mengisi & upload foto;
+if (inputs valid?) then (yes)
+  :Store report status=Tersedia;
+  :Run matching against lost reports (±7 days, kategori, keyword, lokasi);
+  if (matches found?) then (yes)
+    :Create match entries & notify possible owners & finder;
+  endif
+  :Show success & list possible matches;
+  stop
+else (no)
+  :Show validation errors;
+  stop
+endif
+@enduml
+
+@startuml Activity_Search
+start
+:User mengakses halaman Pencarian;
+:Show search bar + filters (kategori, lokasi, rentang tanggal, tipe);
+:User isi keyword/filters;
+:Perform query (real-time);
+if (results exist?) then (yes)
+  :Tampilkan hasil (cards) dengan foto, nama, lokasi, tanggal;
+  :User pilih sorting / klik detail;
+  stop
+else (no)
+  :Show "Tidak ada hasil";
+  stop
+endif
+@enduml
+
+@startuml Activity_MatchingNotification
+start
+:New report saved (lost/found);
+:Fetch opposite-type reports (filter by time window ±7 days, same kategori);
+:For each candidate do
+  :Compute similarity score (kategori, keywords, lokasi proximity, date range);
+  if (score > threshold) then (yes)
+    :Create Match record;
+    :Create Notification for both users;
+    :Send email/push notification;
+  else (no)
+    :Ignore candidate;
+  endif
+end
+:Persist notifications & matches;
+stop
+@enduml
+
+@startuml Activity_AdminManage
+start
+:Admin login ke Dashboard;
+:Show summary / pending verifications / graphs;
+:Admin pilih "Kelola Laporan";
+:Show table with filters;
+:Admin pilih laporan -> View Detail;
+partition Actions {
+  :Admin approve/verify -> update status -> notify reporter;
+  :Admin reject -> set status + reason -> notify reporter;
+  :Admin edit content -> save -> log activity;
+  :Admin delete -> confirm -> delete -> log audit;
+}
+:Admin generate statistik/report (PDF/Excel);
+stop
+@enduml
