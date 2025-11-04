@@ -1,0 +1,41 @@
+@startuml UseCaseDiagram
+left to right direction
+skinparam usecase {
+  BackgroundColor #D0E6F8
+  BorderColor #2A6F9E
+}
+actor "Civitas UIN SK\n(User)" as User
+actor Administrator
+actor "Email System\n(External)" as Email
+
+rectangle "Sistem Suka Kehilangan" {
+  usecase "Register & Login" as UC_Reg
+  usecase "Melaporkan\nBarang Hilang" as UC_Lost
+  usecase "Melaporkan\nBarang Temuan" as UC_Found
+  usecase "Cari Barang" as UC_Search
+  usecase "Lihat Detail\nLaporan" as UC_Detail
+  usecase "Hubungi Pelapor" as UC_Contact
+  usecase "Terima Notifikasi" as UC_Notify
+  usecase "Update Status\nLaporan" as UC_Update
+  usecase "Edit / Hapus\nLaporan" as UC_EditDelete
+  usecase "Dashboard Admin\n(Kelola Laporan/User)" as UC_Manage
+  usecase "Verifikasi\nLaporan" as UC_Verify
+  usecase "Lihat Statistik\n& Generate Report" as UC_Report
+}
+
+User --> UC_Reg
+User --> UC_Lost
+User --> UC_Found
+User --> UC_Search
+User --> UC_Detail
+User --> UC_Contact
+User --> UC_Notify
+User --> UC_Update
+User --> UC_EditDelete
+
+Administrator --> UC_Manage
+Administrator --> UC_Verify
+Administrator --> UC_Report
+
+UC_Notify ..> Email : "kirim notifikasi (email/push)"
+@enduml
