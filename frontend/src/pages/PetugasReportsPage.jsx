@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   FiFileText,
   FiSearch,
-  FiFilter,
   FiDownload,
   FiCalendar,
   FiMapPin,
@@ -20,8 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
-import { Pagination } from "@/components/user-management";
+import { HeaderDashboard } from "@/components/common";
+import { PetugasPagination } from "@/features/admin-management/components";
 
 // Status Badge Component
 function StatusBadge({ status }) {
@@ -706,7 +705,7 @@ export default function PetugasReportsPage() {
           </div>
 
           {totalPages > 1 && (
-            <Pagination
+            <PetugasPagination
               currentPage={currentPage}
               totalPages={totalPages}
               total={filteredReports.length}

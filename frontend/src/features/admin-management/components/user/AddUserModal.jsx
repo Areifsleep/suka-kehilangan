@@ -1,40 +1,48 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useStudyPrograms } from "@/features/admin-management/mutations/adminManagementMutations";
 
-const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => {
+export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading = false }) => {
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     username: "",
     email: "",
     password: "",
-    faculty: "",
-    program: "",
+    studyProgramId: "",
   });
+
+  const { data: studyPrograms } = useStudyPrograms();
 
   const resetForm = () => {
     setFormData({
-      name: "",
+      fullName: "",
       username: "",
       email: "",
       password: "",
-      faculty: "",
-      program: "",
+      studyProgramId: "",
     });
   };
 
   const handleClose = () => {
     resetForm();
-    onOpenChange(false);
+    onClose();
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    // Clean up data - convert empty string to undefined for optional fields
+    const cleanedData = {
+      ...formData,
+      studyProgramId: formData.studyProgramId || undefined,
+    };
+
+    onSubmit(cleanedData);
     resetForm();
   };
 
@@ -44,15 +52,15 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
 
   // Reset form when modal closes
   useEffect(() => {
-    if (!open) {
+    if (!isOpen) {
       resetForm();
     }
-  }, [open]);
+  }, [isOpen]);
 
   return (
     <Dialog
-      open={open}
-      onOpenChange={onOpenChange}
+      open={isOpen}
+      onOpenChange={onClose}
     >
       <DialogContent>
         <DialogHeader>
@@ -64,13 +72,15 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
           className="grid grid-cols-12 gap-4 mt-4"
         >
           <div className="col-span-4 flex items-center">
-            <Label>Nama</Label>
+            <Label>Nama Lengkap</Label>
           </div>
           <div className="col-span-8">
             <Input
-              placeholder="Nama"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
+              placeholder="Nama Lengkap"
+              value={formData.fullName}
+              onChange={(e) => handleInputChange("fullName", e.target.value)}
+              required
+              disabled={loading}
             />
           </div>
 
@@ -82,6 +92,8 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
               placeholder="Username"
               value={formData.username}
               onChange={(e) => handleInputChange("username", e.target.value)}
+              required
+              disabled={loading}
             />
           </div>
 
@@ -94,6 +106,8 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
+              required
+              disabled={loading}
             />
           </div>
 
@@ -102,35 +116,14 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
           </div>
           <div className="col-span-8">
             <Input
-              placeholder="Password"
+              placeholder="Password (min. 8 karakter)"
               type="password"
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
+              required
+              minLength={8}
+              disabled={loading}
             />
-          </div>
-
-          <div className="col-span-4 flex items-center">
-            <Label>Fakultas</Label>
-          </div>
-          <div className="col-span-8">
-            <Select
-              onValueChange={(val) => handleInputChange("faculty", val)}
-              value={formData.faculty}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Fakultas" />
-              </SelectTrigger>
-              <SelectContent>
-                {faculties.map((f) => (
-                  <SelectItem
-                    key={f}
-                    value={f}
-                  >
-                    {f}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="col-span-4 flex items-center">
@@ -138,19 +131,20 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
           </div>
           <div className="col-span-8">
             <Select
-              onValueChange={(val) => handleInputChange("program", val)}
-              value={formData.program}
+              value={formData.studyProgramId}
+              onValueChange={(value) => handleInputChange("studyProgramId", value)}
+              disabled={loading}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Program Studi" />
+                <SelectValue placeholder="Pilih Program Studi (Opsional)" />
               </SelectTrigger>
               <SelectContent>
-                {programs.map((p) => (
+                {studyPrograms?.map((program) => (
                   <SelectItem
-                    key={p}
-                    value={p}
+                    key={program.id}
+                    value={program.id.toString()}
                   >
-                    {p}
+                    {program.name} ({program.level}) - {program.faculty?.abbreviation}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -162,10 +156,16 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
               variant="outline"
               type="button"
               onClick={handleClose}
+              disabled={loading}
             >
-              Cancel
+              Batal
             </Button>
-            <Button type="submit">Tambah</Button>
+            <Button
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Menyimpan..." : "Tambah User"}
+            </Button>
           </div>
         </form>
 
@@ -174,5 +174,3 @@ const AddUserModal = ({ open, onOpenChange, onSubmit, faculties, programs }) => 
     </Dialog>
   );
 };
-
-export default AddUserModal;

@@ -1,7 +1,7 @@
 // frontend/src/components/skeletons/SettingsSkeleton.jsx
-import React from "react";
+
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common";
 
 const SkeletonLine = ({ width = "w-full", height = "h-4" }) => <div className={`${width} ${height} bg-gray-200 rounded animate-pulse`}></div>;
 

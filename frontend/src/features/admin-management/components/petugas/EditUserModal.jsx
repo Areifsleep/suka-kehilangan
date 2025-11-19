@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
-import { useRoles, useStudyPrograms } from "@/hooks/api/management";
+import { useRoles, useStudyPrograms } from "@/features/admin-management/mutations/adminManagementMutations";
 
 export const EditUserModal = ({ isOpen, onClose, onSubmit, loading, user }) => {
   const [formData, setFormData] = useState({

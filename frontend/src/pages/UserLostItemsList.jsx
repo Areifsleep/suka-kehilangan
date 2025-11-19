@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter } from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common";
 
 // Dummy data untuk demo - sesuai dengan context gambar
 const dummyItems = [

@@ -1,8 +1,6 @@
-import React from "react";
-
 import { Button } from "@/components/ui/button";
 
-const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange }) => {
+export const UsersPagination = ({ currentPage, totalPages, total, currentCount, onPageChange }) => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       onPageChange(page);
@@ -97,5 +95,3 @@ const Pagination = ({ currentPage, totalPages, total, currentCount, onPageChange
     </div>
   );
 };
-
-export default Pagination;

@@ -11,9 +11,9 @@ import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 
-import ManagementUser from "./pages/ManagementUser.jsx";
+import ManagementUser from "./features/admin-management/pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
-import ManagementPetugas from "./pages/ManagementPetugas.jsx";
+import ManagementPetugas from "./features/admin-management/pages/ManagementPetugas.jsx";
 import PetugasDashboard from "./pages/PetugasDashboard.jsx";
 import PetugasUploadPage from "./pages/PetugasUploadPage.jsx";
 import PetugasManageReportsPage from "./pages/PetugasManageReportsPage.jsx";

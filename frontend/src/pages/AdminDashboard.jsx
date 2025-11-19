@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FiUsers, FiUserCheck, FiFileText, FiSearch } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common";
 
-// Small presentational components (replace with your shadcn equivalents if you have them)
 function StatCard({ title, value, icon }) {
   return (
     <div className="bg-white rounded-lg shadow p-4 flex flex-col">

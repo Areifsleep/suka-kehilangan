@@ -1,8 +1,7 @@
 import { useProfile } from "@/features/profile-settings/queries/useProfileSettingsQuery";
-import { ProfileCard, EditProfileForm, ChangePasswordForm } from "@/features/profile-settings/components/_index";
+import { ProfileCard, EditProfileForm, ChangePasswordForm, SettingsSkeleton } from "@/features/profile-settings/components";
 
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
-import { SettingsSkeleton } from "@/components/loader/SettingsSkeleton";
+import { HeaderDashboard } from "@/components/common";
 
 export default function ProfileSettingsPage() {
   const { data: profile, isLoading: profileLoading, error: profileError } = useProfile();

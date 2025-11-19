@@ -1,7 +1,6 @@
-import React from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-export const Pagination = ({ currentPage, totalPages, hasNext, hasPrev, onPageChange, className = "" }) => {
+export const PetugasPagination = ({ currentPage, totalPages, hasNext, hasPrev, onPageChange, className = "" }) => {
   const getPageNumbers = () => {
     // Logika ini sudah cukup baik dan tidak perlu diubah
     const delta = 2;

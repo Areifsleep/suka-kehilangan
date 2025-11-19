@@ -1,22 +1,16 @@
-// frontend/src/components/management/UserModal.jsx
-import React, { useState, useEffect } from "react";
+// frontend/src/components/management/PetugasModal.jsx
+import { useState, useEffect } from "react";
 import { FiX, FiEye, FiEyeOff } from "react-icons/fi";
-import { useRoles, useStudyPrograms } from "@/hooks/api/management";
 
-export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
+export const CreatePetugasModal = ({ isOpen, onClose, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     email: "",
     fullName: "",
-    nim: "",
-    nip: "",
-    studyProgramId: "",
+    lokasiPos: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-
-  const { data: roles } = useRoles();
-  const { data: studyPrograms } = useStudyPrograms();
 
   // Reset form when modal closes
   useEffect(() => {
@@ -26,9 +20,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
         password: "",
         email: "",
         fullName: "",
-        nim: "",
-        nip: "",
-        studyProgramId: "",
+        lokasiPos: "",
       });
       setShowPassword(false);
     }
@@ -37,18 +29,10 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validation: Either NIM or NIP must be filled
-    if (!formData.nim && !formData.nip) {
-      alert("Harap isi salah satu dari NIM atau NIP");
-      return;
-    }
-
     // Clean up empty strings to undefined for optional fields
     const cleanedData = {
       ...formData,
-      nim: formData.nim || undefined,
-      nip: formData.nip || undefined,
-      studyProgramId: formData.studyProgramId || undefined,
+      lokasiPos: formData.lokasiPos || undefined,
     };
 
     onSubmit(cleanedData);
@@ -67,7 +51,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-semibold text-gray-900">Tambah User Baru</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Tambah Petugas Baru</h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -146,58 +130,19 @@ export const CreateUserModal = ({ isOpen, onClose, onSubmit, loading }) => {
             />
           </div>
 
-          {/* NIM and NIP - At least one must be filled */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                NIM <span className="text-red-500">*</span>
-                <span className="text-xs text-gray-500 block">(Isi salah satu: NIM atau NIP)</span>
-              </label>
-              <input
-                type="text"
-                name="nim"
-                value={formData.nim}
-                onChange={handleChange}
-                pattern="[0-9]*"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Masukkan NIM"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                NIP <span className="text-red-500">*</span>
-                <span className="text-xs text-gray-500 block">(Isi salah satu: NIM atau NIP)</span>
-              </label>
-              <input
-                type="text"
-                name="nip"
-                value={formData.nip}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Masukkan NIP"
-              />
-            </div>
-          </div>
-
-          {/* Program Studi */}
+          {/* Lokasi Pos */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Program Studi *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Lokasi Pos *</label>
             <select
-              name="studyProgramId"
-              value={formData.studyProgramId}
+              name="lokasiPos"
+              value={formData.lokasiPos}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              <option value="">Pilih program studi</option>
-              {studyPrograms?.map((program) => (
-                <option
-                  key={program.id}
-                  value={program.id}
-                >
-                  {program.name} ({program.faculty.abbreviation})
-                </option>
-              ))}
+              <option value="">Pilih lokasi pos</option>
+              <option value="POS_BARAT">Pos Barat</option>
+              <option value="POS_TIMUR">Pos Timur</option>
             </select>
           </div>
 

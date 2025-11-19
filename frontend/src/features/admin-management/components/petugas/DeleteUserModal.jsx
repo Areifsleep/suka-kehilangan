@@ -1,5 +1,4 @@
-import React from "react";
-import { FiX, FiAlertTriangle, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiX, FiAlertTriangle } from "react-icons/fi";
 
 export const DeleteUserModal = ({ isOpen, onClose, onConfirm, loading, user }) => {
   if (!isOpen || !user) return null;

@@ -1,5 +1,5 @@
 import { FiMenu, FiX } from "react-icons/fi";
-import { LogoDashboard } from "@/components/user-management/LogoDashboard";
+import { LogoDashboard } from "@/features/admin-management/components/user/LogoDashboard";
 
 export const SidebarHeader = ({ collapsed = false, isMobile = false, onToggle, onClose }) => {
   return (

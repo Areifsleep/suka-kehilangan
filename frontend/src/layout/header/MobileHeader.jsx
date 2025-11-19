@@ -1,5 +1,5 @@
 import { FiMenu } from "react-icons/fi";
-import { LogoDashboard } from "@/components/user-management/LogoDashboard";
+import { LogoDashboard } from "@/features/admin-management/components/user/LogoDashboard";
 
 export const MobileHeader = ({ onMenuToggle }) => {
   return (

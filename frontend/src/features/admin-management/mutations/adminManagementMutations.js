@@ -1,4 +1,3 @@
-// frontend/src/hooks/api/management.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 
@@ -24,9 +23,7 @@ const managementApi = {
     if (params.roleId) searchParams.append("roleId", params.roleId);
     if (params.lokasiPos) searchParams.append("lokasiPos", params.lokasiPos);
 
-    const response = await api.get(
-      `/management/users?${searchParams.toString()}`
-    );
+    const response = await api.get(`/management/users?${searchParams.toString()}`);
     return response.data;
   },
 
@@ -74,9 +71,7 @@ const managementApi = {
     if (params.limit) searchParams.append("limit", params.limit);
     if (params.search) searchParams.append("search", params.search);
 
-    const response = await api.get(
-      `/management/regular-users?${searchParams.toString()}`
-    );
+    const response = await api.get(`/management/regular-users?${searchParams.toString()}`);
     return response.data;
   },
 
@@ -88,9 +83,7 @@ const managementApi = {
     if (params.search) searchParams.append("search", params.search);
     if (params.lokasiPos) searchParams.append("lokasiPos", params.lokasiPos);
 
-    const response = await api.get(
-      `/management/petugas?${searchParams.toString()}`
-    );
+    const response = await api.get(`/management/petugas?${searchParams.toString()}`);
     return response.data;
   },
 
@@ -101,9 +94,7 @@ const managementApi = {
     if (params.limit) searchParams.append("limit", params.limit);
     if (params.search) searchParams.append("search", params.search);
 
-    const response = await api.get(
-      `/management/mahasiswa?${searchParams.toString()}`
-    );
+    const response = await api.get(`/management/mahasiswa?${searchParams.toString()}`);
     return response.data;
   },
 };

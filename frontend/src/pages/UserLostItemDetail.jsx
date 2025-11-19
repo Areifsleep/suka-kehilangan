@@ -1,9 +1,8 @@
-import React from "react";
 import { useNavigate, useParams } from "react-router";
 import { FiArrowLeft, FiMapPin, FiCalendar, FiUser, FiPhone, FiMail, FiClock, FiPackage, FiMessageCircle } from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common";
 
 // Dummy data untuk demo
 const itemDetails = {

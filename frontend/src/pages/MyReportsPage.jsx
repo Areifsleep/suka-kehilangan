@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FiFileText, FiEye, FiEdit2, FiTrash2, FiCalendar, FiMapPin, FiClock, FiPhone, FiMail, FiAlertCircle, FiCheck, FiX } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common";
 
 // StatusBadge component
 function StatusBadge({ status }) {

@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/axios";
-import { FullPageSpinner } from "@/components/common/FullPageSpinner";
+import { FullPageSpinner } from "@/components/common";
 import { useAuthStore } from "@/stores/authStore";
 
 const AuthContext = createContext(null);

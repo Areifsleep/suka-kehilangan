@@ -1,18 +1,24 @@
 import React, { useState } from "react";
-import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiKey, FiFilter } from "react-icons/fi";
+import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiKey } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Pagination, CreatePetugasModal, EditUserModal, DeleteUserModal, ResetPasswordModal } from "@/components/management";
-import { HeaderDashboard } from "@/components/common/HeaderDashboard";
-import { usePetugas, useCreateUser, useUpdateUser, useDeleteUser, useResetPassword, useRoles } from "@/hooks/api/management";
+import { UsersPagination, CreateUserModal, EditUserModal, DeleteUserModal, ResetPasswordModal } from "../components";
+import { HeaderDashboard } from "@/components/common";
+import {
+  useRegularUsers,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  useResetPassword,
+  useRoles,
+} from "@/features/admin-management/mutations/adminManagementMutations";
 
-export default function ManagementPetugas() {
+export default function ManagementUser() {
   // State for filters and pagination
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState(""); // Debounced search
-  const [lokasiPosFilter, setLokasiPosFilter] = useState("");
 
   // Modal states
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -33,15 +39,14 @@ export default function ManagementPetugas() {
 
   // API Queries
   const {
-    data: petugasData,
+    data: usersData,
     isLoading,
     error,
     refetch,
-  } = usePetugas({
+  } = useRegularUsers({
     page,
     limit: 20,
     search: searchTerm,
-    lokasiPos: lokasiPosFilter || undefined,
   });
 
   const { data: roles } = useRoles();
@@ -53,16 +58,16 @@ export default function ManagementPetugas() {
   const resetPasswordMutation = useResetPassword();
 
   // Modal handlers
-  const handleCreatePetugas = () => {
+  const handleCreateUser = () => {
     setCreateModalOpen(true);
   };
 
-  const handleEditPetugas = (user) => {
+  const handleEditUser = (user) => {
     setSelectedUser(user);
     setEditModalOpen(true);
   };
 
-  const handleDeletePetugas = (user) => {
+  const handleDeleteUser = (user) => {
     setSelectedUser(user);
     setDeleteModalOpen(true);
   };
@@ -75,52 +80,52 @@ export default function ManagementPetugas() {
   // Submit handlers
   const handleCreateSubmit = async (userData) => {
     try {
-      // Automatically assign PETUGAS role
-      const petugasRole = roles?.find((role) => role.name.toLowerCase() === "petugas");
-      if (!petugasRole) {
-        toast.error("Role PETUGAS tidak ditemukan");
+      // Automatically assign USER role
+      const userRole = roles?.find((role) => role.name.toLowerCase() === "user");
+      if (!userRole) {
+        toast.error("Role USER tidak ditemukan");
         return;
       }
 
-      const petugasDataWithRole = {
+      const userDataWithRole = {
         ...userData,
-        roleId: petugasRole.id,
+        roleId: userRole.id,
       };
 
-      await createUserMutation.mutateAsync(petugasDataWithRole);
-      toast.success("Petugas berhasil dibuat");
+      await createUserMutation.mutateAsync(userDataWithRole);
+      toast.success("User berhasil dibuat");
       setCreateModalOpen(false);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal membuat petugas");
+      toast.error(error.response?.data?.message || "Gagal membuat user");
     }
   };
 
   const handleEditSubmit = async (userData) => {
     try {
       await updateUserMutation.mutateAsync(userData);
-      toast.success("Data petugas berhasil diupdate");
+      toast.success("User berhasil diupdate");
       setEditModalOpen(false);
       setSelectedUser(null);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal mengupdate data petugas");
+      toast.error(error.response?.data?.message || "Gagal mengupdate user");
     }
   };
 
   const handleDeleteConfirm = async () => {
     try {
       await deleteUserMutation.mutateAsync(selectedUser.id);
-      toast.success("Petugas berhasil dihapus");
+      toast.success("User berhasil dihapus");
       setDeleteModalOpen(false);
       setSelectedUser(null);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Gagal menghapus petugas");
+      toast.error(error.response?.data?.message || "Gagal menghapus user");
     }
   };
 
   const handleResetPasswordSubmit = async (passwordData) => {
     try {
       await resetPasswordMutation.mutateAsync(passwordData);
-      toast.success("Password petugas berhasil direset");
+      toast.success("Password berhasil direset");
       setResetPasswordModalOpen(false);
       setSelectedUser(null);
     } catch (error) {
@@ -128,17 +133,11 @@ export default function ManagementPetugas() {
     }
   };
 
-  // Handle filter change
-  const handleLokasiPosFilterChange = (value) => {
-    setLokasiPosFilter(value);
-    setPage(1);
-  };
-
   // Handle API error
   if (error) {
     return (
       <>
-        <HeaderDashboard title="Manajemen Petugas" />
+        <HeaderDashboard title="Manajemen User" />
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
@@ -158,47 +157,34 @@ export default function ManagementPetugas() {
 
   return (
     <>
-      <HeaderDashboard title="Manajemen Petugas" />
+      <HeaderDashboard title="Manajemen User" />
       <Card>
         <CardContent>
           {/* Header Section: Dibuat responsif */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
-            {/* Bagian Kiri: Judul dan Tombol Tambah */}
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-medium">Daftar Petugas</h3>
+              <h3 className="text-lg font-medium">Daftar User</h3>
               <button
-                onClick={handleCreatePetugas}
+                onClick={handleCreateUser}
                 className="inline-flex items-center gap-2 border rounded px-2 py-1 text-sm hover:bg-gray-50"
               >
                 <FiPlus />
               </button>
             </div>
 
-            {/* Bagian Kanan: Filter dan Search */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <select
-                value={lokasiPosFilter}
-                onChange={(e) => handleLokasiPosFilterChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full sm:w-auto"
-              >
-                <option value="">Semua Lokasi</option>
-                <option value="POS_BARAT">Pos Barat</option>
-                <option value="POS_TIMUR">Pos Timur</option>
-              </select>
-
-              <div className="relative">
-                <input
-                  placeholder="Cari petugas..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 pr-4 py-2 rounded-md shadow-sm border w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
+            <div className="relative">
+              <input
+                placeholder="Cari user..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-4 py-2 rounded-md shadow-sm border w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
           </div>
 
           {/* --- Tampilan Desktop (Tabel) --- */}
+          {/* Tetap menggunakan overflow-x-auto sebagai fallback jika ada kolom yang sangat lebar */}
           <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -206,7 +192,8 @@ export default function ManagementPetugas() {
                   <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Nama</th>
                   <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Email</th>
                   <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Username</th>
-                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Lokasi Pos</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Role</th>
+                  <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Program Studi</th>
                   <th className="p-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Aksi</th>
                 </tr>
               </thead>
@@ -214,7 +201,7 @@ export default function ManagementPetugas() {
                 {isLoading ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="p-6 text-center"
                     >
                       <div className="flex items-center justify-center space-x-2">
@@ -223,67 +210,76 @@ export default function ManagementPetugas() {
                       </div>
                     </td>
                   </tr>
-                ) : !petugasData?.data?.length ? (
+                ) : !usersData?.data?.length ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="p-6 text-center text-gray-500"
                     >
-                      {searchTerm || lokasiPosFilter ? "Tidak ada petugas yang ditemukan" : "Belum ada data petugas"}
+                      {searchTerm ? "Tidak ada user yang ditemukan" : "Belum ada data user"}
                     </td>
                   </tr>
                 ) : (
-                  petugasData.data.map((petugas) => (
+                  usersData.data.map((user) => (
                     <tr
-                      key={petugas.id}
+                      key={user.id}
                       className="hover:bg-gray-50"
                     >
                       <td className="p-3 max-w-xs">
                         <div
                           className="font-medium text-gray-900 truncate"
-                          title={petugas.profile?.full_name}
+                          title={user.profile?.full_name}
                         >
-                          {petugas.profile?.full_name}
+                          {user.profile?.full_name}
                         </div>
-                        <div className="text-sm text-gray-500">ID: {petugas.id}</div>
+                        {user.profile?.nim && <div className="text-sm text-gray-500">NIM: {user.profile.nim}</div>}
+                        {user.profile?.nip && <div className="text-sm text-gray-500">NIP: {user.profile.nip}</div>}
                       </td>
-                      <td className="p-3 text-sm text-gray-900">{petugas.profile?.email}</td>
-                      <td className="p-3 text-sm text-gray-900">{petugas.username}</td>
+                      <td className="p-3 text-sm text-gray-900">{user.profile?.email}</td>
+                      <td className="p-3 text-sm text-gray-900">{user.username}</td>
                       <td className="p-3">
-                        {petugas.profile?.lokasi_pos ? (
-                          <span
-                            className={`inline-flex text-center px-2 py-1 text-xs font-semibold rounded-full ${
-                              petugas.profile.lokasi_pos === "POS_BARAT" ? "bg-orange-100 text-orange-800" : "bg-purple-100 text-purple-800"
-                            }`}
-                          >
-                            {petugas.profile.lokasi_pos === "POS_BARAT" ? "Pos Barat" : "Pos Timur"}
-                          </span>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role?.name === "admin"
+                              ? "bg-red-100 text-red-800"
+                              : user.role?.name === "petugas"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {user.role?.name}
+                        </span>
+                      </td>
+                      <td className="p-3 text-sm text-gray-900">
+                        {user.profile?.study_program ? (
+                          <div>
+                            <div className="font-medium">{user.profile.study_program.name}</div>
+                            <div className="text-xs text-gray-500">{user.profile.study_program.faculty?.abbreviation}</div>
+                          </div>
                         ) : (
-                          <span className="inline-flex text-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                            Belum ditentukan
-                          </span>
+                          <span className="text-gray-400">-</span>
                         )}
                       </td>
                       <td className="p-3">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => handleEditPetugas(petugas)}
+                            onClick={() => handleEditUser(user)}
                             className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md"
-                            title="Edit petugas"
+                            title="Edit user"
                           >
                             <FiEdit2 className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleResetPassword(petugas)}
+                            onClick={() => handleResetPassword(user)}
                             className="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100 rounded-md"
                             title="Reset password"
                           >
                             <FiKey className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDeletePetugas(petugas)}
+                            onClick={() => handleDeleteUser(user)}
                             className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md"
-                            title="Hapus petugas"
+                            title="Hapus user"
                           >
                             <FiTrash2 className="w-4 h-4" />
                           </button>
@@ -305,44 +301,51 @@ export default function ManagementPetugas() {
                   <span>Memuat data...</span>
                 </div>
               </div>
-            ) : !petugasData?.data?.length ? (
-              <div className="p-6 text-center text-gray-500">
-                {searchTerm || lokasiPosFilter ? "Tidak ada petugas yang ditemukan" : "Belum ada data petugas"}
-              </div>
+            ) : !usersData?.data?.length ? (
+              <div className="p-6 text-center text-gray-500">{searchTerm ? "Tidak ada user yang ditemukan" : "Belum ada data user"}</div>
             ) : (
-              petugasData.data.map((petugas) => (
+              usersData.data.map((user) => (
                 <div
-                  key={petugas.id}
+                  key={user.id}
                   className="bg-white p-4 rounded-lg shadow border"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <div className="font-bold text-gray-900">{petugas.profile?.full_name || "N/A"}</div>
-                      <div className="text-sm text-gray-500">ID: {petugas.id}</div>
+                      <div className="font-bold text-gray-900">{user.profile?.full_name || "N/A"}</div>
+                      <div className="text-sm text-gray-500">{user.username}</div>
+                      {user.profile?.nim && <div className="text-sm text-gray-500">NIM: {user.profile.nim}</div>}
+                      {user.profile?.nip && <div className="text-sm text-gray-500">NIP: {user.profile.nip}</div>}
                     </div>
-                    {petugas.profile?.lokasi_pos ? (
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          petugas.profile.lokasi_pos === "POS_BARAT" ? "bg-orange-100 text-orange-800" : "bg-purple-100 text-purple-800"
-                        }`}
-                      >
-                        {petugas.profile.lokasi_pos === "POS_BARAT" ? "Pos Barat" : "Pos Timur"}
-                      </span>
-                    ) : (
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">N/A</span>
-                    )}
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        user.role?.name === "admin"
+                          ? "bg-red-100 text-red-800"
+                          : user.role?.name === "petugas"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {user.role?.name}
+                    </span>
                   </div>
 
                   <div className="border-t my-3"></div>
 
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500 font-medium">Email:</span>
-                      <span className="text-gray-800 truncate">{petugas.profile?.email}</span>
+                      <span className="text-gray-500">Email:</span>
+                      <span className="text-gray-900 truncate">{user.profile?.email}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500 font-medium">Username:</span>
-                      <span className="text-gray-800">{petugas.username}</span>
+                      <span className="text-gray-500">Prodi:</span>
+                      {user.profile?.study_program ? (
+                        <div className="text-right">
+                          <div className="font-medium text-gray-900">{user.profile.study_program.name}</div>
+                          <div className="text-xs text-gray-500">{user.profile.study_program.faculty?.abbreviation}</div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </div>
                   </div>
 
@@ -350,23 +353,23 @@ export default function ManagementPetugas() {
 
                   <div className="flex items-center justify-end space-x-2">
                     <button
-                      onClick={() => handleEditPetugas(petugas)}
+                      onClick={() => handleEditUser(user)}
                       className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md"
-                      title="Edit petugas"
+                      title="Edit user"
                     >
                       <FiEdit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleResetPassword(petugas)}
+                      onClick={() => handleResetPassword(user)}
                       className="p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100 rounded-md"
                       title="Reset password"
                     >
                       <FiKey className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDeletePetugas(petugas)}
+                      onClick={() => handleDeleteUser(user)}
                       className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-md"
-                      title="Hapus petugas"
+                      title="Hapus user"
                     >
                       <FiTrash2 className="w-4 h-4" />
                     </button>
@@ -377,13 +380,13 @@ export default function ManagementPetugas() {
           </div>
 
           {/* Pagination */}
-          {petugasData?.pagination && (
+          {usersData?.pagination && (
             <div className="mt-4">
-              <Pagination
-                currentPage={petugasData.pagination.page}
-                totalPages={petugasData.pagination.totalPages}
-                hasNext={petugasData.pagination.hasNext}
-                hasPrev={petugasData.pagination.hasPrev}
+              <UsersPagination
+                currentPage={usersData.pagination.page}
+                totalPages={usersData.pagination.totalPages}
+                hasNext={usersData.pagination.hasNext}
+                hasPrev={usersData.pagination.hasPrev}
                 onPageChange={setPage}
               />
             </div>
@@ -391,15 +394,15 @@ export default function ManagementPetugas() {
         </CardContent>
       </Card>
 
-      {/* Create Petugas Modal */}
-      <CreatePetugasModal
+      {/* Create User Modal */}
+      <CreateUserModal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateSubmit}
         loading={createUserMutation.isPending}
       />
 
-      {/* Edit Petugas Modal */}
+      {/* Edit User Modal */}
       <EditUserModal
         isOpen={editModalOpen}
         onClose={() => {
@@ -411,7 +414,7 @@ export default function ManagementPetugas() {
         user={selectedUser}
       />
 
-      {/* Delete Petugas Modal */}
+      {/* Delete User Modal */}
       <DeleteUserModal
         isOpen={deleteModalOpen}
         onClose={() => {
