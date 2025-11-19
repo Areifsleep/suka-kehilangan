@@ -18,7 +18,7 @@ import {
 } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 // Enhanced StatCard component with trends and animations
 function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {

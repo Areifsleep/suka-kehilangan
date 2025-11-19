@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiUsers, FiUserCheck, FiFileText, FiSearch } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 // Small presentational components (replace with your shadcn equivalents if you have them)
 function StatCard({ title, value, icon }) {

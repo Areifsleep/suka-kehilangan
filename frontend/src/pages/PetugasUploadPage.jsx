@@ -1,29 +1,13 @@
 import React, { useState } from "react";
-import {
-  FiUpload,
-  FiImage,
-  FiTag,
-  FiMapPin,
-  FiCalendar,
-  FiFileText,
-  FiSave,
-  FiX,
-  FiCheck,
-} from "react-icons/fi";
+import { FiUpload, FiImage, FiTag, FiMapPin, FiCalendar, FiFileText, FiSave, FiX, FiCheck } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 export default function PetugasUploadPage() {
   const [formData, setFormData] = useState({
@@ -39,26 +23,9 @@ export default function PetugasUploadPage() {
   const [selectedImages, setSelectedImages] = useState([]);
   const [uploading, setUploading] = useState(false);
 
-  const categories = [
-    "Elektronik",
-    "Pakaian",
-    "Aksesoris",
-    "Dokumen",
-    "Kendaraan",
-    "Tas",
-    "Sepatu",
-    "Buku",
-    "Alat Tulis",
-    "Lainnya",
-  ];
+  const categories = ["Elektronik", "Pakaian", "Aksesoris", "Dokumen", "Kendaraan", "Tas", "Sepatu", "Buku", "Alat Tulis", "Lainnya"];
 
-  const conditions = [
-    "Sangat Baik",
-    "Baik",
-    "Cukup",
-    "Rusak Ringan",
-    "Rusak Berat",
-  ];
+  const conditions = ["Sangat Baik", "Baik", "Cukup", "Rusak Ringan", "Rusak Berat"];
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({
@@ -127,7 +94,10 @@ export default function PetugasUploadPage() {
     <div>
       <HeaderDashboard title="Unggah Barang Temuan" />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+      >
         {/* Informasi Dasar */}
         <Card>
           <CardContent className="p-6">
@@ -163,9 +133,7 @@ export default function PetugasUploadPage() {
                 </Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value) =>
-                    handleInputChange("category", value)
-                  }
+                  onValueChange={(value) => handleInputChange("category", value)}
                   required
                 >
                   <SelectTrigger className="mt-1">
@@ -173,7 +141,10 @@ export default function PetugasUploadPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
+                      <SelectItem
+                        key={category}
+                        value={category}
+                      >
                         {category}
                       </SelectItem>
                     ))}
@@ -191,9 +162,7 @@ export default function PetugasUploadPage() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("description", e.target.value)}
                   placeholder="Deskripsikan barang secara detail (warna, ukuran, merk, dll)"
                   rows={3}
                   required
@@ -223,9 +192,7 @@ export default function PetugasUploadPage() {
                 <Input
                   id="location"
                   value={formData.location}
-                  onChange={(e) =>
-                    handleInputChange("location", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("location", e.target.value)}
                   placeholder="Contoh: Perpustakaan lantai 2, Gedung A"
                   required
                   className="mt-1"
@@ -243,9 +210,7 @@ export default function PetugasUploadPage() {
                   id="dateFound"
                   type="date"
                   value={formData.dateFound}
-                  onChange={(e) =>
-                    handleInputChange("dateFound", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("dateFound", e.target.value)}
                   required
                   className="mt-1"
                 />
@@ -272,9 +237,7 @@ export default function PetugasUploadPage() {
                 </Label>
                 <Select
                   value={formData.condition}
-                  onValueChange={(value) =>
-                    handleInputChange("condition", value)
-                  }
+                  onValueChange={(value) => handleInputChange("condition", value)}
                   required
                 >
                   <SelectTrigger className="mt-1">
@@ -282,7 +245,10 @@ export default function PetugasUploadPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {conditions.map((condition) => (
-                      <SelectItem key={condition} value={condition}>
+                      <SelectItem
+                        key={condition}
+                        value={condition}
+                      >
                         {condition}
                       </SelectItem>
                     ))}
@@ -300,9 +266,7 @@ export default function PetugasUploadPage() {
                 <Textarea
                   id="additionalNotes"
                   value={formData.additionalNotes}
-                  onChange={(e) =>
-                    handleInputChange("additionalNotes", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("additionalNotes", e.target.value)}
                   placeholder="Catatan khusus tentang barang ini"
                   rows={2}
                   className="mt-1"
@@ -330,21 +294,23 @@ export default function PetugasUploadPage() {
                   className="hidden"
                   id="image-upload"
                 />
-                <label htmlFor="image-upload" className="cursor-pointer">
+                <label
+                  htmlFor="image-upload"
+                  className="cursor-pointer"
+                >
                   <FiUpload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-600">
-                    Klik untuk mengunggah foto atau drag & drop
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    PNG, JPG, JPEG hingga 10MB (maksimal 5 foto)
-                  </p>
+                  <p className="text-sm text-gray-600">Klik untuk mengunggah foto atau drag & drop</p>
+                  <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG hingga 10MB (maksimal 5 foto)</p>
                 </label>
               </div>
 
               {selectedImages.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {selectedImages.map((image) => (
-                    <div key={image.id} className="relative">
+                    <div
+                      key={image.id}
+                      className="relative"
+                    >
                       <img
                         src={image.preview}
                         alt="Preview"
@@ -367,7 +333,11 @@ export default function PetugasUploadPage() {
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-4 pt-4">
-          <Button type="button" variant="outline" className="px-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="px-6"
+          >
             Batal
           </Button>
           <Button

@@ -7,7 +7,7 @@ import { createBrowserRouter, RouterProvider, Outlet } from "react-router";
 
 import "./styles/global.css";
 import "react-toastify/dist/ReactToastify.css";
-import LoginPage from "./features/login/pages/LoginPage.jsx";
+import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 
@@ -26,13 +26,13 @@ import UserMyReports from "./pages/UserMyReports.jsx";
 import AuditReportsPage from "./pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
-import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
-import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn.jsx";
+import { ProtectedRoute } from "./features/auth/guard/ProtectedRoute";
+import { RedirectIfLoggedIn } from "./features/auth/guard/RedirectIfLoggedIn";
 import { UserLayout } from "./layouts/UserLayout.jsx";
 import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
 import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 
-import SettingPage from "./pages/SettingPage.jsx";
+import ProfileSettingsPage from "./features/profile-settings/pages/ProfileSettingsPage.jsx";
 
 function MainLayout() {
   return (
@@ -143,7 +143,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <SettingPage />,
+                element: <ProfileSettingsPage />,
               },
             ],
           },

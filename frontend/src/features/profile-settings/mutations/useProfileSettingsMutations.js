@@ -1,6 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { useAuth } from "@/contexts/AuthContext";
+
 import { api } from "@/lib/axios";
 
 export const useUpdateProfile = () => {

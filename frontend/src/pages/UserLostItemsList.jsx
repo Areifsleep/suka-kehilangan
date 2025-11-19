@@ -4,7 +4,7 @@ import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter } from "react-i
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 // Dummy data untuk demo - sesuai dengan context gambar
 const dummyItems = [

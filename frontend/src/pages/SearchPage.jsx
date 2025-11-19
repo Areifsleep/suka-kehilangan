@@ -1,28 +1,13 @@
 import React, { useState } from "react";
-import {
-  FiSearch,
-  FiMapPin,
-  FiCalendar,
-  FiUser,
-  FiEye,
-  FiFilter,
-  FiRefreshCw,
-} from "react-icons/fi";
+import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter, FiRefreshCw } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 // FilterSection component
 function FilterSection({ filters, onFilterChange, onReset }) {
   const statusOptions = ["Semua", "Ditemukan", "Dicari", "Diserahkan"];
-  const locationOptions = [
-    "Semua Lokasi",
-    "Masjid UIN",
-    "Fakultas Teknik",
-    "Perpustakaan",
-    "Kantin",
-    "Auditorium",
-  ];
+  const locationOptions = ["Semua Lokasi", "Masjid UIN", "Fakultas Teknik", "Perpustakaan", "Kantin", "Auditorium"];
 
   return (
     <Card>
@@ -34,16 +19,17 @@ function FilterSection({ filters, onFilterChange, onReset }) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
             <select
               value={filters.status}
               onChange={(e) => onFilterChange("status", e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
             >
               {statusOptions.map((option) => (
-                <option key={option} value={option}>
+                <option
+                  key={option}
+                  value={option}
+                >
                   {option}
                 </option>
               ))}
@@ -51,16 +37,17 @@ function FilterSection({ filters, onFilterChange, onReset }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Lokasi
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Lokasi</label>
             <select
               value={filters.location}
               onChange={(e) => onFilterChange("location", e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
             >
               {locationOptions.map((option) => (
-                <option key={option} value={option}>
+                <option
+                  key={option}
+                  value={option}
+                >
                   {option}
                 </option>
               ))}
@@ -68,9 +55,7 @@ function FilterSection({ filters, onFilterChange, onReset }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tanggal Mulai
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
             <input
               type="date"
               value={filters.dateFrom}
@@ -80,9 +65,7 @@ function FilterSection({ filters, onFilterChange, onReset }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tanggal Akhir
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
             <input
               type="date"
               value={filters.dateTo}
@@ -126,17 +109,9 @@ function SearchResultCard({ item, onViewDetail }) {
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-900 mb-2">
-              {item.title}
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-900 mb-2">{item.title}</h3>
             <div className="flex items-center gap-2 mb-2">
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                  item.status
-                )}`}
-              >
-                {item.status}
-              </span>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(item.status)}`}>{item.status}</span>
             </div>
           </div>
         </div>
@@ -156,9 +131,7 @@ function SearchResultCard({ item, onViewDetail }) {
           </div>
         </div>
 
-        <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-          {item.description}
-        </p>
+        <p className="text-gray-700 text-sm mb-4 line-clamp-3">{item.description}</p>
 
         <button
           onClick={() => onViewDetail(item)}
@@ -203,8 +176,7 @@ export default function SearchPage() {
       location: "Parkiran Fakultas Teknik",
       foundDate: "2025-09-24",
       officer: "Siti Aminah",
-      description:
-        "Kunci motor Honda dengan gantungan bertuliskan nama 'Budi'. Ditemukan di area parkiran Fakultas Teknik.",
+      description: "Kunci motor Honda dengan gantungan bertuliskan nama 'Budi'. Ditemukan di area parkiran Fakultas Teknik.",
       contact: "Security Fakultas Teknik",
     },
     {
@@ -214,8 +186,7 @@ export default function SearchPage() {
       location: "Perpustakaan Pusat",
       foundDate: "2025-09-23",
       officer: "Muhammad Fauzan",
-      description:
-        "Tas ransel hitam berisi buku-buku kuliah dan alat tulis. Sudah diserahkan kepada pemilik yang sah.",
+      description: "Tas ransel hitam berisi buku-buku kuliah dan alat tulis. Sudah diserahkan kepada pemilik yang sah.",
       contact: "Perpustakaan Pusat",
     },
     {
@@ -225,8 +196,7 @@ export default function SearchPage() {
       location: "Kantin Pusat",
       foundDate: "2025-09-22",
       officer: "Nur Hidayah",
-      description:
-        "Handphone Samsung warna biru muda dengan case bergambar kartun. Ditemukan di meja kantin pusat.",
+      description: "Handphone Samsung warna biru muda dengan case bergambar kartun. Ditemukan di meja kantin pusat.",
       contact: "Kantin Pusat",
     },
     {
@@ -236,8 +206,7 @@ export default function SearchPage() {
       location: "Auditorium Utama",
       foundDate: "2025-09-21",
       officer: "Abdul Rahman",
-      description:
-        "Jaket merah ukuran L dengan logo universitas. Tertinggal di auditorium setelah acara seminar.",
+      description: "Jaket merah ukuran L dengan logo universitas. Tertinggal di auditorium setelah acara seminar.",
       contact: "Bagian Kemahasiswaan",
     },
   ];
@@ -282,20 +251,12 @@ export default function SearchPage() {
 
       // Filter by location
       if (filters.location !== "Semua Lokasi") {
-        filtered = filtered.filter((item) =>
-          item.location
-            .toLowerCase()
-            .includes(
-              filters.location.toLowerCase().replace(/\s+/g, " ").trim()
-            )
-        );
+        filtered = filtered.filter((item) => item.location.toLowerCase().includes(filters.location.toLowerCase().replace(/\s+/g, " ").trim()));
       }
 
       // Filter by date range
       if (filters.dateFrom) {
-        filtered = filtered.filter(
-          (item) => item.foundDate >= filters.dateFrom
-        );
+        filtered = filtered.filter((item) => item.foundDate >= filters.dateFrom);
       }
       if (filters.dateTo) {
         filtered = filtered.filter((item) => item.foundDate <= filters.dateTo);
@@ -307,9 +268,7 @@ export default function SearchPage() {
   };
 
   const handleViewDetail = (item) => {
-    alert(
-      `Detail untuk ${item.title}:\n\n${item.description}\n\nKontak: ${item.contact}`
-    );
+    alert(`Detail untuk ${item.title}:\n\n${item.description}\n\nKontak: ${item.contact}`);
   };
 
   return (
@@ -356,7 +315,10 @@ export default function SearchPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card
+              key={i}
+              className="animate-pulse"
+            >
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -388,12 +350,8 @@ export default function SearchPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <FiSearch className="mx-auto text-4xl text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Tidak ada hasil ditemukan
-            </h3>
-            <p className="text-gray-500 mb-6">
-              Coba ubah kata kunci pencarian atau filter yang digunakan.
-            </p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada hasil ditemukan</h3>
+            <p className="text-gray-500 mb-6">Coba ubah kata kunci pencarian atau filter yang digunakan.</p>
             <button
               onClick={resetFilters}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"

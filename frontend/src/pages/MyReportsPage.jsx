@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  FiFileText,
-  FiEye,
-  FiEdit2,
-  FiTrash2,
-  FiCalendar,
-  FiMapPin,
-  FiClock,
-  FiPhone,
-  FiMail,
-  FiAlertCircle,
-  FiCheck,
-  FiX,
-} from "react-icons/fi";
+import { FiFileText, FiEye, FiEdit2, FiTrash2, FiCalendar, FiMapPin, FiClock, FiPhone, FiMail, FiAlertCircle, FiCheck, FiX } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 // StatusBadge component
 function StatusBadge({ status }) {
@@ -53,9 +40,7 @@ function StatusBadge({ status }) {
   const IconComponent = config.icon;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${config.color}`}
-    >
+    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
       <IconComponent className="text-xs" />
       {status}
     </span>
@@ -69,9 +54,7 @@ function ReportCard({ report, onView, onEdit, onDelete }) {
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-900 mb-2">
-              {report.itemName}
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-900 mb-2">{report.itemName}</h3>
             <div className="flex items-center gap-2 mb-3">
               <StatusBadge status={report.status} />
               <span className="text-sm text-gray-500">#{report.id}</span>
@@ -95,9 +78,7 @@ function ReportCard({ report, onView, onEdit, onDelete }) {
         </div>
 
         <div className="mb-4">
-          <p className="text-gray-700 text-sm line-clamp-2">
-            {report.description}
-          </p>
+          <p className="text-gray-700 text-sm line-clamp-2">{report.description}</p>
         </div>
 
         {report.lastUpdate && (
@@ -153,9 +134,7 @@ function DetailModal({ report, isOpen, onClose }) {
         <div className="p-6 border-b">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                {report.itemName}
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">{report.itemName}</h2>
               <div className="flex items-center gap-3">
                 <StatusBadge status={report.status} />
                 <span className="text-sm text-gray-500">#{report.id}</span>
@@ -186,9 +165,7 @@ function DetailModal({ report, isOpen, onClose }) {
               </div>
               <div className="flex items-center gap-2">
                 <FiCalendar className="text-blue-500" />
-                <span className="font-medium text-gray-600">
-                  Tanggal Hilang:
-                </span>
+                <span className="font-medium text-gray-600">Tanggal Hilang:</span>
                 <span>{report.lostDate}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -202,9 +179,7 @@ function DetailModal({ report, isOpen, onClose }) {
           {/* Description */}
           <div>
             <h3 className="font-medium text-gray-900 mb-3">Deskripsi</h3>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              {report.description}
-            </p>
+            <p className="text-gray-700 text-sm leading-relaxed">{report.description}</p>
           </div>
 
           {/* Contact Info */}
@@ -241,9 +216,7 @@ function DetailModal({ report, isOpen, onClose }) {
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                 <div className="text-sm">
-                  <div className="font-medium text-gray-900">
-                    Laporan Dibuat
-                  </div>
+                  <div className="font-medium text-gray-900">Laporan Dibuat</div>
                   <div className="text-gray-600">{report.reportDate}</div>
                 </div>
               </div>
@@ -251,12 +224,8 @@ function DetailModal({ report, isOpen, onClose }) {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                   <div className="text-sm">
-                    <div className="font-medium text-gray-900">
-                      Status Diperbarui
-                    </div>
-                    <div className="text-gray-600">
-                      Menjadi: {report.status}
-                    </div>
+                    <div className="font-medium text-gray-900">Status Diperbarui</div>
+                    <div className="text-gray-600">Menjadi: {report.status}</div>
                   </div>
                 </div>
               )}
@@ -264,9 +233,7 @@ function DetailModal({ report, isOpen, onClose }) {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
                   <div className="text-sm">
-                    <div className="font-medium text-gray-900">
-                      Update Terbaru
-                    </div>
+                    <div className="font-medium text-gray-900">Update Terbaru</div>
                     <div className="text-gray-600">{report.lastUpdate}</div>
                   </div>
                 </div>
@@ -297,13 +264,7 @@ export default function MyReportsPage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState("Semua");
 
-  const statusOptions = [
-    "Semua",
-    "Menunggu",
-    "Diproses",
-    "Ditemukan",
-    "Ditutup",
-  ];
+  const statusOptions = ["Semua", "Menunggu", "Diproses", "Ditemukan", "Ditutup"];
 
   // Dummy data
   useEffect(() => {
@@ -317,8 +278,7 @@ export default function MyReportsPage() {
         lostDate: "2025-09-25",
         lostTime: "14:30",
         reportDate: "25 September 2025",
-        description:
-          "Dompet kulit coklat berisi kartu identitas dan uang tunai. Hilang saat berkunjung ke perpustakaan lantai 2.",
+        description: "Dompet kulit coklat berisi kartu identitas dan uang tunai. Hilang saat berkunjung ke perpustakaan lantai 2.",
         contactName: "Ahmad Rizki",
         contactPhone: "081234567890",
         contactEmail: "ahmad.rizki@example.com",
@@ -333,13 +293,11 @@ export default function MyReportsPage() {
         lostDate: "2025-09-24",
         lostTime: "16:00",
         reportDate: "24 September 2025",
-        description:
-          "Kunci motor Yamaha dengan gantungan berbentuk boneka kecil berwarna merah.",
+        description: "Kunci motor Yamaha dengan gantungan berbentuk boneka kecil berwarna merah.",
         contactName: "Ahmad Rizki",
         contactPhone: "081234567890",
         contactEmail: "ahmad.rizki@example.com",
-        lastUpdate:
-          "Barang telah ditemukan! Silakan datang ke Security Fakultas Teknik untuk pengambilan.",
+        lastUpdate: "Barang telah ditemukan! Silakan datang ke Security Fakultas Teknik untuk pengambilan.",
       },
       {
         id: "LH001236",
@@ -350,8 +308,7 @@ export default function MyReportsPage() {
         lostDate: "2025-09-23",
         lostTime: "12:30",
         reportDate: "23 September 2025",
-        description:
-          "Tas ransel hitam merek Adidas berisi buku kuliah dan laptop. Tertinggal di meja kantin saat makan siang.",
+        description: "Tas ransel hitam merek Adidas berisi buku kuliah dan laptop. Tertinggal di meja kantin saat makan siang.",
         contactName: "Ahmad Rizki",
         contactPhone: "081234567890",
         contactEmail: "ahmad.rizki@example.com",
@@ -365,9 +322,7 @@ export default function MyReportsPage() {
     }, 1000);
   }, []);
 
-  const filteredReports = reports.filter((report) =>
-    filterStatus === "Semua" ? true : report.status === filterStatus
-  );
+  const filteredReports = reports.filter((report) => (filterStatus === "Semua" ? true : report.status === filterStatus));
 
   const handleViewReport = (report) => {
     setSelectedReport(report);
@@ -375,17 +330,11 @@ export default function MyReportsPage() {
   };
 
   const handleEditReport = (report) => {
-    alert(
-      `Edit laporan: ${report.itemName}\n\nFitur ini akan mengarahkan ke form edit laporan.`
-    );
+    alert(`Edit laporan: ${report.itemName}\n\nFitur ini akan mengarahkan ke form edit laporan.`);
   };
 
   const handleDeleteReport = (report) => {
-    if (
-      window.confirm(
-        `Apakah Anda yakin ingin menghapus laporan "${report.itemName}"?`
-      )
-    ) {
+    if (window.confirm(`Apakah Anda yakin ingin menghapus laporan "${report.itemName}"?`)) {
       setReports((prev) => prev.filter((r) => r.id !== report.id));
       alert("Laporan berhasil dihapus!");
     }
@@ -411,9 +360,7 @@ export default function MyReportsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {stats.total}
-              </div>
+              <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
               <div className="text-sm text-gray-600">Total Laporan</div>
             </div>
           </CardContent>
@@ -421,9 +368,7 @@ export default function MyReportsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">
-                {stats.waiting}
-              </div>
+              <div className="text-2xl font-bold text-yellow-600">{stats.waiting}</div>
               <div className="text-sm text-gray-600">Menunggu</div>
             </div>
           </CardContent>
@@ -431,9 +376,7 @@ export default function MyReportsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {stats.processed}
-              </div>
+              <div className="text-2xl font-bold text-blue-600">{stats.processed}</div>
               <div className="text-sm text-gray-600">Diproses</div>
             </div>
           </CardContent>
@@ -441,9 +384,7 @@ export default function MyReportsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {stats.found}
-              </div>
+              <div className="text-2xl font-bold text-green-600">{stats.found}</div>
               <div className="text-sm text-gray-600">Ditemukan</div>
             </div>
           </CardContent>
@@ -461,7 +402,10 @@ export default function MyReportsPage() {
               className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
             >
               {statusOptions.map((status) => (
-                <option key={status} value={status}>
+                <option
+                  key={status}
+                  value={status}
+                >
                   {status}
                 </option>
               ))}
@@ -474,7 +418,10 @@ export default function MyReportsPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card
+              key={i}
+              className="animate-pulse"
+            >
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -501,9 +448,7 @@ export default function MyReportsPage() {
           <CardContent className="p-12 text-center">
             <FiFileText className="mx-auto text-4xl text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {filterStatus === "Semua"
-                ? "Belum ada laporan"
-                : `Tidak ada laporan dengan status "${filterStatus}"`}
+              {filterStatus === "Semua" ? "Belum ada laporan" : `Tidak ada laporan dengan status "${filterStatus}"`}
             </h3>
             <p className="text-gray-500 mb-6">
               {filterStatus === "Semua"

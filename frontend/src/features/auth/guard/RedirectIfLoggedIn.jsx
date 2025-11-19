@@ -1,9 +1,9 @@
 import { Navigate, Outlet } from "react-router";
 
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { ROLE_DASHBOARD_PATH } from "./ProtectedRoute";
 
-const RedirectIfLoggedIn = () => {
+export const RedirectIfLoggedIn = () => {
   const { user } = useAuth();
 
   // Jika user sudah login, arahkan ke dashboard sesuai perannya
@@ -20,5 +20,3 @@ const RedirectIfLoggedIn = () => {
   // Jika tidak ada user (belum login), tampilkan halaman yang seharusnya (LoginPage)
   return <Outlet />;
 };
-
-export default RedirectIfLoggedIn;

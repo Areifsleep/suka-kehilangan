@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FiPlus, FiUpload, FiCheck, FiAlertCircle } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 export default function ReportPage() {
   const [formData, setFormData] = useState({

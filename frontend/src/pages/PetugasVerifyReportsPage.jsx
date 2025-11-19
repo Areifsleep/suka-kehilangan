@@ -18,21 +18,10 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 import { Pagination } from "@/components/user-management";
 
 // Status Badge Component
@@ -59,9 +48,7 @@ function VerificationStatusBadge({ status }) {
   const Icon = config.icon;
 
   return (
-    <span
-      className={`px-2 py-1 rounded-full text-xs font-medium ${config.className} flex items-center gap-1`}
-    >
+    <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.className} flex items-center gap-1`}>
       <Icon size={12} />
       {config.label}
     </span>
@@ -75,9 +62,7 @@ function VerificationCard({ item, onView, onApprove, onReject }) {
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-800 mb-1">
-              {item.itemName}
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-800 mb-1">{item.itemName}</h3>
             <p className="text-sm text-gray-600 mb-2">{item.category}</p>
             <VerificationStatusBadge status={item.verificationStatus} />
           </div>
@@ -117,22 +102,32 @@ function VerificationCard({ item, onView, onApprove, onReject }) {
 
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center">
-            <FiUser className="mr-2" size={14} />
+            <FiUser
+              className="mr-2"
+              size={14}
+            />
             <span>Dilaporkan oleh: {item.reportedBy}</span>
           </div>
           <div className="flex items-center">
-            <FiMapPin className="mr-2" size={14} />
+            <FiMapPin
+              className="mr-2"
+              size={14}
+            />
             <span>{item.lastSeenLocation}</span>
           </div>
           <div className="flex items-center">
-            <FiCalendar className="mr-2" size={14} />
+            <FiCalendar
+              className="mr-2"
+              size={14}
+            />
             <span>Hilang: {new Date(item.lostDate).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center">
-            <FiClock className="mr-2" size={14} />
-            <span>
-              Dilaporkan: {new Date(item.reportedAt).toLocaleDateString()}
-            </span>
+            <FiClock
+              className="mr-2"
+              size={14}
+            />
+            <span>Dilaporkan: {new Date(item.reportedAt).toLocaleDateString()}</span>
           </div>
         </div>
 
@@ -143,11 +138,7 @@ function VerificationCard({ item, onView, onApprove, onReject }) {
               alt={item.itemName}
               className="w-full h-32 object-cover rounded-lg"
             />
-            {item.images.length > 1 && (
-              <p className="text-xs text-gray-500 mt-1">
-                +{item.images.length - 1} foto lainnya
-              </p>
-            )}
+            {item.images.length > 1 && <p className="text-xs text-gray-500 mt-1">+{item.images.length - 1} foto lainnya</p>}
           </div>
         )}
 
@@ -160,13 +151,7 @@ function VerificationCard({ item, onView, onApprove, onReject }) {
 }
 
 // Detail Modal Component
-function VerificationDetailModal({
-  item,
-  isOpen,
-  onClose,
-  onApprove,
-  onReject,
-}) {
+function VerificationDetailModal({ item, isOpen, onClose, onApprove, onReject }) {
   const [rejectionReason, setRejectionReason] = useState("");
   const [processing, setProcessing] = useState(false);
 
@@ -199,7 +184,10 @@ function VerificationDetailModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={onClose}
+    >
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
@@ -229,15 +217,11 @@ function VerificationDetailModal({
           {/* Item Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Nama Barang
-              </label>
+              <label className="text-sm font-medium text-gray-700">Nama Barang</label>
               <p className="text-sm text-gray-900 mt-1">{item.itemName}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Kategori
-              </label>
+              <label className="text-sm font-medium text-gray-700">Kategori</label>
               <p className="text-sm text-gray-900 mt-1">{item.category}</p>
             </div>
             <div>
@@ -245,40 +229,26 @@ function VerificationDetailModal({
               <p className="text-sm text-gray-900 mt-1">{item.color}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Merk/Brand
-              </label>
+              <label className="text-sm font-medium text-gray-700">Merk/Brand</label>
               <p className="text-sm text-gray-900 mt-1">{item.brand || "-"}</p>
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium text-gray-700">
-              Deskripsi
-            </label>
-            <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">
-              {item.description}
-            </p>
+            <label className="text-sm font-medium text-gray-700">Deskripsi</label>
+            <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">{item.description}</p>
           </div>
 
           {/* Location & Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Lokasi Terakhir
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {item.lastSeenLocation}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Lokasi Terakhir</label>
+              <p className="text-sm text-gray-900 mt-1">{item.lastSeenLocation}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Tanggal Hilang
-              </label>
-              <p className="text-sm text-gray-900 mt-1">
-                {new Date(item.lostDate).toLocaleDateString()}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Tanggal Hilang</label>
+              <p className="text-sm text-gray-900 mt-1">{new Date(item.lostDate).toLocaleDateString()}</p>
             </div>
           </div>
 
@@ -287,34 +257,20 @@ function VerificationDetailModal({
             <h4 className="font-medium mb-3">Informasi Pelapor</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Nama
-                </label>
+                <label className="text-sm font-medium text-gray-700">Nama</label>
                 <p className="text-sm text-gray-900 mt-1">{item.reportedBy}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {item.reporterEmail}
-                </p>
+                <label className="text-sm font-medium text-gray-700">Email</label>
+                <p className="text-sm text-gray-900 mt-1">{item.reporterEmail}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  No. Telepon
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {item.reporterPhone}
-                </p>
+                <label className="text-sm font-medium text-gray-700">No. Telepon</label>
+                <p className="text-sm text-gray-900 mt-1">{item.reporterPhone}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Tanggal Laporan
-                </label>
-                <p className="text-sm text-gray-900 mt-1">
-                  {new Date(item.reportedAt).toLocaleDateString()}
-                </p>
+                <label className="text-sm font-medium text-gray-700">Tanggal Laporan</label>
+                <p className="text-sm text-gray-900 mt-1">{new Date(item.reportedAt).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -322,12 +278,8 @@ function VerificationDetailModal({
           {/* Additional Notes */}
           {item.additionalNotes && (
             <div>
-              <label className="text-sm font-medium text-gray-700">
-                Catatan Tambahan
-              </label>
-              <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">
-                {item.additionalNotes}
-              </p>
+              <label className="text-sm font-medium text-gray-700">Catatan Tambahan</label>
+              <p className="text-sm text-gray-900 mt-1 p-3 bg-gray-50 rounded">{item.additionalNotes}</p>
             </div>
           )}
 
@@ -338,9 +290,7 @@ function VerificationDetailModal({
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Alasan Penolakan (jika ditolak)
-                  </label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Alasan Penolakan (jika ditolak)</label>
                   <Textarea
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
@@ -369,11 +319,7 @@ function VerificationDetailModal({
                     variant="outline"
                     className="border-red-300 text-red-600 hover:bg-red-50 flex-1"
                   >
-                    {processing ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
-                    ) : (
-                      <FiX className="mr-2" />
-                    )}
+                    {processing ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div> : <FiX className="mr-2" />}
                     Tolak Laporan
                   </Button>
                 </div>
@@ -387,10 +333,7 @@ function VerificationDetailModal({
               <h4 className="font-medium mb-3">Hasil Verifikasi</h4>
               <div className="p-3 bg-gray-50 rounded">
                 <p className="text-sm">
-                  <strong>Status:</strong>{" "}
-                  {item.verificationStatus === "APPROVED"
-                    ? "Disetujui"
-                    : "Ditolak"}
+                  <strong>Status:</strong> {item.verificationStatus === "APPROVED" ? "Disetujui" : "Ditolak"}
                 </p>
                 {item.verificationReason && (
                   <p className="text-sm mt-1">
@@ -398,14 +341,10 @@ function VerificationDetailModal({
                   </p>
                 )}
                 <p className="text-sm mt-1">
-                  <strong>Diverifikasi oleh:</strong>{" "}
-                  {item.verifiedBy || "Sistem"}
+                  <strong>Diverifikasi oleh:</strong> {item.verifiedBy || "Sistem"}
                 </p>
                 <p className="text-sm mt-1">
-                  <strong>Tanggal:</strong>{" "}
-                  {new Date(
-                    item.verifiedAt || item.reportedAt
-                  ).toLocaleDateString()}
+                  <strong>Tanggal:</strong> {new Date(item.verifiedAt || item.reportedAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
@@ -434,8 +373,7 @@ export default function PetugasVerifyReportsPage() {
         id: 1,
         itemName: 'MacBook Pro 13"',
         category: "Elektronik",
-        description:
-          "MacBook Pro 13 inch warna silver, ada stiker Apple di bagian belakang",
+        description: "MacBook Pro 13 inch warna silver, ada stiker Apple di bagian belakang",
         color: "Silver",
         brand: "Apple",
         lastSeenLocation: "Perpustakaan Lantai 3",
@@ -452,8 +390,7 @@ export default function PetugasVerifyReportsPage() {
         id: 2,
         itemName: "Dompet Kulit Hitam",
         category: "Aksesoris",
-        description:
-          "Dompet kulit hitam merk Louis Vuitton, berisi KTP dan SIM",
+        description: "Dompet kulit hitam merk Louis Vuitton, berisi KTP dan SIM",
         color: "Hitam",
         brand: "Louis Vuitton",
         lastSeenLocation: "Kantin Gedung B",
@@ -490,8 +427,7 @@ export default function PetugasVerifyReportsPage() {
         id: 4,
         itemName: "Tas Ransel Adidas",
         category: "Tas",
-        description:
-          "Tas ransel Adidas warna hitam dengan logo putih, ukuran sedang",
+        description: "Tas ransel Adidas warna hitam dengan logo putih, ukuran sedang",
         color: "Hitam",
         brand: "Adidas",
         lastSeenLocation: "Lapangan Basket",
@@ -517,20 +453,15 @@ export default function PetugasVerifyReportsPage() {
       report.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.reportedBy.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || report.verificationStatus === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || report.category === categoryFilter;
+    const matchesStatus = statusFilter === "all" || report.verificationStatus === statusFilter;
+    const matchesCategory = categoryFilter === "all" || report.category === categoryFilter;
 
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
   // Pagination
   const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
-  const paginatedReports = filteredReports.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedReports = filteredReports.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleView = (report) => {
     setSelectedReport(report);
@@ -570,14 +501,7 @@ export default function PetugasVerifyReportsPage() {
     alert("Laporan berhasil ditolak!");
   };
 
-  const categories = [
-    "Elektronik",
-    "Tas",
-    "Aksesoris",
-    "Dokumen",
-    "Kendaraan",
-    "Pakaian",
-  ];
+  const categories = ["Elektronik", "Tas", "Aksesoris", "Dokumen", "Kendaraan", "Pakaian"];
 
   return (
     <div>
@@ -600,7 +524,10 @@ export default function PetugasVerifyReportsPage() {
             </div>
 
             <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -612,14 +539,20 @@ export default function PetugasVerifyReportsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select
+                value={categoryFilter}
+                onValueChange={setCategoryFilter}
+              >
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kategori</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
+                    <SelectItem
+                      key={category}
+                      value={category}
+                    >
                       {category}
                     </SelectItem>
                   ))}
@@ -637,9 +570,7 @@ export default function PetugasVerifyReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Laporan</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {reports.length}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{reports.length}</p>
               </div>
               <FiPackage className="h-8 w-8 text-blue-500" />
             </div>
@@ -651,13 +582,7 @@ export default function PetugasVerifyReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Menunggu</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {
-                    reports.filter(
-                      (report) => report.verificationStatus === "PENDING"
-                    ).length
-                  }
-                </p>
+                <p className="text-2xl font-bold text-yellow-600">{reports.filter((report) => report.verificationStatus === "PENDING").length}</p>
               </div>
               <FiClock className="h-8 w-8 text-yellow-500" />
             </div>
@@ -669,13 +594,7 @@ export default function PetugasVerifyReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Disetujui</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {
-                    reports.filter(
-                      (report) => report.verificationStatus === "APPROVED"
-                    ).length
-                  }
-                </p>
+                <p className="text-2xl font-bold text-green-600">{reports.filter((report) => report.verificationStatus === "APPROVED").length}</p>
               </div>
               <FiCheckCircle className="h-8 w-8 text-green-500" />
             </div>
@@ -687,13 +606,7 @@ export default function PetugasVerifyReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Ditolak</p>
-                <p className="text-2xl font-bold text-red-600">
-                  {
-                    reports.filter(
-                      (report) => report.verificationStatus === "REJECTED"
-                    ).length
-                  }
-                </p>
+                <p className="text-2xl font-bold text-red-600">{reports.filter((report) => report.verificationStatus === "REJECTED").length}</p>
               </div>
               <FiXCircle className="h-8 w-8 text-red-500" />
             </div>
@@ -705,7 +618,10 @@ export default function PetugasVerifyReportsPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card
+              key={i}
+              className="animate-pulse"
+            >
               <CardContent className="p-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -751,9 +667,7 @@ export default function PetugasVerifyReportsPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <FiAlertCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Tidak ada laporan
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada laporan</h3>
             <p className="text-gray-500">
               {searchTerm || statusFilter !== "all" || categoryFilter !== "all"
                 ? "Tidak ada laporan yang sesuai dengan filter"

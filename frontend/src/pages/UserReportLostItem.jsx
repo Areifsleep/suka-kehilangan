@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 import { toast } from "react-toastify";
 
 const categories = ["Dompet", "Tas", "Kunci", "Handphone", "Laptop", "Buku", "Alat Tulis", "Jam Tangan", "Kacamata", "Jaket", "Lainnya"];

@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  FiSearch,
-  FiMapPin,
-  FiCalendar,
-  FiUser,
-  FiEye,
-  FiClock,
-  FiPackage,
-} from "react-icons/fi";
+import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiClock, FiPackage } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 
 // ItemCard component untuk menampilkan setiap item barang hilang
 function ItemCard({ item, onViewDetail }) {
@@ -32,17 +24,9 @@ function ItemCard({ item, onViewDetail }) {
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-900 mb-2">
-              {item.title}
-            </h3>
+            <h3 className="font-semibold text-lg text-gray-900 mb-2">{item.title}</h3>
             <div className="flex items-center gap-2 mb-2">
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                  item.status
-                )}`}
-              >
-                {item.status}
-              </span>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(item.status)}`}>{item.status}</span>
             </div>
           </div>
           {item.image && (
@@ -76,9 +60,7 @@ function ItemCard({ item, onViewDetail }) {
         </div>
 
         <div className="mt-4 pt-4 border-t">
-          <p className="text-gray-700 text-sm line-clamp-2 mb-3">
-            {item.description}
-          </p>
+          <p className="text-gray-700 text-sm line-clamp-2 mb-3">{item.description}</p>
           <button
             onClick={() => onViewDetail(item)}
             className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
@@ -102,9 +84,7 @@ function StatCard({ title, value, icon, bgColor, iconColor }) {
             <div className="text-sm text-gray-500 mb-1">{title}</div>
             <div className="text-2xl font-bold text-gray-900">{value}</div>
           </div>
-          <div className={`p-3 rounded-full ${bgColor}`}>
-            {React.createElement(icon, { className: `text-xl ${iconColor}` })}
-          </div>
+          <div className={`p-3 rounded-full ${bgColor}`}>{React.createElement(icon, { className: `text-xl ${iconColor}` })}</div>
         </div>
       </CardContent>
     </Card>
@@ -139,8 +119,7 @@ export default function UserDashboard() {
         location: "Parkiran Fakultas Teknik",
         foundDate: "24 September 2025",
         officer: "Siti Aminah",
-        description:
-          "Kunci motor Honda dengan gantungan bertuliskan nama 'Budi'. Ditemukan di area parkiran Fakultas Teknik.",
+        description: "Kunci motor Honda dengan gantungan bertuliskan nama 'Budi'. Ditemukan di area parkiran Fakultas Teknik.",
         image: null,
         contact: "Security Fakultas Teknik",
       },
@@ -151,8 +130,7 @@ export default function UserDashboard() {
         location: "Perpustakaan Pusat",
         foundDate: "23 September 2025",
         officer: "Muhammad Fauzan",
-        description:
-          "Tas ransel hitam berisi buku-buku kuliah dan alat tulis. Sudah diserahkan kepada pemilik yang sah.",
+        description: "Tas ransel hitam berisi buku-buku kuliah dan alat tulis. Sudah diserahkan kepada pemilik yang sah.",
         image: null,
         contact: "Perpustakaan Pusat",
       },
@@ -163,8 +141,7 @@ export default function UserDashboard() {
         location: "Kantin Pusat",
         foundDate: "22 September 2025",
         officer: "Nur Hidayah",
-        description:
-          "Handphone Samsung warna biru muda dengan case bergambar kartun. Ditemukan di meja kantin pusat.",
+        description: "Handphone Samsung warna biru muda dengan case bergambar kartun. Ditemukan di meja kantin pusat.",
         image: null,
         contact: "Kantin Pusat",
       },
@@ -175,8 +152,7 @@ export default function UserDashboard() {
         location: "Auditorium Utama",
         foundDate: "21 September 2025",
         officer: "Abdul Rahman",
-        description:
-          "Jaket merah ukuran L dengan logo universitas. Tertinggal di auditorium setelah acara seminar.",
+        description: "Jaket merah ukuran L dengan logo universitas. Tertinggal di auditorium setelah acara seminar.",
         image: null,
         contact: "Bagian Kemahasiswaan",
       },
@@ -205,9 +181,7 @@ export default function UserDashboard() {
   }, [searchTerm, items]);
 
   const handleViewDetail = (item) => {
-    alert(
-      `Detail untuk ${item.title}:\n\n${item.description}\n\nKontak: ${item.contact}`
-    );
+    alert(`Detail untuk ${item.title}:\n\n${item.description}\n\nKontak: ${item.contact}`);
   };
 
   // Statistik
@@ -277,7 +251,10 @@ export default function UserDashboard() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="animate-pulse">
+            <Card
+              key={i}
+              className="animate-pulse"
+            >
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -301,13 +278,9 @@ export default function UserDashboard() {
         <Card>
           <CardContent className="p-12 text-center">
             <FiSearch className="mx-auto text-4xl text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Tidak ada barang ditemukan
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak ada barang ditemukan</h3>
             <p className="text-gray-500">
-              {searchTerm
-                ? `Tidak ada hasil untuk "${searchTerm}". Coba dengan kata kunci lain.`
-                : "Belum ada barang hilang yang terdaftar."}
+              {searchTerm ? `Tidak ada hasil untuk "${searchTerm}". Coba dengan kata kunci lain.` : "Belum ada barang hilang yang terdaftar."}
             </p>
           </CardContent>
         </Card>
@@ -317,13 +290,8 @@ export default function UserDashboard() {
       <Card className="bg-green-50 border-green-200">
         <CardContent className="p-6">
           <div className="text-center">
-            <h3 className="font-medium text-green-800 mb-2">
-              Menemukan barang yang hilang?
-            </h3>
-            <p className="text-green-700 text-sm mb-4">
-              Segera laporkan ke petugas terdekat atau melalui aplikasi ini
-              untuk membantu pemiliknya.
-            </p>
+            <h3 className="font-medium text-green-800 mb-2">Menemukan barang yang hilang?</h3>
+            <p className="text-green-700 text-sm mb-4">Segera laporkan ke petugas terdekat atau melalui aplikasi ini untuk membantu pemiliknya.</p>
             <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
               Laporkan Temuan
             </button>

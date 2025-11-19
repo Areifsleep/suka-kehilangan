@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Pagination, CreateUserModal, EditUserModal, DeleteUserModal, ResetPasswordModal } from "@/components/management";
-import { HeaderDashboard } from "@/components/HeaderDashboard";
+import { HeaderDashboard } from "@/components/common/HeaderDashboard";
 import { useRegularUsers, useCreateUser, useUpdateUser, useDeleteUser, useResetPassword, useRoles } from "@/hooks/api/management";
 
 export default function ManagementUser() {
