@@ -1,0 +1,87 @@
+@startuml UseCaseCivitasAkademika
+left to right direction
+skinparam usecase {
+  BackgroundColor #D0E6F8
+  BorderColor #2A6F9E
+}
+
+actor "Civitas Akademika\n(User)" as User
+actor "Email System\n(External)" as Email
+
+rectangle "Sistem Suka Kehilangan - Fitur User" {
+  
+  package "Autentikasi & Profil" {
+    usecase "Register dengan\nEmail Institusi" as UC_Register
+    usecase "Login" as UC_Login
+    usecase "Kelola Profil" as UC_Profile
+  }
+  
+  package "Laporan Kehilangan" {
+    usecase "Buat Laporan\nBarang Hilang" as UC_CreateLost
+    usecase "Edit Laporan\nKehilangan" as UC_EditLost
+    usecase "Hapus Laporan\nKehilangan" as UC_DeleteLost
+    usecase "Lihat Status\nLaporan Saya" as UC_ViewStatus
+    usecase "Lihat Riwayat\nLaporan Saya" as UC_ViewHistory
+  }
+  
+  package "Barang Temuan & Klaim" {
+    usecase "Lihat Daftar\nBarang Temuan" as UC_ViewFound
+    usecase "Lihat Detail\nBarang Temuan" as UC_DetailFound
+    usecase "Cari & Filter\nBarang Temuan" as UC_SearchFound
+    usecase "Ajukan Klaim\nBarang" as UC_ClaimItem
+    usecase "Lihat Status\nKlaim Saya" as UC_ViewClaim
+  }
+  
+  ' Use Cases Sistem
+  usecase "Upload Foto" as UC_UploadPhoto
+  usecase "Kirim Notifikasi\nStatus Klaim" as UC_NotifyClaim
+  usecase "Kirim Email\nVerifikasi" as UC_EmailVerif
+}
+
+' Relasi User
+User --> UC_Register
+User --> UC_Login
+User --> UC_Profile
+User --> UC_CreateLost
+User --> UC_EditLost
+User --> UC_DeleteLost
+User --> UC_ViewStatus
+User --> UC_ViewHistory
+User --> UC_ViewFound
+User --> UC_DetailFound
+User --> UC_SearchFound
+User --> UC_ClaimItem
+User --> UC_ViewClaim
+
+' Include & Extend Relationships
+UC_CreateLost ..> UC_UploadPhoto : <<include>>
+UC_EditLost ..> UC_UploadPhoto : <<include>>
+UC_Register ..> UC_EmailVerif : <<include>>
+UC_ClaimItem ..> UC_NotifyClaim : <<include>>
+UC_DetailFound ..> UC_ViewFound : <<include>>
+UC_SearchFound ..> UC_ViewFound : <<extend>>
+UC_ViewHistory ..> UC_ViewStatus : <<extend>>
+
+' Relasi dengan Email System
+UC_NotifyClaim ..> Email : "send email"
+UC_EmailVerif ..> Email : "send email"
+
+note right of UC_Register
+  Hanya email institusi
+  @uin-suka.ac.id
+  yang dapat register
+end note
+
+note right of UC_UploadPhoto
+  Max 5 foto per laporan
+  Max 5 MB per foto
+  Format: JPG, JPEG, PNG
+end note
+
+note bottom of UC_ClaimItem
+  User mengajukan klaim dengan
+  menyertakan bukti kepemilikan
+  untuk verifikasi petugas
+end note
+
+@enduml

@@ -2,6 +2,7 @@
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 
+' User Role Classes
 class User {
   +userId: int
   +name: String
@@ -9,9 +10,28 @@ class User {
   +passwordHash: String
   +phoneNumber: String
   +profilePhoto: String
+  +role: String
   +createdAt: DateTime
+  +updatedAt: DateTime
   +isVerified: Boolean
+  +isActive: Boolean
   +register()
+  +login()
+  +updateProfile()
+  +logout()
+  +viewProfile()
+}
+
+class Petugas {
+  +petugasId: int
+  +name: String
+  +email: String
+  +passwordHash: String
+  +phoneNumber: String
+  +lokasiPos: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +isActive: Boolean
   +login()
   +updateProfile()
   +logout()
@@ -20,25 +40,30 @@ class User {
 class Administrator {
   +adminId: int
   +username: String
+  +email: String
   +passwordHash: String
   +role: String
+  +createdAt: DateTime
   +login()
-  +manageLaporan()
-  +verifyLaporan()
-  +deleteUser()
+  +manageUser()
+  +managePetugas()
+  +viewAllReports()
+  +exportData()
   +viewStatistics()
+  +manageKategori()
+  +logout()
 }
 
-class Laporan {
+' Main Domain Classes
+class LaporanKehilangan {
   +laporanId: int
   +userId: int
-  +tipe: String     -- (Hilang / Temuan)
   +namaBarang: String
   +kategoriId: int
   +deskripsi: Text
   +lokasi: String
-  +tanggal: Date
-  +status: String   -- (Aktif / Tersedia / Ditemukan / Closed)
+  +tanggalKehilangan: Date
+  +status: String
   +kontakInfo: String
   +createdAt: DateTime
   +updatedAt: DateTime
@@ -46,30 +71,76 @@ class Laporan {
   +updateLaporan()
   +deleteLaporan()
   +changeStatus()
+  +viewRiwayat()
+}
+
+class BarangTemuan {
+  +temuanId: int
+  +petugasId: int
+  +namaBarang: String
+  +kategoriId: int
+  +deskripsi: Text
+  +lokasi: String
+  +tanggalPenemuan: Date
+  +kondisiBarang: String
+  +tempatPenyimpanan: String
+  +status: String
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +uploadBarang()
+  +updateBarang()
+  +deleteBarang()
+  +changeStatus()
+}
+
+class Klaim {
+  +klaimId: int
+  +temuanId: int
+  +userId: int
+  +petugasId: int
+  +buktiKepemilikan: Text
+  +status: String
+  +alasanVerifikasi: Text
+  +tanggalKlaim: DateTime
+  +tanggalVerifikasi: DateTime
+  +createdAt: DateTime
+  +updatedAt: DateTime
+  +ajukanKlaim()
+  +verifikasiKlaim()
+  +approveKlaim()
+  +rejectKlaim()
+  +viewStatusKlaim()
 }
 
 class Foto {
   +fotoId: int
-  +laporanId: int
+  +entityType: String
+  +entityId: int
   +fileName: String
   +filePath: String
   +fileSize: int
   +uploadDate: DateTime
   +uploadFoto()
   +deleteFoto()
+  +viewFoto()
 }
 
 class Kategori {
   +kategoriId: int
   +namaKategori: String
   +deskripsi: String
+  +icon: String
+  +createdAt: DateTime
   +getAllKategori()
+  +addKategori()
+  +updateKategori()
+  +deleteKategori()
 }
 
 class Notifikasi {
   +notifId: int
   +userId: int
-  +laporanId: int
+  +klaimId: int
   +message: Text
   +type: String
   +isRead: Boolean
@@ -77,29 +148,7 @@ class Notifikasi {
   +sendNotifikasi()
   +markAsRead()
   +deleteNotifikasi()
-}
-
-class Match {
-  +matchId: int
-  +laporanHilangId: int
-  +laporanTemuanId: int
-  +skorKemiripan: Float
-  +status: String
-  +createdAt: DateTime
-  +calculateScore()
-  +createMatch()
-  +updateStatus()
-}
-
-class Komunikasi {
-  +komunikasiId: int
-  +senderId: int
-  +receiverId: int
-  +laporanId: int
-  +message: Text
-  +sentAt: DateTime
-  +sendMessage()
-  +getMessages()
+  +getNotifikasi()
 }
 
 class AuditLog {
@@ -112,15 +161,70 @@ class AuditLog {
   +timestamp: DateTime
   +createLog()
   +getLogs()
+  +filterLogs()
 }
 
-' Relationships
-User "1" -- "0..*" Laporan : creates >
-Laporan "1" -- "0..*" Foto : contains >
-Kategori "1" <-- "0..*" Laporan : category >
+' Relationships - User
+User "1" -- "0..*" LaporanKehilangan : creates >
+User "1" -- "0..*" Klaim : submits >
 User "1" -- "0..*" Notifikasi : receives >
-Match "0..*" -- "1" Laporan : laporanHilang >
-Match "0..*" -- "1" Laporan : laporanTemuan >
-User "1" -- "0..*" Komunikasi : sender/receiver >
-Administrator "1" -- "0..*" AuditLog : logs >
+
+' Relationships - Petugas
+Petugas "1" -- "0..*" BarangTemuan : manages >
+Petugas "1" -- "0..*" Klaim : verifies >
+
+' Relationships - Administrator
+Administrator "1" -- "0..*" AuditLog : creates >
+Administrator "1" -- "0..*" Kategori : manages >
+
+' Relationships - Laporan & Barang
+LaporanKehilangan "0..*" -- "1" Kategori : categorized by >
+BarangTemuan "0..*" -- "1" Kategori : categorized by >
+LaporanKehilangan "1" -- "0..*" Foto : contains >
+BarangTemuan "1" -- "0..*" Foto : contains >
+
+' Relationships - Klaim
+BarangTemuan "1" -- "0..*" Klaim : claimed by >
+Klaim "1" -- "0..*" Notifikasi : triggers >
+
+note right of User
+  Civitas Akademika UIN SK
+  Email: @uin-suka.ac.id
+  Role: User
+end note
+
+note right of Petugas
+  Petugas Satpam Kampus
+  Mengelola barang temuan
+  dan verifikasi klaim
+end note
+
+note right of Administrator
+  Admin PTIPD UIN SK
+  Full access ke sistem
+end note
+
+note bottom of Klaim
+  Status: Pending, Approved, Rejected
+  Proses verifikasi oleh Petugas
+end note
+
+note bottom of Foto
+  Max 5 foto per laporan
+  Max 5 MB per foto
+  Format: JPG, JPEG, PNG
+end note
+
+note bottom of LaporanKehilangan
+  Status: Aktif, Ditemukan, Closed
+  User dapat edit/hapus jika
+  belum ada klaim
+end note
+
+note bottom of BarangTemuan
+  Status: Tersedia, Diklaim, 
+  Diambil, Closed
+  Dikelola oleh Petugas
+end note
+
 @enduml

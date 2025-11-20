@@ -1,0 +1,79 @@
+@startuml UseCaseAdministrator
+left to right direction
+skinparam usecase {
+  BackgroundColor #D0E6F8
+  BorderColor #2A6F9E
+}
+
+actor "Administrator\n(PTIPD UIN SUKA)" as Admin
+
+rectangle "Sistem Suka Kehilangan - Fitur Admin" {
+  
+  package "Autentikasi" {
+    usecase "Login" as UC_Login
+  }
+  
+  package "Manajemen Pengguna" {
+    usecase "Kelola Data\nUser" as UC_ManageUser
+    usecase "Kelola Data\nPetugas" as UC_ManagePetugas
+  }
+  
+  package "Monitoring & Pelaporan" {
+    usecase "Lihat Semua\nData Laporan" as UC_ViewAllReports
+    usecase "Export Data\nLaporan" as UC_Export
+    usecase "Lihat Dashboard\nAnalytics" as UC_Dashboard
+  }
+  
+  package "Konfigurasi Sistem" {
+    usecase "Kelola Kategori\nBarang" as UC_ManageCategory
+  }
+}
+
+' Relasi Administrator
+Admin --> UC_Login
+Admin --> UC_ManageUser
+Admin --> UC_ManagePetugas
+Admin --> UC_ViewAllReports
+Admin --> UC_Export
+Admin --> UC_Dashboard
+Admin --> UC_ManageCategory
+
+' Include Relationships
+UC_Export ..> UC_ViewAllReports : <<include>>
+UC_Dashboard ..> UC_ViewAllReports : <<include>>
+
+note right of UC_ManageUser
+  Admin dapat:
+  - Lihat semua user
+  - Tambah user baru
+  - Edit data user
+  - Nonaktifkan user
+  - Hapus user
+end note
+
+note right of UC_ManagePetugas
+  Admin dapat:
+  - Lihat semua petugas
+  - Tambah petugas baru
+  - Edit data petugas
+  - Nonaktifkan petugas
+  - Hapus petugas
+end note
+
+note bottom of UC_Export
+  Format export:
+  - PDF
+  - Excel (XLSX)
+  - CSV
+end note
+
+note bottom of UC_Dashboard
+  Dashboard menampilkan:
+  - Jumlah barang hilang
+  - Jumlah barang temuan
+  - Tingkat keberhasilan klaim
+  - Tren per kategori
+  - Statistik per periode
+end note
+
+@enduml

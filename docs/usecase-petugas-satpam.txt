@@ -1,0 +1,78 @@
+@startuml UseCasePetugasSatpam
+left to right direction
+skinparam usecase {
+  BackgroundColor #D0E6F8
+  BorderColor #2A6F9E
+}
+
+actor "Petugas/Satpam" as Petugas
+actor "Email System\n(External)" as Email
+
+rectangle "Sistem Suka Kehilangan - Fitur Petugas" {
+  
+  package "Autentikasi" {
+    usecase "Login" as UC_Login
+    usecase "Kelola Profil" as UC_Profile
+  }
+  
+  package "Manajemen Barang Temuan" {
+    usecase "Upload Barang\nTemuan" as UC_UploadFound
+    usecase "Edit Barang\nTemuan" as UC_EditFound
+    usecase "Update Status\nBarang Temuan" as UC_UpdateFound
+    usecase "Hapus Barang\nTemuan" as UC_DeleteFound
+  }
+  
+  package "Verifikasi & Monitoring" {
+    usecase "Lihat Laporan\nKehilangan Masuk" as UC_ViewLostReports
+    usecase "Verifikasi Klaim\nKepemilikan" as UC_VerifyClaim
+    usecase "Approve/Reject\nKlaim" as UC_ApproveReject
+  }
+  
+  ' Use Cases Sistem
+  usecase "Upload Foto" as UC_UploadPhoto
+  usecase "Kirim Notifikasi\nStatus Klaim" as UC_NotifyClaim
+}
+
+' Relasi Petugas
+Petugas --> UC_Login
+Petugas --> UC_Profile
+Petugas --> UC_UploadFound
+Petugas --> UC_EditFound
+Petugas --> UC_UpdateFound
+Petugas --> UC_DeleteFound
+Petugas --> UC_ViewLostReports
+Petugas --> UC_VerifyClaim
+Petugas --> UC_ApproveReject
+
+' Include Relationships
+UC_UploadFound ..> UC_UploadPhoto : <<include>>
+UC_EditFound ..> UC_UploadPhoto : <<include>>
+UC_ApproveReject ..> UC_NotifyClaim : <<include>>
+UC_VerifyClaim ..> UC_ViewLostReports : <<include>>
+
+' Extend Relationships
+UC_UpdateFound ..> UC_EditFound : <<extend>>
+UC_DeleteFound ..> UC_EditFound : <<extend>>
+
+' Relasi dengan Email System
+UC_NotifyClaim ..> Email : "send email"
+
+note right of UC_UploadPhoto
+  Max 5 foto per laporan
+  Max 5 MB per foto
+  Format: JPG, JPEG, PNG
+end note
+
+note right of UC_VerifyClaim
+  Petugas memverifikasi
+  bukti kepemilikan sebelum
+  menyetujui klaim
+end note
+
+note bottom of UC_ApproveReject
+  Petugas dapat menyetujui
+  atau menolak klaim dengan
+  memberikan alasan
+end note
+
+@enduml

@@ -4,38 +4,134 @@ skinparam usecase {
   BackgroundColor #D0E6F8
   BorderColor #2A6F9E
 }
-actor "Civitas UIN SK\n(User)" as User
-actor Administrator
+
+actor "Civitas Akademika\n(User)" as User
+actor "Petugas/Satpam" as Petugas
+actor "Administrator\n(PTIPD UIN SUKA)" as Admin
 actor "Email System\n(External)" as Email
 
 rectangle "Sistem Suka Kehilangan" {
-  usecase "Register & Login" as UC_Reg
-  usecase "Melaporkan\nBarang Hilang" as UC_Lost
-  usecase "Melaporkan\nBarang Temuan" as UC_Found
-  usecase "Cari Barang" as UC_Search
-  usecase "Lihat Detail\nLaporan" as UC_Detail
-  usecase "Hubungi Pelapor" as UC_Contact
-  usecase "Terima Notifikasi" as UC_Notify
-  usecase "Update Status\nLaporan" as UC_Update
-  usecase "Edit / Hapus\nLaporan" as UC_EditDelete
-  usecase "Dashboard Admin\n(Kelola Laporan/User)" as UC_Manage
-  usecase "Verifikasi\nLaporan" as UC_Verify
-  usecase "Lihat Statistik\n& Generate Report" as UC_Report
+  
+  ' Use Cases untuk User
+  package "Autentikasi & Profil" {
+    usecase "Register dengan\nEmail Institusi" as UC_Register
+    usecase "Login" as UC_Login
+    usecase "Kelola Profil" as UC_Profile
+  }
+  
+  package "Laporan Kehilangan" {
+    usecase "Buat Laporan\nBarang Hilang" as UC_CreateLost
+    usecase "Edit Laporan\nKehilangan" as UC_EditLost
+    usecase "Hapus Laporan\nKehilangan" as UC_DeleteLost
+    usecase "Lihat Status\nLaporan Saya" as UC_ViewStatus
+    usecase "Lihat Riwayat\nLaporan Saya" as UC_ViewHistory
+  }
+  
+  package "Barang Temuan & Klaim" {
+    usecase "Lihat Daftar\nBarang Temuan" as UC_ViewFound
+    usecase "Lihat Detail\nBarang Temuan" as UC_DetailFound
+    usecase "Cari & Filter\nBarang Temuan" as UC_SearchFound
+    usecase "Ajukan Klaim\nBarang" as UC_ClaimItem
+    usecase "Lihat Status\nKlaim Saya" as UC_ViewClaim
+  }
+  
+  ' Use Cases untuk Petugas
+  package "Manajemen Barang Temuan" {
+    usecase "Upload Barang\nTemuan" as UC_UploadFound
+    usecase "Edit Barang\nTemuan" as UC_EditFound
+    usecase "Update Status\nBarang Temuan" as UC_UpdateFound
+    usecase "Hapus Barang\nTemuan" as UC_DeleteFound
+  }
+  
+  package "Verifikasi & Monitoring" {
+    usecase "Lihat Laporan\nKehilangan Masuk" as UC_ViewLostReports
+    usecase "Verifikasi Klaim\nKepemilikan" as UC_VerifyClaim
+    usecase "Approve/Reject\nKlaim" as UC_ApproveReject
+  }
+  
+  ' Use Cases untuk Admin
+  package "Manajemen Sistem" {
+    usecase "Kelola Data\nUser" as UC_ManageUser
+    usecase "Kelola Data\nPetugas" as UC_ManagePetugas
+    usecase "Lihat Semua\nData Laporan" as UC_ViewAllReports
+    usecase "Export Data\nLaporan" as UC_Export
+    usecase "Lihat Dashboard\nAnalytics" as UC_Dashboard
+    usecase "Kelola Kategori\nBarang" as UC_ManageCategory
+  }
+  
+  ' Use Cases Sistem
+  package "Notifikasi" {
+    usecase "Kirim Notifikasi\nStatus Klaim" as UC_NotifyClaim
+    usecase "Kirim Email\nVerifikasi" as UC_EmailVerif
+  }
+  
+  ' Upload Foto - digunakan bersama
+  usecase "Upload Foto" as UC_UploadPhoto
 }
 
-User --> UC_Reg
-User --> UC_Lost
-User --> UC_Found
-User --> UC_Search
-User --> UC_Detail
-User --> UC_Contact
-User --> UC_Notify
-User --> UC_Update
-User --> UC_EditDelete
+' Relasi User (Civitas Akademika)
+User --> UC_Register
+User --> UC_Login
+User --> UC_Profile
+User --> UC_CreateLost
+User --> UC_EditLost
+User --> UC_DeleteLost
+User --> UC_ViewStatus
+User --> UC_ViewHistory
+User --> UC_ViewFound
+User --> UC_DetailFound
+User --> UC_SearchFound
+User --> UC_ClaimItem
+User --> UC_ViewClaim
 
-Administrator --> UC_Manage
-Administrator --> UC_Verify
-Administrator --> UC_Report
+' Relasi Petugas
+Petugas --> UC_Login
+Petugas --> UC_Profile
+Petugas --> UC_UploadFound
+Petugas --> UC_EditFound
+Petugas --> UC_UpdateFound
+Petugas --> UC_DeleteFound
+Petugas --> UC_ViewLostReports
+Petugas --> UC_VerifyClaim
+Petugas --> UC_ApproveReject
 
-UC_Notify ..> Email : "kirim notifikasi (email/push)"
+' Relasi Administrator
+Admin --> UC_Login
+Admin --> UC_ManageUser
+Admin --> UC_ManagePetugas
+Admin --> UC_ViewAllReports
+Admin --> UC_Export
+Admin --> UC_Dashboard
+Admin --> UC_ManageCategory
+
+' Include & Extend Relationships
+UC_CreateLost ..> UC_UploadPhoto : <<include>>
+UC_UploadFound ..> UC_UploadPhoto : <<include>>
+UC_Register ..> UC_EmailVerif : <<include>>
+
+UC_ApproveReject ..> UC_NotifyClaim : <<include>>
+UC_ClaimItem ..> UC_NotifyClaim : <<include>>
+
+' Relasi dengan Email System
+UC_NotifyClaim ..> Email : "send email"
+UC_EmailVerif ..> Email : "send email"
+
+note right of UC_Register
+  Hanya email institusi
+  @uin-suka.ac.id
+  yang dapat register
+end note
+
+note right of UC_UploadPhoto
+  Max 5 foto per laporan
+  Max 5 MB per foto
+  Format: JPG, JPEG, PNG
+end note
+
+note right of UC_VerifyClaim
+  Petugas memverifikasi
+  bukti kepemilikan sebelum
+  menyetujui klaim
+end note
+
 @enduml
