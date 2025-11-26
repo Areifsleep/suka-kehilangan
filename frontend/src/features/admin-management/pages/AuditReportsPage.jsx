@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import {
   FiAlertTriangle,
   FiCheckCircle,
@@ -15,6 +17,8 @@ import {
 
 import { Card, CardContent } from "@/components/ui/card";
 import { HeaderDashboard } from "@/components/common";
+import { auditReportsApi } from "../api/auditReportsApi";
+import { useDebounce } from "@/hooks/useDebounce";
 
 function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {
   return (
@@ -38,31 +42,130 @@ function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "te
   );
 }
 
-function ItemAuditRow({ audit, onView }) {
+function ItemAuditCard({ audit, onView }) {
   const statusConfig = {
-    found: {
-      color: "bg-green-100 text-green-800 border-green-200",
-      dot: "bg-green-500",
-    },
-    lost: {
-      color: "bg-red-100 text-red-800 border-red-200",
-      dot: "bg-red-500",
+    open: {
+      color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      dot: "bg-yellow-500",
+      label: "Terbuka",
     },
     claimed: {
       color: "bg-blue-100 text-blue-800 border-blue-200",
       dot: "bg-blue-500",
+      label: "Diklaim",
     },
-    returned: {
-      color: "bg-purple-100 text-purple-800 border-purple-200",
-      dot: "bg-purple-500",
-    },
-    pending: {
-      color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      dot: "bg-yellow-500",
+    closed: {
+      color: "bg-green-100 text-green-800 border-green-200",
+      dot: "bg-green-500",
+      label: "Selesai",
     },
   };
 
-  const config = statusConfig[audit.status] || statusConfig["pending"];
+  const typeConfig = {
+    found: {
+      color: "bg-green-50 text-green-700",
+      label: "Ditemukan",
+    },
+    lost: {
+      color: "bg-red-50 text-red-700",
+      label: "Hilang",
+    },
+  };
+
+  const config = statusConfig[audit.status] || statusConfig["open"];
+  const typeStyle = typeConfig[audit.report_type] || typeConfig["found"];
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <div className="bg-white rounded-lg border shadow-sm p-4 hover:shadow-md transition-all duration-200">
+      {/* Header dengan gambar dan nama barang */}
+      <div className="flex items-start gap-3 mb-3">
+        {audit.image_url ? (
+          <img
+            src={audit.image_url}
+            alt={audit.item_name}
+            className="w-16 h-16 rounded-lg object-cover border flex-shrink-0"
+          />
+        ) : (
+          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border flex-shrink-0">
+            <FiPackage className="text-gray-400 text-xl" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900 truncate">{audit.item_name}</h3>
+          <p className="text-sm text-gray-500">{audit.category}</p>
+          <div className="flex gap-2 mt-1">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${config.color}`}>
+              <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${config.dot}`}></div>
+              {config.label}
+            </span>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeStyle.color}`}>{typeStyle.label}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Info detail */}
+      <div className="space-y-2 mb-3 text-sm">
+        <div className="flex items-center text-gray-600">
+          <FiCalendar className="mr-2 text-gray-400 flex-shrink-0" />
+          <span className="truncate">{formatDate(audit.created_at)}</span>
+        </div>
+        <div className="flex items-center text-gray-600">
+          <FiUser className="mr-2 text-gray-400 flex-shrink-0" />
+          <span className="truncate">
+            {audit.reporter_name} ({audit.reporter_role})
+          </span>
+        </div>
+        <div className="flex items-center text-gray-600">
+          <FiMapPin className="mr-2 text-gray-400 flex-shrink-0" />
+          <span className="truncate">{audit.location}</span>
+        </div>
+      </div>
+
+      {/* Deskripsi */}
+      {audit.description && <p className="text-sm text-gray-600 mb-3 line-clamp-2">{audit.description}</p>}
+
+      {/* Tombol detail */}
+      <button
+        onClick={() => onView(audit)}
+        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors text-sm font-medium"
+      >
+        <FiEye />
+        <span>Lihat Detail</span>
+      </button>
+    </div>
+  );
+}
+
+function ItemAuditRow({ audit, onView }) {
+  const statusConfig = {
+    open: {
+      color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      dot: "bg-yellow-500",
+      label: "Terbuka",
+    },
+    claimed: {
+      color: "bg-blue-100 text-blue-800 border-blue-200",
+      dot: "bg-blue-500",
+      label: "Diklaim",
+    },
+    closed: {
+      color: "bg-green-100 text-green-800 border-green-200",
+      dot: "bg-green-500",
+      label: "Selesai",
+    },
+  };
+
+  const config = statusConfig[audit.status] || statusConfig["open"];
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString("id-ID", {
@@ -104,7 +207,7 @@ function ItemAuditRow({ audit, onView }) {
       <td className="px-6 py-4">
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.color}`}>
           <div className={`w-2 h-2 rounded-full mr-2 ${config.dot}`}></div>
-          {audit.status.charAt(0).toUpperCase() + audit.status.slice(1)}
+          {config.label}
         </span>
       </td>
       <td className="px-6 py-4">
@@ -146,192 +249,101 @@ function ItemAuditRow({ audit, onView }) {
 }
 
 export default function AuditReportsPage() {
-  const [stats, setStats] = useState({
-    totalLogs: 0,
-    todayLogs: 0,
-    criticalEvents: 0,
-    activeUsers: 0,
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [dateRange, setDateRange] = useState("all");
+  const [page, setPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
+  const limit = 20;
+
+  // Debounce search term untuk mengurangi API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  // Fetch audit statistics
+  const {
+    data: statsData,
+    isLoading: statsLoading,
+    refetch: refetchStats,
+  } = useQuery({
+    queryKey: ["auditStats"],
+    queryFn: auditReportsApi.getAuditStats,
   });
-  const [itemStats, setItemStats] = useState({
+
+  // Fetch categories
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: auditReportsApi.getCategories,
+  });
+
+  // Build query params
+  const buildQueryParams = () => {
+    const params = {
+      page,
+      limit,
+      dateRange,
+    };
+
+    if (debouncedSearchTerm) params.search = debouncedSearchTerm;
+    if (filterStatus !== "all") params.status = filterStatus.toUpperCase();
+    if (filterCategory !== "all") params.categoryId = filterCategory;
+
+    return params;
+  };
+
+  // Build export params (tanpa page dan limit)
+  const buildExportParams = () => {
+    const params = {
+      dateRange,
+    };
+
+    if (debouncedSearchTerm) params.search = debouncedSearchTerm;
+    if (filterStatus !== "all") params.status = filterStatus.toUpperCase();
+    if (filterCategory !== "all") params.categoryId = filterCategory;
+
+    return params;
+  };
+
+  // Fetch audit reports
+  const {
+    data: reportsData,
+    isLoading: reportsLoading,
+    refetch: refetchReports,
+  } = useQuery({
+    queryKey: ["auditReports", page, debouncedSearchTerm, filterStatus, filterCategory, dateRange],
+    queryFn: () => auditReportsApi.getAuditReports(buildQueryParams()),
+  });
+
+  const stats = statsData || {
     totalItems: 0,
     foundItems: 0,
     lostItems: 0,
     claimedItems: 0,
-  });
-  const [audits, setAudits] = useState([]);
-  const [itemAudits, setItemAudits] = useState([]);
-  const [filteredAudits, setFilteredAudits] = useState([]);
-  const [filteredItemAudits, setFilteredItemAudits] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterAction, setFilterAction] = useState("all");
-  const [filterResource, setFilterResource] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterCategory, setFilterCategory] = useState("all");
-  const [dateRange, setDateRange] = useState("today");
-  const [loading, setLoading] = useState(false);
+    returnedItems: 0,
+    todayItems: 0,
+    trends: {
+      items: "up",
+      itemsValue: "+0 dari kemarin",
+    },
+  };
 
+  const reports = reportsData?.data || [];
+  const pagination = reportsData?.pagination || {
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  };
+
+  const categories = categoriesData || [];
+  const loading = reportsLoading || statsLoading;
+
+  // Reset page ke 1 ketika filter berubah
   useEffect(() => {
-    // Simulating API call - replace with actual API endpoint
-    setLoading(true);
-
-    setTimeout(() => {
-      // Dummy data for system audit logs
-      setStats({
-        totalLogs: 1250,
-        todayLogs: 89,
-        criticalEvents: 3,
-        activeUsers: 45,
-      });
-
-      // Dummy data for item audit logs
-      setItemStats({
-        totalItems: 150,
-        foundItems: 85,
-        lostItems: 42,
-        claimedItems: 23,
-      });
-
-      // Dummy data for item audits
-      setItemAudits([
-        {
-          id: 1,
-          created_at: "2025-09-30T14:30:00Z",
-          item_name: "Dompet Coklat",
-          category: "Dokumen & Dompet",
-          status: "found",
-          reporter_name: "Jane Smith",
-          reporter_role: "Petugas",
-          location: "Gedung A Lantai 2",
-          description: "Dompet coklat dengan berbagai kartu di dalamnya",
-          image_url: "https://placehold.co/400",
-        },
-        {
-          id: 2,
-          created_at: "2025-09-30T14:25:00Z",
-          item_name: "Kunci Motor Honda",
-          category: "Kendaraan",
-          status: "claimed",
-          reporter_name: "Bob Wilson",
-          reporter_role: "User",
-          location: "Parkiran Motor",
-          description: "Kunci motor Honda dengan gantungan biru",
-          image_url: "https://placehold.co/400",
-        },
-        {
-          id: 3,
-          created_at: "2025-09-30T14:20:00Z",
-          item_name: "Tas Ransel Hitam",
-          category: "Tas & Aksesoris",
-          status: "lost",
-          reporter_name: "Alice Brown",
-          reporter_role: "User",
-          location: "Perpustakaan",
-          description: "Tas ransel hitam merk Eiger dengan laptop di dalamnya",
-          image_url: "https://placehold.co/400",
-        },
-        {
-          id: 4,
-          created_at: "2025-09-30T14:15:00Z",
-          item_name: "Handphone Samsung",
-          category: "Elektronik",
-          status: "returned",
-          reporter_name: "Charlie Davis",
-          reporter_role: "Petugas",
-          location: "Kantin",
-          description: "Handphone Samsung Galaxy dengan case biru",
-          image_url: "https://placehold.co/400",
-        },
-        {
-          id: 5,
-          created_at: "2025-09-30T14:10:00Z",
-          item_name: "Buku Catatan",
-          category: "Alat Tulis",
-          status: "found",
-          reporter_name: "Eva Martinez",
-          reporter_role: "User",
-          location: "Ruang Kelas 101",
-          description: "Buku catatan dengan cover merah, berisi catatan kuliah",
-          image_url: "https://placehold.co/400",
-        },
-        {
-          id: 6,
-          created_at: "2025-09-30T14:05:00Z",
-          item_name: "Kacamata Minus",
-          category: "Aksesoris",
-          status: "pending",
-          reporter_name: "David Kim",
-          reporter_role: "User",
-          location: "Lab Komputer",
-          description: "Kacamata minus dengan frame hitam",
-          image_url: "https://placehold.co/400",
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  // Filter system audits based on search and filters
-  useEffect(() => {
-    let filtered = audits;
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (audit) =>
-          audit.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.resource_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.action_type.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (filterAction !== "all") {
-      filtered = filtered.filter((audit) => audit.action_type === filterAction);
-    }
-
-    if (filterResource !== "all") {
-      filtered = filtered.filter((audit) => audit.resource_type === filterResource);
-    }
-
-    // Simple date filtering - in real app, you'd implement proper date range filtering
-    if (dateRange === "today") {
-      const today = new Date().toDateString();
-      filtered = filtered.filter((audit) => new Date(audit.timestamp).toDateString() === today);
-    }
-
-    setFilteredAudits(filtered);
-  }, [audits, searchTerm, filterAction, filterResource, dateRange]);
-
-  // Filter item audits based on search and filters
-  useEffect(() => {
-    let filtered = itemAudits;
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (audit) =>
-          audit.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.reporter_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          audit.location.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (filterStatus !== "all") {
-      filtered = filtered.filter((audit) => audit.status === filterStatus);
-    }
-
-    if (filterCategory !== "all") {
-      filtered = filtered.filter((audit) => audit.category === filterCategory);
-    }
-
-    // Simple date filtering - in real app, you'd implement proper date range filtering
-    if (dateRange === "today") {
-      const today = new Date().toDateString();
-      filtered = filtered.filter((audit) => new Date(audit.created_at).toDateString() === today);
-    }
-
-    setFilteredItemAudits(filtered);
-  }, [itemAudits, searchTerm, filterStatus, filterCategory, dateRange]);
+    setPage(1);
+  }, [debouncedSearchTerm, filterStatus, filterCategory, dateRange]);
 
   const handleViewAudit = (audit) => {
     console.log("View audit detail:", audit);
@@ -340,25 +352,66 @@ export default function AuditReportsPage() {
   };
 
   const handleRefresh = () => {
-    setLoading(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    refetchReports();
+    refetchStats();
   };
 
-  const handleExport = () => {
-    console.log("Export audit logs");
-    // Implement export functionality
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      toast.info("Memproses export PDF...");
+
+      const response = await auditReportsApi.exportAuditReports(buildExportParams());
+
+      // Extract filename from Content-Disposition header
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = "laporan-audit.pdf";
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/i);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create blob from response data
+      const blob = new Blob([response.data], { type: "application/pdf" });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+
+      toast.success("Laporan PDF berhasil diunduh!");
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Gagal mengexport laporan. Silakan coba lagi.");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
-  const statusTypes = ["all", "found", "lost", "claimed", "returned", "pending"];
-  const categoryTypes = ["all", "Dokumen & Dompet", "Kendaraan", "Tas & Aksesoris", "Elektronik", "Alat Tulis", "Aksesoris"];
+  const statusTypes = [
+    { value: "all", label: "Semua Status" },
+    { value: "open", label: "Terbuka" },
+    { value: "claimed", label: "Diklaim" },
+    { value: "closed", label: "Selesai" },
+  ];
+
+  const categoryTypes = [{ value: "all", label: "Semua Kategori" }, ...categories.map((cat) => ({ value: cat.id, label: cat.name }))];
+
   const dateRanges = [
+    { value: "all", label: "Semua" },
     { value: "today", label: "Hari Ini" },
     { value: "week", label: "Minggu Ini" },
     { value: "month", label: "Bulan Ini" },
-    { value: "all", label: "Semua" },
   ];
 
   return (
@@ -370,39 +423,31 @@ export default function AuditReportsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Barang"
-            value={itemStats.totalItems}
+            value={stats.totalItems}
             icon={<FiPackage />}
             bgColor="bg-blue-100"
             iconColor="text-blue-600"
-            trend="up"
-            trendValue="+8 barang baru"
           />
           <StatCard
             title="Barang Ditemukan"
-            value={itemStats.foundItems}
+            value={stats.foundItems}
             icon={<FiCheckCircle />}
             bgColor="bg-green-100"
             iconColor="text-green-600"
-            trend="up"
-            trendValue="+5 hari ini"
           />
           <StatCard
             title="Barang Hilang"
-            value={itemStats.lostItems}
+            value={stats.lostItems}
             icon={<FiAlertTriangle />}
             bgColor="bg-red-100"
             iconColor="text-red-600"
-            trend="down"
-            trendValue="-2 dari kemarin"
           />
           <StatCard
             title="Telah Diambil"
-            value={itemStats.claimedItems}
+            value={stats.claimedItems}
             icon={<FiTrendingUp />}
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
-            trend="up"
-            trendValue="+3 hari ini"
           />
         </div>
 
@@ -413,7 +458,7 @@ export default function AuditReportsPage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <h3 className="text-xl font-semibold text-gray-900">Log Laporan Barang</h3>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">{filteredItemAudits.length} log</span>
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">{pagination.total} log</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -426,10 +471,11 @@ export default function AuditReportsPage() {
                   </button>
                   <button
                     onClick={handleExport}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                    disabled={isExporting || loading}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
-                    <FiDownload className="text-sm" />
-                    <span className="hidden sm:inline">Export</span>
+                    <FiDownload className={`text-sm ${isExporting ? "animate-bounce" : ""}`} />
+                    <span className="hidden sm:inline">{isExporting ? "Memproses..." : "Export PDF"}</span>
                   </button>
                 </div>
               </div>
@@ -455,10 +501,10 @@ export default function AuditReportsPage() {
                   >
                     {statusTypes.map((status) => (
                       <option
-                        key={status}
-                        value={status}
+                        key={status.value}
+                        value={status.value}
                       >
-                        {status === "all" ? "Semua Status" : status.charAt(0).toUpperCase() + status.slice(1)}
+                        {status.label}
                       </option>
                     ))}
                   </select>
@@ -469,10 +515,10 @@ export default function AuditReportsPage() {
                   >
                     {categoryTypes.map((category) => (
                       <option
-                        key={category}
-                        value={category}
+                        key={category.value}
+                        value={category.value}
                       >
-                        {category === "all" ? "Semua Kategori" : category}
+                        {category.label}
                       </option>
                     ))}
                   </select>
@@ -521,8 +567,8 @@ export default function AuditReportsPage() {
                         </div>
                       </td>
                     </tr>
-                  ) : filteredItemAudits.length > 0 ? (
-                    filteredItemAudits.map((audit) => (
+                  ) : reports.length > 0 ? (
+                    reports.map((audit) => (
                       <ItemAuditRow
                         key={audit.id}
                         audit={audit}
@@ -554,8 +600,8 @@ export default function AuditReportsPage() {
                   <FiRefreshCw className="animate-spin mr-2" />
                   <span>Memuat data...</span>
                 </div>
-              ) : filteredItemAudits.length > 0 ? (
-                filteredItemAudits.map((audit) => (
+              ) : reports.length > 0 ? (
+                reports.map((audit) => (
                   <ItemAuditCard
                     key={audit.id}
                     audit={audit}
@@ -570,6 +616,58 @@ export default function AuditReportsPage() {
                 </div>
               )}
             </div>
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="p-4 border-t bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600">
+                    Menampilkan {(page - 1) * limit + 1} - {Math.min(page * limit, pagination.total)} dari {pagination.total} data
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={!pagination.hasPrev}
+                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Sebelumnya
+                    </button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (page <= 3) {
+                          pageNum = i + 1;
+                        } else if (page >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = page - 2 + i;
+                        }
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setPage(pageNum)}
+                            className={`w-10 h-10 rounded-lg transition-colors ${
+                              page === pageNum ? "bg-blue-600 text-white" : "border hover:bg-gray-100"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button
+                      onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                      disabled={!pagination.hasNext}
+                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Selanjutnya
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

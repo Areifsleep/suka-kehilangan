@@ -15,11 +15,16 @@ import {
   PaginationDto,
   ResetPasswordDto,
 } from './dto/management.dto';
+import { AuditReportsQueryDto, ExportAuditReportsDto } from './dto/audit.dto';
 import { LokasiPos } from '@prisma/client';
+import { PdfGeneratorService } from '../common/services/pdf-generator.service';
 
 @Injectable()
 export class ManagementService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pdfGenerator: PdfGeneratorService,
+  ) {}
 
   // Get all users with pagination and filters
   async getUsers(params: PaginationDto, requestingUserId: string) {
@@ -764,6 +769,290 @@ export class ManagementService {
       },
       orderBy: [{ faculty: { name: 'asc' } }, { name: 'asc' }],
     });
+  }
+
+  // Get audit reports for items
+  async getAuditReports(
+    queryDto: AuditReportsQueryDto,
+    requestingUserId: string,
+  ) {
+    await this.validateAdminAccess(requestingUserId);
+
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      status,
+      categoryId,
+      dateRange = 'all',
+      reportType,
+    } = queryDto;
+
+    const skip = (page - 1) * limit;
+
+    // Build where conditions
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        { item_name: { contains: search } },
+        { description: { contains: search } },
+        { place_found: { contains: search } },
+        {
+          created_by: {
+            profile: {
+              full_name: { contains: search },
+            },
+          },
+        },
+      ];
+    }
+
+    if (status) {
+      where.report_status = status;
+    }
+
+    if (categoryId) {
+      where.report_category_id = categoryId;
+    }
+
+    if (reportType) {
+      where.report_type = reportType;
+    }
+
+    // Date range filtering
+    if (dateRange !== 'all') {
+      const now = new Date();
+      let startDate = new Date();
+
+      switch (dateRange) {
+        case 'today':
+          startDate.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1);
+          break;
+      }
+
+      where.created_at = {
+        gte: startDate,
+      };
+    }
+
+    const [reports, total] = await Promise.all([
+      this.prisma.report.findMany({
+        where,
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          item_name: true,
+          description: true,
+          place_found: true,
+          report_type: true,
+          report_status: true,
+          created_at: true,
+          updated_at: true,
+          claimed_at: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          created_by: {
+            select: {
+              id: true,
+              profile: {
+                select: {
+                  full_name: true,
+                },
+              },
+              role: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          claimed_by: {
+            select: {
+              id: true,
+              profile: {
+                select: {
+                  full_name: true,
+                },
+              },
+            },
+          },
+          report_images: {
+            where: {
+              is_primary: true,
+            },
+            select: {
+              storage_key: true,
+              original_filename: true,
+            },
+            take: 1,
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      }),
+      this.prisma.report.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    // Transform data for frontend
+    const transformedReports = reports.map((report) => ({
+      id: report.id,
+      item_name: report.item_name,
+      description: report.description,
+      location: report.place_found,
+      status: report.report_status.toLowerCase(),
+      category: report.category.name,
+      category_id: report.category.id,
+      report_type: report.report_type.toLowerCase(),
+      reporter_name: report.created_by.profile?.full_name || 'Unknown',
+      reporter_role: report.created_by.role.name,
+      claimed_by_name: report.claimed_by?.profile?.full_name,
+      image_url: report.report_images[0]?.storage_key
+        ? `/uploads/${report.report_images[0].storage_key}`
+        : null,
+      created_at: report.created_at,
+      updated_at: report.updated_at,
+      claimed_at: report.claimed_at,
+    }));
+
+    return {
+      data: transformedReports,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  // Get audit statistics
+  async getAuditStats(requestingUserId: string) {
+    await this.validateAdminAccess(requestingUserId);
+
+    const now = new Date();
+    const todayStart = new Date(now.setHours(0, 0, 0, 0));
+
+    const [
+      totalItems,
+      foundItems,
+      lostItems,
+      claimedItems,
+      returnedItems,
+      todayItems,
+    ] = await Promise.all([
+      // Total items
+      this.prisma.report.count(),
+      // Found items (FOUND type)
+      this.prisma.report.count({
+        where: {
+          report_type: 'FOUND',
+        },
+      }),
+      // Lost items (LOST type)
+      this.prisma.report.count({
+        where: {
+          report_type: 'LOST',
+        },
+      }),
+      // Claimed items (CLAIMED status)
+      this.prisma.report.count({
+        where: {
+          report_status: 'CLAIMED',
+        },
+      }),
+      // Returned items (CLOSED status)
+      this.prisma.report.count({
+        where: {
+          report_status: 'CLOSED',
+        },
+      }),
+      // Today's items
+      this.prisma.report.count({
+        where: {
+          created_at: {
+            gte: todayStart,
+          },
+        },
+      }),
+    ]);
+
+    // Calculate trends (comparing with yesterday)
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+
+    const yesterdayItems = await this.prisma.report.count({
+      where: {
+        created_at: {
+          gte: yesterdayStart,
+          lt: todayStart,
+        },
+      },
+    });
+
+    const itemsTrend = todayItems - yesterdayItems;
+
+    return {
+      totalItems,
+      foundItems,
+      lostItems,
+      claimedItems,
+      returnedItems,
+      todayItems,
+      trends: {
+        items: itemsTrend >= 0 ? 'up' : 'down',
+        itemsValue: `${itemsTrend >= 0 ? '+' : ''}${itemsTrend} dari kemarin`,
+      },
+    };
+  }
+
+  // Get categories for dropdown
+  async getCategories(requestingUserId: string) {
+    await this.validateAdminAccess(requestingUserId);
+
+    return await this.prisma.reportCategory.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
+
+  // Export audit reports to PDF
+  async exportAuditReportsToPDF(
+    queryDto: ExportAuditReportsDto,
+    requestingUserId: string,
+  ) {
+    await this.validateAdminAccess(requestingUserId);
+
+    const { buffer, filename } =
+      await this.pdfGenerator.generateAuditReportPDF(queryDto);
+
+    return {
+      buffer: buffer.toString('base64'),
+      filename,
+      contentType: 'application/pdf',
+    };
   }
 
   // Private method to validate admin access

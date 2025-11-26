@@ -13,16 +13,12 @@ export default function LoginPage() {
             {/* Responsive Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-8 lg:items-center">
               {/* Logo - Shows on top for mobile, right side for desktop */}
-              <div className="flex flex-col items-center mb-6 lg:mb-0 lg:order-2">
+              <div className="flex flex-col items-center mb-6 lg:mb-0">
                 <img
                   src={UIN}
                   alt="UIN Sunan Kalijaga Logo"
                   className="mb-4 lg:mb-0 object-contain w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64"
                 />
-              </div>
-
-              {/* Form Section - Shows below logo on mobile, left side on desktop */}
-              <div className="lg:order-1">
                 <h1
                   className="text-2xl sm:text-3xl font-serif text-yellow-600 tracking-wide font-bold text-center mb-2"
                   style={{ fontFamily: "'Cinzel', serif" }}
@@ -34,6 +30,10 @@ export default function LoginPage() {
                   <br />
                   Temukan barang Anda di sini.
                 </p>
+              </div>
+
+              {/* Form Section - Shows below logo on mobile, left side on desktop */}
+              <div>
                 <LoginForm />
               </div>
             </div>

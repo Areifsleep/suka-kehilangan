@@ -1,4 +1,3 @@
-// backend/src/management/management.controller.ts
 import {
   Controller,
   Get,
@@ -14,8 +13,9 @@ import {
   HttpStatus,
   ValidationPipe,
   UsePipes,
-  BadRequestException,
+  Res,
 } from '@nestjs/common';
+import { type Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { ManagementService } from './management.service';
 import {
@@ -24,6 +24,7 @@ import {
   PaginationDto,
   ResetPasswordDto,
 } from './dto/management.dto';
+import { AuditReportsQueryDto, ExportAuditReportsDto } from './dto/audit.dto';
 
 @Controller('management')
 @UseGuards(JwtAuthGuard)
@@ -107,8 +108,6 @@ export class ManagementController {
     return this.managementService.getStudyPrograms(requestingUserId);
   }
 
-  // Special endpoints for petugas management with lokasi_pos filter
-
   // GET /api/v1/management/petugas
   @Get('petugas')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
@@ -129,5 +128,55 @@ export class ManagementController {
       paginationDto,
       requestingUserId,
     );
+  }
+
+  // GET /api/v1/management/audit-reports
+  @Get('audit-reports')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async getAuditReports(
+    @Query() queryDto: AuditReportsQueryDto,
+    @Request() req,
+  ) {
+    const requestingUserId = req.user.id;
+    return this.managementService.getAuditReports(queryDto, requestingUserId);
+  }
+
+  // GET /api/v1/management/audit-stats
+  @Get('audit-stats')
+  async getAuditStats(@Request() req) {
+    const requestingUserId = req.user.id;
+    return this.managementService.getAuditStats(requestingUserId);
+  }
+
+  // GET /api/v1/management/categories
+  @Get('categories')
+  async getCategories(@Request() req) {
+    const requestingUserId = req.user.id;
+    return this.managementService.getCategories(requestingUserId);
+  }
+
+  // GET /api/v1/management/audit-reports/export
+  @Get('audit-reports/export')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async exportAuditReports(
+    @Query() queryDto: ExportAuditReportsDto,
+    @Request() req,
+    @Res() res: Response,
+  ) {
+    const requestingUserId = req.user.id;
+    const result = await this.managementService.exportAuditReportsToPDF(
+      queryDto,
+      requestingUserId,
+    );
+
+    const buffer = Buffer.from(result.buffer, 'base64');
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${result.filename}"`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
   }
 }
