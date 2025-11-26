@@ -13,12 +13,18 @@ import {
   FiTrendingUp,
   FiPackage,
   FiMapPin,
+  FiClock,
+  FiTag,
+  FiFileText,
+  FiX,
 } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { HeaderDashboard } from "@/components/common";
 import { auditReportsApi } from "../api/auditReportsApi";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Button } from "@/components/ui/button";
 
 function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {
   return (
@@ -181,23 +187,11 @@ function ItemAuditRow({ audit, onView }) {
     <tr className="border-b hover:bg-gray-50 transition-colors duration-200">
       <td className="px-6 py-4">
         <div className="flex items-center text-sm text-gray-700">
-          <FiCalendar className="mr-2 text-gray-400" />
           <span>{formatDate(audit.created_at)}</span>
         </div>
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center">
-          {audit.image_url ? (
-            <img
-              src={audit.image_url}
-              alt={audit.item_name}
-              className="w-12 h-12 rounded-lg object-cover mr-3 border"
-            />
-          ) : (
-            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3 border">
-              <FiPackage className="text-gray-400" />
-            </div>
-          )}
           <div>
             <div className="font-medium text-gray-900">{audit.item_name}</div>
             <div className="text-sm text-gray-500">{audit.category}</div>
@@ -212,9 +206,6 @@ function ItemAuditRow({ audit, onView }) {
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
-            <FiUser className="text-gray-600 text-sm" />
-          </div>
           <div>
             <div className="font-medium text-gray-900">{audit.reporter_name}</div>
             <div className="text-sm text-gray-500">{audit.reporter_role}</div>
@@ -248,6 +239,254 @@ function ItemAuditRow({ audit, onView }) {
   );
 }
 
+function AuditDetailModal({ audit, isOpen, onClose }) {
+  if (!audit) return null;
+
+  const statusConfig = {
+    open: {
+      color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      dot: "bg-yellow-500",
+      label: "Terbuka",
+      icon: <FiAlertTriangle className="w-5 h-5" />,
+    },
+    claimed: {
+      color: "bg-blue-100 text-blue-800 border-blue-200",
+      dot: "bg-blue-500",
+      label: "Diklaim",
+      icon: <FiClock className="w-5 h-5" />,
+    },
+    closed: {
+      color: "bg-green-100 text-green-800 border-green-200",
+      dot: "bg-green-500",
+      label: "Selesai",
+      icon: <FiCheckCircle className="w-5 h-5" />,
+    },
+  };
+
+  const typeConfig = {
+    found: {
+      color: "bg-green-50 text-green-700 border-green-200",
+      label: "Barang Ditemukan",
+    },
+    lost: {
+      color: "bg-red-50 text-red-700 border-red-200",
+      label: "Barang Hilang",
+    },
+  };
+
+  const config = statusConfig[audit.status] || statusConfig["open"];
+  const typeStyle = typeConfig[audit.report_type] || typeConfig["found"];
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString("id-ID", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+    >
+      <ModalBody className="p-0">
+        {/* Image Section */}
+        <div className="relative">
+          {audit.image_url ? (
+            <div className="relative h-80 bg-gray-100">
+              <img
+                src={audit.image_url}
+                alt={audit.item_name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="h-80 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <FiPackage className="w-24 h-24 text-gray-400" />
+            </div>
+          )}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-lg"
+          >
+            <FiX className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-6 space-y-6">
+          {/* Header Info */}
+          <div>
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <h2 className="text-2xl font-bold text-gray-900">{audit.item_name}</h2>
+              <div className="flex gap-2 flex-shrink-0">
+                <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium border ${config.color}`}>
+                  {config.icon}
+                  <span className="ml-2">{config.label}</span>
+                </span>
+              </div>
+            </div>
+            <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium border ${typeStyle.color}`}>{typeStyle.label}</span>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 border-y border-gray-200">
+            {/* Kategori */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-purple-50 rounded-lg">
+                <FiTag className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">Kategori</div>
+                <div className="font-medium text-gray-900">{audit.category}</div>
+              </div>
+            </div>
+
+            {/* Lokasi */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <FiMapPin className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">Lokasi Ditemukan</div>
+                <div className="font-medium text-gray-900">{audit.location}</div>
+              </div>
+            </div>
+
+            {/* Pelapor */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-green-50 rounded-lg">
+                <FiUser className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">Dilaporkan Oleh</div>
+                <div className="font-medium text-gray-900">{audit.reporter_name}</div>
+                <div className="text-sm text-gray-500">{audit.reporter_role}</div>
+              </div>
+            </div>
+
+            {/* Tanggal Laporan */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-orange-50 rounded-lg">
+                <FiCalendar className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">Tanggal Laporan</div>
+                <div className="font-medium text-gray-900">{formatDate(audit.created_at)}</div>
+              </div>
+            </div>
+
+            {/* Pengambil (jika ada) */}
+            {audit.claimed_by_name && (
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-indigo-50 rounded-lg">
+                  <FiUser className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Diambil Oleh</div>
+                  <div className="font-medium text-gray-900">{audit.claimed_by_name}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Tanggal Diambil (jika ada) */}
+            {audit.claimed_at && (
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-pink-50 rounded-lg">
+                  <FiClock className="w-5 h-5 text-pink-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 mb-1">Tanggal Diambil</div>
+                  <div className="font-medium text-gray-900">{formatDate(audit.claimed_at)}</div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Deskripsi */}
+          {audit.description && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <FiFileText className="w-5 h-5 text-gray-400" />
+                <h3 className="font-semibold text-gray-900">Deskripsi</h3>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{audit.description}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Timeline */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+              <FiClock className="w-5 h-5 text-gray-400" />
+              Timeline
+            </h3>
+            <div className="space-y-3">
+              {/* Created */}
+              <div className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <div className="w-0.5 h-full bg-blue-200 mt-1"></div>
+                </div>
+                <div className="pb-6">
+                  <div className="font-medium text-gray-900">Laporan Dibuat</div>
+                  <div className="text-sm text-gray-500">{formatDate(audit.created_at)}</div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Oleh {audit.reporter_name} ({audit.reporter_role})
+                  </div>
+                </div>
+              </div>
+
+              {/* Updated */}
+              {audit.updated_at && audit.updated_at !== audit.created_at && (
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    {audit.claimed_at && <div className="w-0.5 h-full bg-yellow-200 mt-1"></div>}
+                  </div>
+                  <div className={audit.claimed_at ? "pb-6" : ""}>
+                    <div className="font-medium text-gray-900">Laporan Diperbarui</div>
+                    <div className="text-sm text-gray-500">{formatDate(audit.updated_at)}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Claimed */}
+              {audit.claimed_at && (
+                <div className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">Barang Diambil</div>
+                    <div className="text-sm text-gray-500">{formatDate(audit.claimed_at)}</div>
+                    {audit.claimed_by_name && <div className="text-sm text-gray-600 mt-1">Oleh {audit.claimed_by_name}</div>}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </ModalBody>
+
+      <ModalFooter>
+        <button
+          onClick={onClose}
+          className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
+        >
+          Tutup
+        </button>
+      </ModalFooter>
+    </Modal>
+  );
+}
+
 export default function AuditReportsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -255,6 +494,8 @@ export default function AuditReportsPage() {
   const [dateRange, setDateRange] = useState("all");
   const [page, setPage] = useState(1);
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedAudit, setSelectedAudit] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const limit = 20;
 
   // Debounce search term untuk mengurangi API calls
@@ -346,9 +587,13 @@ export default function AuditReportsPage() {
   }, [debouncedSearchTerm, filterStatus, filterCategory, dateRange]);
 
   const handleViewAudit = (audit) => {
-    console.log("View audit detail:", audit);
-    // Implement view audit detail functionality
-    // You can open a modal with full audit details
+    setSelectedAudit(audit);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => setSelectedAudit(null), 300); // Clear after animation
   };
 
   const handleRefresh = () => {
@@ -417,6 +662,13 @@ export default function AuditReportsPage() {
   return (
     <>
       <HeaderDashboard title="Laporan Audit" />
+
+      {/* Audit Detail Modal */}
+      <AuditDetailModal
+        audit={selectedAudit}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
 
       <div className="mb-12">
         {/* Stat cards sudah responsif */}
@@ -625,13 +877,13 @@ export default function AuditReportsPage() {
                     Menampilkan {(page - 1) * limit + 1} - {Math.min(page * limit, pagination.total)} dari {pagination.total} data
                   </div>
                   <div className="flex gap-2">
-                    <button
+                    <Button
+                      variant="outline"
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={!pagination.hasPrev}
-                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Sebelumnya
-                    </button>
+                    </Button>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                         let pageNum;
@@ -645,25 +897,23 @@ export default function AuditReportsPage() {
                           pageNum = page - 2 + i;
                         }
                         return (
-                          <button
+                          <Button
+                            variant={page === pageNum ? "default" : "outline"}
                             key={pageNum}
                             onClick={() => setPage(pageNum)}
-                            className={`w-10 h-10 rounded-lg transition-colors ${
-                              page === pageNum ? "bg-blue-600 text-white" : "border hover:bg-gray-100"
-                            }`}
                           >
                             {pageNum}
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>
-                    <button
+                    <Button
+                      variant="outline"
                       onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
                       disabled={!pagination.hasNext}
-                      className="px-4 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Selanjutnya
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

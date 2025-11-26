@@ -39,6 +39,7 @@ export class SeederService {
     await this.seedUserPetugas();
     await this.seedUserDosen();
     await this.seedUserMahasiswa();
+    await this.seedReports();
 
     this.logger.log('Proses seeding selesai.');
   }
@@ -466,7 +467,158 @@ export class SeederService {
       });
       this.logger.log('Berhasil membuat user "admin".');
     } catch (error) {
-      this.logger.error('Gagal melakukan seeding user admin.', error.stack);
+      this.logger.log('Gagal melakukan seeding user admin.', error.stack);
+    }
+  }
+
+  private async seedReports() {
+    this.logger.log('Seeding data untuk reports dummy...');
+    try {
+      // Check if reports already exist
+      const existingReports = await this.prismaService.report.count();
+      if (existingReports > 0) {
+        this.logger.log('Reports sudah ada, seeding dilewati.');
+        return;
+      }
+
+      // Get necessary data
+      const categories = await this.prismaService.reportCategory.findMany();
+      const petugasUsers = await this.prismaService.user.findMany({
+        where: {
+          role: {
+            name: 'PETUGAS',
+          },
+        },
+        take: 5,
+      });
+      const regularUsers = await this.prismaService.user.findMany({
+        where: {
+          role: {
+            name: 'USER',
+          },
+        },
+        take: 10,
+      });
+
+      if (
+        categories.length === 0 ||
+        petugasUsers.length === 0 ||
+        regularUsers.length === 0
+      ) {
+        this.logger.warn(
+          'Data prasyarat (categories, users) tidak lengkap. Seeding reports dilewati.',
+        );
+        return;
+      }
+
+      const reportTypes: ('FOUND' | 'LOST')[] = ['FOUND', 'LOST'];
+      const reportStatuses: ('OPEN' | 'CLAIMED' | 'CLOSED')[] = [
+        'OPEN',
+        'CLAIMED',
+        'CLOSED',
+      ];
+      const itemNames = [
+        'Handphone Samsung',
+        'Laptop Asus',
+        'Tas Ransel Hitam',
+        'Dompet Coklat',
+        'Kunci Motor',
+        'Buku Catatan',
+        'Kacamata',
+        'Jam Tangan',
+        'Power Bank',
+        'Earphone',
+        'Jaket Biru',
+        'Sepatu Sneakers',
+        'Payung Hitam',
+        'Botol Minum',
+        'Charger Laptop',
+        'Mouse Wireless',
+        'Flash Disk',
+        'Kabel USB',
+        'Helmet',
+        'ID Card',
+      ];
+      const locations = [
+        'Masjid UIN',
+        'Perpustakaan Lantai 2',
+        'Gedung Kuliah A',
+        'Gedung Kuliah B',
+        'Kantin Utama',
+        'Parkiran Barat',
+        'Parkiran Timur',
+        'Lab Komputer',
+        'Ruang Kelas 101',
+        'Ruang Kelas 205',
+        'Lapangan Olahraga',
+        'Auditorium',
+        'Pos Satpam Barat',
+        'Pos Satpam Timur',
+      ];
+
+      const reportsData: any[] = [];
+      const now = new Date();
+
+      // Create 30 reports with varied dates
+      for (let i = 0; i < 30; i++) {
+        const reportType =
+          reportTypes[Math.floor(Math.random() * reportTypes.length)];
+        const reportStatus =
+          reportStatuses[Math.floor(Math.random() * reportStatuses.length)];
+        const category =
+          categories[Math.floor(Math.random() * categories.length)];
+        const itemName =
+          itemNames[Math.floor(Math.random() * itemNames.length)];
+        const location =
+          locations[Math.floor(Math.random() * locations.length)];
+
+        // Random user (petugas for FOUND, regular for LOST)
+        const createdBy =
+          reportType === 'FOUND'
+            ? petugasUsers[Math.floor(Math.random() * petugasUsers.length)]
+            : regularUsers[Math.floor(Math.random() * regularUsers.length)];
+
+        // Random claimed user (only for CLAIMED or CLOSED status)
+        const claimedBy =
+          reportStatus !== 'OPEN' && regularUsers.length > 0
+            ? regularUsers[Math.floor(Math.random() * regularUsers.length)]
+            : null;
+
+        // Random date within last 30 days
+        const daysAgo = Math.floor(Math.random() * 30);
+        const createdAt = new Date(now);
+        createdAt.setDate(createdAt.getDate() - daysAgo);
+
+        const claimedAt =
+          reportStatus !== 'OPEN'
+            ? new Date(
+                createdAt.getTime() + Math.random() * 3 * 24 * 60 * 60 * 1000,
+              )
+            : null;
+
+        reportsData.push({
+          item_name: itemName,
+          description: `${itemName} ditemukan/hilang di ${location}. ${reportType === 'FOUND' ? 'Barang dalam kondisi baik.' : 'Mohon bantuan untuk menemukannya.'}`,
+          place_found: location,
+          report_type: reportType,
+          report_status: reportStatus,
+          created_by_user_id: createdBy.id,
+          claimed_by_user_id: claimedBy?.id || null,
+          report_category_id: category.id,
+          created_at: createdAt,
+          updated_at: createdAt,
+          claimed_at: claimedAt,
+        });
+      }
+
+      // Insert all reports
+      await this.prismaService.report.createMany({
+        data: reportsData,
+      });
+
+      this.logger.log(`Berhasil membuat ${reportsData.length} reports dummy.`);
+    } catch (error) {
+      this.logger.error('Gagal melakukan seeding reports.', error.stack);
     }
   }
 }

@@ -1055,6 +1055,149 @@ export class ManagementService {
     };
   }
 
+  // Get dashboard statistics
+  async getDashboardStats(requestingUserId: string) {
+    await this.validateAdminAccess(requestingUserId);
+
+    // Get petugas role to count active officers
+    const petugasRole = await this.prisma.role.findFirst({
+      where: { name: 'PETUGAS' },
+    });
+
+    const [totalReports, foundItems, claimedItems, activePetugas] =
+      await Promise.all([
+        // Total reports
+        this.prisma.report.count(),
+        // Found items (FOUND type)
+        this.prisma.report.count({
+          where: {
+            report_type: 'FOUND',
+          },
+        }),
+        // Claimed items (CLAIMED or CLOSED status)
+        this.prisma.report.count({
+          where: {
+            report_status: {
+              in: ['CLAIMED', 'CLOSED'],
+            },
+          },
+        }),
+        // Active petugas users
+        petugasRole
+          ? this.prisma.user.count({
+              where: {
+                role_id: petugasRole.id,
+              },
+            })
+          : Promise.resolve(0),
+      ]);
+
+    return {
+      reports: totalReports,
+      found: foundItems,
+      claimed: claimedItems,
+      officers: activePetugas,
+    };
+  }
+
+  // Get recent activities
+  async getRecentActivities(requestingUserId: string) {
+    await this.validateAdminAccess(requestingUserId);
+
+    // Get recent reports (max 10)
+    const recentReports = await this.prisma.report.findMany({
+      take: 10,
+      orderBy: {
+        created_at: 'desc',
+      },
+      select: {
+        id: true,
+        item_name: true,
+        place_found: true,
+        report_type: true,
+        report_status: true,
+        created_at: true,
+        updated_at: true,
+        claimed_at: true,
+        created_by: {
+          select: {
+            profile: {
+              select: {
+                full_name: true,
+              },
+            },
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Transform to activities format
+    const activities = recentReports.map((report) => {
+      let title = '';
+      let subtitle = '';
+      let type: 'info' | 'success' | 'danger' = 'info';
+
+      if (report.report_status === 'CLOSED') {
+        title = `${report.item_name} telah dikembalikan kepada pemilik`;
+        subtitle = `Diverifikasi oleh ${report.created_by.profile?.full_name || 'Unknown'}`;
+        type = 'success';
+      } else if (report.report_status === 'CLAIMED') {
+        title = `${report.item_name} sedang dalam proses klaim`;
+        subtitle = `Dilaporkan oleh ${report.created_by.profile?.full_name || 'Unknown'}`;
+        type = 'info';
+      } else if (report.report_type === 'FOUND') {
+        title = `${report.item_name} ditemukan di ${report.place_found}`;
+        subtitle = `Dilaporkan oleh ${report.created_by.profile?.full_name || 'Unknown'} (${report.created_by.role.name})`;
+        type = 'info';
+      } else {
+        title = `${report.item_name} dilaporkan hilang`;
+        subtitle = `Dilaporkan oleh ${report.created_by.profile?.full_name || 'Unknown'}`;
+        type = 'danger';
+      }
+
+      return {
+        id: report.id,
+        type,
+        title,
+        subtitle,
+        time: this.formatRelativeTime(report.created_at),
+        createdAt: report.created_at,
+      };
+    });
+
+    return activities;
+  }
+
+  // Helper method to format relative time
+  private formatRelativeTime(date: Date): string {
+    const now = new Date();
+    const diffInMs = now.getTime() - new Date(date).getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 1) {
+      return 'Baru saja';
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} menit yang lalu`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} jam yang lalu`;
+    } else if (diffInDays < 7) {
+      return `${diffInDays} hari yang lalu`;
+    } else {
+      return new Date(date).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    }
+  }
+
   // Private method to validate admin access
   private async validateAdminAccess(userId: string) {
     const user = await this.prisma.user.findUnique({

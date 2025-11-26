@@ -10,6 +10,8 @@ const QUERY_KEYS = {
   studyPrograms: "management-study-programs",
   petugas: "management-petugas",
   mahasiswa: "management-mahasiswa",
+  dashboardStats: "management-dashboard-stats",
+  dashboardActivities: "management-dashboard-activities",
 };
 
 // API Functions
@@ -97,6 +99,16 @@ const managementApi = {
     const response = await api.get(`/management/mahasiswa?${searchParams.toString()}`);
     return response.data;
   },
+
+  getDashboardStats: async () => {
+    const response = await api.get("/management/dashboard/stats");
+    return response.data;
+  },
+
+  getDashboardActivities: async () => {
+    const response = await api.get("/management/dashboard/activities");
+    return response.data;
+  },
 };
 
 // Query Hooks
@@ -153,6 +165,22 @@ export const useMahasiswa = (params = {}) => {
     queryKey: [QUERY_KEYS.mahasiswa, params],
     queryFn: () => managementApi.getMahasiswa(params),
     keepPreviousData: true,
+  });
+};
+
+export const useDashboardStats = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.dashboardStats],
+    queryFn: managementApi.getDashboardStats,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
+};
+
+export const useDashboardActivities = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.dashboardActivities],
+    queryFn: managementApi.getDashboardActivities,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 };
 

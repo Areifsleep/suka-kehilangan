@@ -9,7 +9,7 @@ import "./styles/global.css";
 import "react-toastify/dist/ReactToastify.css";
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminDashboard from "./features/admin-management/pages/AdminDashboard.jsx";
 
 import ManagementUser from "./features/admin-management/pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";

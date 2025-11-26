@@ -179,4 +179,18 @@ export class ManagementController {
 
     res.send(buffer);
   }
+
+  // GET /api/v1/management/dashboard/stats
+  @Get('dashboard/stats')
+  async getDashboardStats(@Request() req) {
+    const requestingUserId = req.user.id;
+    return this.managementService.getDashboardStats(requestingUserId);
+  }
+
+  // GET /api/v1/management/dashboard/activities
+  @Get('dashboard/activities')
+  async getRecentActivities(@Request() req) {
+    const requestingUserId = req.user.id;
+    return this.managementService.getRecentActivities(requestingUserId);
+  }
 }
