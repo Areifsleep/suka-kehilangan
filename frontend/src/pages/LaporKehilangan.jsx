@@ -25,7 +25,7 @@ const locations = [
   "Lainnya",
 ];
 
-export default function UserReportLostItem() {
+export default function LaporKehilanganPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     itemName: "",
@@ -109,8 +109,6 @@ export default function UserReportLostItem() {
 
   return (
     <div className="min-h-screen ">
-      <HeaderDashboard title="Laporkan Kehilangan" />
-
       <div>
         <form
           onSubmit={handleSubmit}
@@ -118,7 +116,6 @@ export default function UserReportLostItem() {
         >
           {/* Basic Information */}
           <Card className="shadow-lg border-0 overflow-hidden">
-            <div className="h-2 bg-gradient-to-r from-green-500 to-blue-500"></div>
             <CardHeader className="bg-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
@@ -235,7 +232,6 @@ export default function UserReportLostItem() {
 
           {/* Location & Time Information */}
           <Card className="shadow-lg border-0 overflow-hidden">
-            <div className="h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
             <CardHeader className="bg-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
@@ -315,7 +311,6 @@ export default function UserReportLostItem() {
 
           {/* Contact Information */}
           <Card className="shadow-lg border-0 overflow-hidden">
-            <div className="h-2 bg-gradient-to-r from-purple-500 to-pink-500"></div>
             <CardHeader className="bg-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-3">
                 <div className="p-2 bg-purple-100 rounded-lg">
@@ -388,7 +383,7 @@ export default function UserReportLostItem() {
           </Card>
 
           {/* Submit Button */}
-          <div className="flex gap-6 justify-end bg-white rounded-2xl p-6 shadow-lg">
+          <div className="flex flex-col md:flex-row gap-6 justify-end bg-white rounded-2xl p-6 shadow-lg">
             <Button
               type="button"
               variant="outline"

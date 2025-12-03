@@ -137,7 +137,7 @@ export default function ManagementUser() {
   if (error) {
     return (
       <>
-        <HeaderDashboard title="Manajemen User" />
+        {/* <HeaderDashboard title="Manajemen User" /> */}
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
@@ -157,7 +157,7 @@ export default function ManagementUser() {
 
   return (
     <>
-      <HeaderDashboard title="Manajemen User" />
+      {/* <HeaderDashboard title="Manajemen User" /> */}
       <Card>
         <CardContent>
           {/* Header Section: Dibuat responsif */}

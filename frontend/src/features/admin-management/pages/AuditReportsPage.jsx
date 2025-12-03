@@ -661,7 +661,7 @@ export default function AuditReportsPage() {
 
   return (
     <>
-      <HeaderDashboard title="Laporan Audit" />
+      {/* <HeaderDashboard title="Laporan Audit" /> */}
 
       {/* Audit Detail Modal */}
       <AuditDetailModal

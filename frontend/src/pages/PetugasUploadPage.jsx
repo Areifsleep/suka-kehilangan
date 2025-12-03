@@ -92,7 +92,7 @@ export default function PetugasUploadPage() {
 
   return (
     <div>
-      <HeaderDashboard title="Unggah Barang Temuan" />
+      {/* <HeaderDashboard title="Unggah Barang Temuan" /> */}
 
       <form
         onSubmit={handleSubmit}

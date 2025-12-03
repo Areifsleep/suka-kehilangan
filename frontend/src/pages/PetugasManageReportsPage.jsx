@@ -330,7 +330,7 @@ export default function PetugasManageReportsPage() {
 
   return (
     <div>
-      <HeaderDashboard title="Manajemen Barang" />
+      {/* <HeaderDashboard title="Manajemen Barang" /> */}
 
       {/* Filters */}
       <Card className="mb-6">

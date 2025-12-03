@@ -19,10 +19,6 @@ import PetugasUploadPage from "./pages/PetugasUploadPage.jsx";
 import PetugasManageReportsPage from "./pages/PetugasManageReportsPage.jsx";
 import PetugasVerifyReportsPage from "./pages/PetugasVerifyReportsPage.jsx";
 import PetugasReportsPage from "./pages/PetugasReportsPage.jsx";
-import UserLostItemsList from "./pages/UserLostItemsList.jsx";
-import UserLostItemDetail from "./pages/UserLostItemDetail.jsx";
-import UserReportLostItem from "./pages/UserReportLostItem.jsx";
-import UserMyReports from "./pages/UserMyReports.jsx";
 import AuditReportsPage from "./features/admin-management/pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
@@ -33,6 +29,11 @@ import { PetugasLayout } from "./layouts/PetugasLayout.jsx";
 import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 
 import ProfileSettingsPage from "./features/profile-settings/pages/ProfileSettingsPage.jsx";
+
+import BerandaUserPage from "./pages/BerandaUser.jsx";
+import LaporKehilanganPage from "./pages/LaporKehilangan.jsx";
+import LaporanSayaPage from "./pages/LaporanSaya.jsx";
+import Detaillaporan from "./pages/DetailLaporan.jsx";
 
 function MainLayout() {
   return (
@@ -72,19 +73,19 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <UserLostItemsList />,
+                element: <BerandaUserPage />,
               },
               {
                 path: "item/:id",
-                element: <UserLostItemDetail />,
+                element: <Detaillaporan />,
               },
               {
                 path: "report",
-                element: <UserReportLostItem />,
+                element: <LaporKehilanganPage />,
               },
               {
                 path: "my-reports",
-                element: <UserMyReports />,
+                element: <LaporanSayaPage />,
               },
             ],
           },

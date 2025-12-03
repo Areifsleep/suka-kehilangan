@@ -504,7 +504,7 @@ export default function PetugasVerifyReportsPage() {
 
   return (
     <div>
-      <HeaderDashboard title="Verifikasi Laporan Kehilangan" />
+      {/* <HeaderDashboard title="Verifikasi Laporan Kehilangan" /> */}
 
       {/* Filters */}
       <Card className="mb-6">

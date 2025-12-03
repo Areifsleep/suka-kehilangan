@@ -145,7 +145,7 @@ export default function ManagementPetugas() {
   if (error) {
     return (
       <>
-        <HeaderDashboard title="Manajemen Petugas" />
+        {/* <HeaderDashboard title="Manajemen Petugas" /> */}
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
@@ -165,7 +165,7 @@ export default function ManagementPetugas() {
 
   return (
     <>
-      <HeaderDashboard title="Manajemen Petugas" />
+      {/* <HeaderDashboard title="Manajemen Petugas" /> */}
       <Card>
         <CardContent>
           {/* Header Section: Dibuat responsif */}

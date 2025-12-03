@@ -522,7 +522,7 @@ export default function PetugasReportsPage() {
 
   return (
     <div>
-      <HeaderDashboard title="Laporan Kehilangan" />
+      {/* <HeaderDashboard title="Laporan Kehilangan" /> */}
 
       {/* Filters */}
       <Card className="mb-6">
