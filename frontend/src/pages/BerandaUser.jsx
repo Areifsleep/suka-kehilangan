@@ -82,34 +82,8 @@ function ItemCard({ item, onViewDetail }) {
     return type === "FOUND" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800";
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "OPEN":
-        return "bg-blue-100 text-blue-800";
-      case "CLAIMED":
-        return "bg-orange-100 text-orange-800";
-      case "CLOSED":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case "OPEN":
-        return "Terbuka";
-      case "CLAIMED":
-        return "Diklaim";
-      case "CLOSED":
-        return "Selesai";
-      default:
-        return status;
-    }
-  };
-
   return (
-    <Card className="hover:shadow-xl transition-all duration-300 border border-gray-200 shadow-sm group bg-white overflow-hidden rounded-lg">
+    <Card className="border border-gray-200 shadow-sm group bg-white overflow-hidden rounded-lg">
       <CardContent className="p-0">
         <div className="flex flex-col">
           {/* Header with badges */}
@@ -118,16 +92,12 @@ function ItemCard({ item, onViewDetail }) {
               <div className="flex-1">
                 <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-green-600 transition-colors leading-tight">{item.item_name}</h3>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-100 text-xs font-semibold text-gray-700 border border-gray-200">
-                  <FiTag className="w-3.5 h-3.5" />
                   {item.category.name}
                 </div>
               </div>
               <div className="flex flex-col gap-2 items-end ml-4">
                 <span className={`px-3 py-1.5 rounded-md text-xs font-bold ${getReportTypeColor(item.report_type)}`}>
                   {getReportTypeLabel(item.report_type)}
-                </span>
-                <span className={`px-3 py-1.5 rounded-md text-xs font-semibold ${getStatusColor(item.report_status)}`}>
-                  {getStatusLabel(item.report_status)}
                 </span>
               </div>
             </div>
@@ -292,14 +262,7 @@ export default function BerandaUserPage() {
             {/* Items grid */}
             <div className="space-y-5">
               {filteredItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="opacity-0 animate-fadeIn"
-                  style={{
-                    animationDelay: `${index * 75}ms`,
-                    animationFillMode: "forwards",
-                  }}
-                >
+                <div key={item.id}>
                   <ItemCard
                     item={item}
                     onViewDetail={handleViewDetail}
