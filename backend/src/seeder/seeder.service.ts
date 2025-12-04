@@ -8,7 +8,6 @@ import studentsData from '../../process_data/angkatan-2023.json';
 import lecturersData from '../../process_data/gabungan_dosen.json';
 import dataProgramStudi from '../../process_data/program_studi.json';
 import {
-  PERMISSIONS_DATA,
   GENERIC_PASSWORD,
   ROLES_DATA,
   ROLE_NAME_MAPPING,
@@ -30,10 +29,8 @@ export class SeederService {
       this.seedFaculties(),
       this.seedReportCatgories(),
       this.seedRole(),
-      this.seedPermissions(),
     ]);
 
-    await this.seedRolePermissions();
     await this.seedStudyPrograms();
     await this.seedUserAdmin();
     await this.seedUserPetugas();
@@ -57,80 +54,6 @@ export class SeederService {
       this.logger.log('Data role berhasil di-seed.');
     } catch (error) {
       this.logger.error('Gagal melakukan seeding data role.', error.stack);
-    }
-  }
-
-  private async seedPermissions() {
-    this.logger.log('Seeding data permissions...');
-
-    const permissions = PERMISSIONS_DATA.flatMap((group) =>
-      group.permissions.map((p) => ({
-        name: p.name,
-        description: p.description,
-      })),
-    );
-
-    try {
-      await this.prismaService.permission.createMany({
-        data: permissions,
-        skipDuplicates: true, // Lewati jika nama permission sudah ada
-      });
-      this.logger.log('Data permissions berhasil di-seed.');
-    } catch (error) {
-      this.logger.error(
-        'Gagal melakukan seeding data permissions.',
-        error.stack,
-      );
-    }
-  }
-
-  private async seedRolePermissions() {
-    this.logger.log('Menghubungkan roles dengan permissions...');
-    try {
-      // 1. Ambil semua role dan permission dari DB untuk mendapatkan ID-nya
-      const roles = await this.prismaService.role.findMany();
-      const permissions = await this.prismaService.permission.findMany();
-
-      // 2. Buat map untuk pencarian cepat berdasarkan nama
-      const roleMap = new Map(roles.map((r) => [r.name.toUpperCase(), r.id]));
-      const permissionMap = new Map(permissions.map((p) => [p.name, p.id]));
-
-      const rolePermissionData: { role_id: string; permission_id: string }[] =
-        [];
-
-      // 3. Iterasi data JSON untuk membuat relasi
-      for (const group of PERMISSIONS_DATA) {
-        for (const perm of group.permissions) {
-          const permissionId = permissionMap.get(perm.name);
-          if (!permissionId) continue;
-
-          for (const roleName of perm.roles) {
-            const dbRoleName = ROLE_NAME_MAPPING[roleName];
-            const roleId = roleMap.get(dbRoleName);
-            if (roleId) {
-              rolePermissionData.push({
-                role_id: roleId,
-                permission_id: permissionId,
-              });
-            }
-          }
-        }
-      }
-
-      // 4. Masukkan semua data relasi sekaligus
-      if (rolePermissionData.length > 0) {
-        await this.prismaService.rolePermissions.createMany({
-          data: rolePermissionData,
-          skipDuplicates: true,
-        });
-      }
-
-      this.logger.log('Berhasil menghubungkan roles dengan permissions.');
-    } catch (error) {
-      this.logger.error(
-        'Gagal menghubungkan roles dengan permissions.',
-        error.stack,
-      );
     }
   }
 

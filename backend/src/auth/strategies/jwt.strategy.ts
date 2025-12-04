@@ -46,8 +46,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token ini tidak valid');
     }
 
-    // Populate Permissions User
-    const user = await this.userService.findByIdWithAllPermissions(payload.sub);
+    // Populate User dengan Role
+    const user = await this.userService.findByIdWithRole(payload.sub);
     if (!user) {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -58,7 +58,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       username: user.username,
       email: user.profile?.email!,
       role: user.role.name,
-      permissions: user.role.role_permissions.map((p) => p.permission.name),
       jti: payload.jti, // Include JTI in user object
     };
 

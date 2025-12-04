@@ -17,47 +17,25 @@ export class UserService {
     });
   }
 
-  async findByUsernameWithAllPermissions(username: string) {
+  async findByUsernameWithRole(username: string) {
     return this.prismaService.user.findUnique({
       where: {
         username,
       },
       include: {
-        role: {
-          include: {
-            role_permissions: {
-              include: {
-                permission: true,
-              },
-            },
-          },
-        },
+        role: true,
       },
     });
   }
 
-  async findByIdWithAllPermissions(id: string) {
+  async findByIdWithRole(id: string) {
     return this.prismaService.user.findUnique({
       where: {
         id,
       },
       include: {
         profile: true,
-        role: {
-          include: {
-            role_permissions: {
-              select: {
-                permission: {
-                  select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+        role: true,
       },
     });
   }

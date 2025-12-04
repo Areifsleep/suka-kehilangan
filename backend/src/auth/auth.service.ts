@@ -20,7 +20,7 @@ export class AuthService {
 
   async validateUser(username: string, password: string) {
     const existingUser =
-      await this.userService.findByUsernameWithAllPermissions(username);
+      await this.userService.findByUsernameWithRole(username);
 
     const unauthorizedConditions =
       !existingUser ||
