@@ -2,6 +2,8 @@ import {
   Controller,
   Get,
   Post,
+  Put,
+  Delete,
   Body,
   Param,
   Query,
@@ -66,6 +68,40 @@ export class ReportsController {
     const userId = req.user.id;
     const userRole = req.user.role;
     return this.reportsService.getReportById(reportId, userId, userRole);
+  }
+
+  // PUT /api/v1/reports/:id - Update report
+  @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.PETUGAS, Role.ADMIN)
+  @UseInterceptors(FilesInterceptor('images', 3))
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async updateReport(
+    @Param('id') reportId: string,
+    @Body() updateReportDto: CreateReportDto,
+    @UploadedFiles() images: Express.Multer.File[],
+    @Request() req,
+  ) {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    return this.reportsService.updateReport(
+      reportId,
+      updateReportDto,
+      images,
+      userId,
+      userRole,
+    );
+  }
+
+  // DELETE /api/v1/reports/:id - Delete report
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.PETUGAS, Role.ADMIN)
+  async deleteReport(@Param('id') reportId: string, @Request() req) {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    return this.reportsService.deleteReport(reportId, userId, userRole);
   }
 
   // GET /api/v1/reports - Get all reports (for admin/petugas)

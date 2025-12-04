@@ -310,4 +310,228 @@ export class ReportsService {
       },
     };
   }
+
+  async updateReport(
+    reportId: string,
+    updateReportDto: CreateReportDto,
+    images: Express.Multer.File[],
+    userId: string,
+    userRole: string,
+  ) {
+    try {
+      // Check if report exists
+      const existingReport = await this.prisma.report.findUnique({
+        where: { id: reportId },
+        include: {
+          report_images: true,
+        },
+      });
+
+      if (!existingReport) {
+        throw new NotFoundException('Laporan tidak ditemukan');
+      }
+
+      // Check permissions - only owner, admin, or petugas can update
+      const canUpdate =
+        existingReport.created_by_user_id === userId ||
+        userRole === 'ADMIN' ||
+        userRole === 'PETUGAS';
+
+      if (!canUpdate) {
+        throw new ForbiddenException(
+          'Anda tidak memiliki akses untuk mengubah laporan ini',
+        );
+      }
+
+      // Validate category if provided
+      if (updateReportDto.report_category_id) {
+        const category = await this.prisma.reportCategory.findUnique({
+          where: { id: updateReportDto.report_category_id },
+        });
+
+        if (!category) {
+          throw new BadRequestException('Kategori tidak ditemukan');
+        }
+      }
+
+      // Update report in transaction
+      const result = await this.prisma.$transaction(async (prisma) => {
+        // Update the report
+        const updatedReport = await prisma.report.update({
+          where: { id: reportId },
+          data: {
+            ...(updateReportDto.item_name && {
+              item_name: updateReportDto.item_name,
+            }),
+            ...(updateReportDto.report_category_id && {
+              report_category_id: updateReportDto.report_category_id,
+            }),
+            ...(updateReportDto.description && {
+              description: updateReportDto.description,
+            }),
+            ...(updateReportDto.place_found && {
+              place_found: updateReportDto.place_found,
+            }),
+            ...(updateReportDto.specific_location && {
+              specific_location: updateReportDto.specific_location,
+            }),
+            ...(updateReportDto.lost_date && {
+              lost_date: new Date(updateReportDto.lost_date),
+            }),
+            ...(updateReportDto.lost_time && {
+              lost_time: updateReportDto.lost_time,
+            }),
+            ...(updateReportDto.additional_notes !== undefined && {
+              additional_notes: updateReportDto.additional_notes,
+            }),
+            ...(updateReportDto.report_type && {
+              report_type: updateReportDto.report_type,
+            }),
+            updated_at: new Date(),
+          },
+          include: {
+            category: true,
+            created_by: {
+              include: {
+                profile: true,
+                role: true,
+              },
+            },
+            report_images: true,
+          },
+        });
+
+        // Handle new image uploads if any
+        if (images && images.length > 0) {
+          const uploadDir = path.join(
+            process.cwd(),
+            'public',
+            'uploads',
+            'reports',
+          );
+
+          // Ensure upload directory exists
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+
+          const imagePromises = images.map(async (image, index) => {
+            const fileExtension = path.extname(image.originalname);
+            const storageKey = `${updatedReport.id}_${uuidv4()}${fileExtension}`;
+            const filePath = path.join(uploadDir, storageKey);
+
+            // Save file to disk
+            fs.writeFileSync(filePath, image.buffer);
+
+            // Save image record to database
+            return prisma.reportImage.create({
+              data: {
+                report_id: updatedReport.id,
+                storage_key: storageKey,
+                original_filename: image.originalname,
+                file_size: image.size,
+                mime_type: image.mimetype,
+                is_primary:
+                  existingReport.report_images.length === 0 && index === 0, // First image is primary if no existing images
+              },
+            });
+          });
+
+          await Promise.all(imagePromises);
+        }
+
+        return updatedReport;
+      });
+
+      return {
+        success: true,
+        message: 'Laporan berhasil diperbarui',
+        data: result,
+      };
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
+
+      console.error('Error updating report:', error);
+      throw new BadRequestException('Gagal memperbarui laporan');
+    }
+  }
+
+  async deleteReport(reportId: string, userId: string, userRole: string) {
+    try {
+      // Check if report exists
+      const existingReport = await this.prisma.report.findUnique({
+        where: { id: reportId },
+        include: {
+          report_images: true,
+        },
+      });
+
+      if (!existingReport) {
+        throw new NotFoundException('Laporan tidak ditemukan');
+      }
+
+      // Check permissions - only owner, admin, or petugas can delete
+      const canDelete =
+        existingReport.created_by_user_id === userId ||
+        userRole === 'ADMIN' ||
+        userRole === 'PETUGAS';
+
+      if (!canDelete) {
+        throw new ForbiddenException(
+          'Anda tidak memiliki akses untuk menghapus laporan ini',
+        );
+      }
+
+      // Delete report in transaction
+      await this.prisma.$transaction(async (prisma) => {
+        // Delete associated images from filesystem
+        if (existingReport.report_images.length > 0) {
+          const uploadDir = path.join(
+            process.cwd(),
+            'public',
+            'uploads',
+            'reports',
+          );
+
+          existingReport.report_images.forEach((image) => {
+            const filePath = path.join(uploadDir, image.storage_key);
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          });
+
+          // Delete image records from database
+          await prisma.reportImage.deleteMany({
+            where: { report_id: reportId },
+          });
+        }
+
+        // Delete the report
+        await prisma.report.delete({
+          where: { id: reportId },
+        });
+      });
+
+      return {
+        success: true,
+        message: 'Laporan berhasil dihapus',
+      };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
+
+      console.error('Error deleting report:', error);
+      throw new BadRequestException('Gagal menghapus laporan');
+    }
+  }
 }

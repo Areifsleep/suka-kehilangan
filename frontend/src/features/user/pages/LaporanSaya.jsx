@@ -1,71 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { FiEye, FiEdit3, FiTrash2, FiMapPin, FiCalendar, FiPlus, FiFilter, FiSearch, FiSave } from "react-icons/fi";
+import { FiEye, FiEdit3, FiTrash2, FiMapPin, FiCalendar, FiPlus, FiFilter, FiSearch, FiSave, FiLoader } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "react-toastify";
-
-// Dummy data sesuai schema database
-const userReports = [
-  {
-    id: "abc123",
-    item_name: "Kunci Motor Yamaha",
-    description: "Kunci motor Yamaha dengan gantungan doraemon. Hilang saat parkir di area fakultas.",
-    report_type: "LOST", // FOUND atau LOST
-    report_status: "OPEN", // OPEN, CLAIMED, CLOSED
-    place_found: "Area Parkir Fakultas",
-    created_at: "2025-09-20T14:30:00Z",
-    updated_at: "2025-09-21T10:00:00Z",
-    category: {
-      name: "Kunci",
-    },
-    created_by: {
-      profile: {
-        full_name: "Anda",
-      },
-    },
-  },
-  {
-    id: "def456",
-    item_name: "Dompet Kulit Hitam",
-    description: "Dompet kulit hitam merk fossil. Berisi KTM, KTP dan beberapa kartu.",
-    report_type: "LOST",
-    report_status: "CLAIMED",
-    place_found: "Perpustakaan",
-    created_at: "2025-09-18T10:15:00Z",
-    updated_at: "2025-09-22T15:30:00Z",
-    claimed_at: "2025-09-22T15:30:00Z",
-    category: {
-      name: "Dompet",
-    },
-    created_by: {
-      profile: {
-        full_name: "Anda",
-      },
-    },
-  },
-  {
-    id: "ghi789",
-    item_name: "Jaket Hoodie Hitam",
-    description: "Jaket hoodie hitam ukuran L merk Uniqlo. Ada logo kecil di bagian dada.",
-    report_type: "FOUND",
-    report_status: "CLOSED",
-    place_found: "Ruang Kuliah A.302",
-    created_at: "2025-09-10T08:00:00Z",
-    updated_at: "2025-09-10T08:00:00Z",
-    category: {
-      name: "Pakaian",
-    },
-    created_by: {
-      profile: {
-        full_name: "Anda",
-      },
-    },
-  },
-];
+import { useUserReports } from "../queries/useReportQueries";
+import { useUpdateReport, useDeleteReport } from "../mutations/useReportMutations";
 
 // Helper functions
 const formatDate = (dateString) => {
@@ -123,15 +66,19 @@ const getStatusColor = (status) => {
 };
 
 // Modal Edit Component
-function EditModal({ report, isOpen, onClose, onSave }) {
+function EditModal({ report, isOpen, onClose }) {
+  const updateReportMutation = useUpdateReport();
+
   const [formData, setFormData] = useState({
     item_name: report?.item_name || "",
     description: report?.description || "",
     place_found: report?.place_found || "",
     report_type: report?.report_type || "LOST",
-    category_name: report?.category?.name || "",
+    specific_location: report?.specific_location || "",
+    lost_date: report?.lost_date || "",
+    lost_time: report?.lost_time || "",
+    additional_notes: report?.additional_notes || "",
   });
-  const [isSaving, setIsSaving] = useState(false);
 
   // Update form when report changes
   React.useEffect(() => {
@@ -141,7 +88,10 @@ function EditModal({ report, isOpen, onClose, onSave }) {
         description: report.description,
         place_found: report.place_found,
         report_type: report.report_type,
-        category_name: report.category.name,
+        specific_location: report.specific_location || "",
+        lost_date: report.lost_date ? new Date(report.lost_date).toISOString().split("T")[0] : "",
+        lost_time: report.lost_time || "",
+        additional_notes: report.additional_notes || "",
       });
     }
   }, [report]);
@@ -153,19 +103,32 @@ function EditModal({ report, isOpen, onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      onSave({ ...report, ...formData, category: { name: formData.category_name } });
-      toast.success("Laporan berhasil diperbarui");
-      onClose();
-    } catch (error) {
-      toast.error("Gagal memperbarui laporan");
-    } finally {
-      setIsSaving(false);
+    if (!report?.id) return;
+
+    const updateData = {
+      id: report.id,
+      item_name: formData.item_name,
+      description: formData.description,
+      place_found: formData.place_found,
+      report_type: formData.report_type,
+      specific_location: formData.specific_location,
+      additional_notes: formData.additional_notes,
+    };
+
+    // Add date/time if provided
+    if (formData.lost_date) {
+      updateData.lost_date = formData.lost_date;
     }
+    if (formData.lost_time) {
+      updateData.lost_time = formData.lost_time;
+    }
+
+    updateReportMutation.mutate(updateData, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
   };
 
   return (
@@ -202,22 +165,78 @@ function EditModal({ report, isOpen, onClose, onSave }) {
             />
           </div>
 
-          {/* Kategori */}
+          {/* Lokasi Spesifik */}
           <div className="space-y-2">
             <Label
-              htmlFor="category_name"
+              htmlFor="specific_location"
               className="text-sm font-semibold text-gray-700"
             >
-              Kategori <span className="text-red-500">*</span>
+              Lokasi Spesifik
             </Label>
             <Input
-              id="category_name"
-              name="category_name"
-              value={formData.category_name}
+              id="specific_location"
+              name="specific_location"
+              value={formData.specific_location}
               onChange={handleChange}
-              placeholder="Contoh: Dompet, Kunci, Tas, dll"
-              required
+              placeholder="Contoh: Lantai 2, Ruang 201, dll"
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+
+          {/* Tanggal dan Waktu untuk laporan LOST */}
+          {formData.report_type === "LOST" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="lost_date"
+                  className="text-sm font-semibold text-gray-700"
+                >
+                  Tanggal Hilang
+                </Label>
+                <Input
+                  id="lost_date"
+                  name="lost_date"
+                  type="date"
+                  value={formData.lost_date}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="lost_time"
+                  className="text-sm font-semibold text-gray-700"
+                >
+                  Waktu Hilang
+                </Label>
+                <Input
+                  id="lost_time"
+                  name="lost_time"
+                  type="time"
+                  value={formData.lost_time}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Catatan Tambahan */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="additional_notes"
+              className="text-sm font-semibold text-gray-700"
+            >
+              Catatan Tambahan
+            </Label>
+            <Textarea
+              id="additional_notes"
+              name="additional_notes"
+              value={formData.additional_notes}
+              onChange={handleChange}
+              placeholder="Informasi tambahan, hadiah, atau catatan khusus..."
+              rows={3}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
             />
           </div>
 
@@ -300,19 +319,19 @@ function EditModal({ report, isOpen, onClose, onSave }) {
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={isSaving}
+              disabled={updateReportMutation.isPending}
               className="px-6 py-2 border-2 border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
             >
               Batal
             </Button>
             <Button
               type="submit"
-              disabled={isSaving}
+              disabled={updateReportMutation.isPending}
               className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSaving ? (
+              {updateReportMutation.isPending ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <FiLoader className="w-4 h-4 animate-spin mr-2" />
                   Menyimpan...
                 </>
               ) : (
@@ -331,11 +350,21 @@ function EditModal({ report, isOpen, onClose, onSave }) {
 
 export default function LaporanSayaPage() {
   const navigate = useNavigate();
-  const [reports, setReports] = useState(userReports);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+
+  // Queries and mutations
+  const { data: reportsData, isLoading, isError, error } = useUserReports();
+  const deleteReportMutation = useDeleteReport();
+
+  // Debug: Log the data structure
+  console.log("reportsData:", reportsData);
+
+  // Get reports from API response
+  const reports = reportsData?.reports || [];
+  const pagination = reportsData?.pagination || {};
 
   // Filter reports
   const filteredReports = reports.filter((report) => {
@@ -361,19 +390,9 @@ export default function LaporanSayaPage() {
     setEditModalOpen(true);
   };
 
-  const handleSaveEdit = (updatedReport) => {
-    setReports((prev) => prev.map((r) => (r.id === updatedReport.id ? { ...updatedReport, updated_at: new Date().toISOString() } : r)));
-  };
-
   const handleDeleteReport = async (report) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus laporan "${report.item_name}"?`)) {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setReports((prev) => prev.filter((r) => r.id !== report.id));
-        toast.success("Laporan berhasil dihapus");
-      } catch (error) {
-        toast.error("Gagal menghapus laporan");
-      }
+      deleteReportMutation.mutate(report.id);
     }
   };
 
@@ -394,7 +413,6 @@ export default function LaporanSayaPage() {
             setEditModalOpen(false);
             setSelectedReport(null);
           }}
-          onSave={handleSaveEdit}
         />
 
         {/* Filter and Search Bar */}
@@ -446,8 +464,38 @@ export default function LaporanSayaPage() {
           )}
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-12">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <FiLoader className="w-8 h-8 animate-spin text-green-600" />
+              <p className="text-gray-600">Memuat laporan Anda...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {isError && (
+          <div className="bg-white rounded-xl shadow-lg border border-red-200 p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <FiSearch className="w-8 h-8 text-red-500" />
+              </div>
+              <h3 className="text-lg font-semibold text-red-900 mb-2">Gagal Memuat Laporan</h3>
+              <p className="text-red-600 mb-4">{error?.response?.data?.message || "Terjadi kesalahan saat memuat data laporan Anda."}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+                className="border-red-300 text-red-700 hover:bg-red-50"
+              >
+                Coba Lagi
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Data Table */}
-        {filteredReports.length > 0 ? (
+        {!isLoading && !isError && filteredReports.length > 0 ? (
           <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -545,7 +593,10 @@ export default function LaporanSayaPage() {
               </table>
             </div>
           </div>
-        ) : (
+        ) : null}
+
+        {/* Empty State */}
+        {!isLoading && !isError && filteredReports.length === 0 && (
           <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-300">
             <div className="w-24 h-24 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
               <FiSearch className="w-12 h-12 text-gray-400" />

@@ -19,7 +19,7 @@ export const useUserReports = (params = {}) => {
   return useQuery({
     queryKey: ["reports", "user", params],
     queryFn: () => reportApi.getUserReports(params),
-    select: (data) => data.data.data,
+    select: (response) => response.data.data, // axios response.data, then API response.data
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2,
     onError: (error) => {

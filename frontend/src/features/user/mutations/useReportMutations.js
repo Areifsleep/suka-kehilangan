@@ -34,3 +34,49 @@ export const useCreateReport = () => {
     },
   });
 };
+
+export const useUpdateReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, ...data }) => reportApi.updateReport(id, data),
+    onSuccess: (response) => {
+      // Invalidate and refetch user reports
+      queryClient.invalidateQueries({
+        queryKey: ["reports", "user"],
+      });
+
+      // Show success message
+      toast.success("Laporan berhasil diperbarui!");
+    },
+    onError: (error) => {
+      console.error("Error updating report:", error);
+
+      const message = error.response?.data?.message || "Gagal memperbarui laporan. Silakan coba lagi.";
+      toast.error(message);
+    },
+  });
+};
+
+export const useDeleteReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: reportApi.deleteReport,
+    onSuccess: (response) => {
+      // Invalidate and refetch user reports
+      queryClient.invalidateQueries({
+        queryKey: ["reports", "user"],
+      });
+
+      // Show success message
+      toast.success("Laporan berhasil dihapus!");
+    },
+    onError: (error) => {
+      console.error("Error deleting report:", error);
+
+      const message = error.response?.data?.message || "Gagal menghapus laporan. Silakan coba lagi.";
+      toast.error(message);
+    },
+  });
+};

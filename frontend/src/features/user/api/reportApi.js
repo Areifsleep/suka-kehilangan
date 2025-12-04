@@ -42,4 +42,32 @@ export const reportApi = {
 
   // Get report by ID
   getReportById: (id) => api.get(`/reports/${id}`),
+
+  // Update report
+  updateReport: (id, reportData) => {
+    const formData = new FormData();
+
+    // Append regular fields
+    Object.keys(reportData).forEach((key) => {
+      if (key !== "images") {
+        formData.append(key, reportData[key]);
+      }
+    });
+
+    // Append images
+    if (reportData.images && reportData.images.length > 0) {
+      reportData.images.forEach((image, index) => {
+        formData.append(`images`, image.file);
+      });
+    }
+
+    return api.put(`/reports/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
+
+  // Delete report
+  deleteReport: (id) => api.delete(`/reports/${id}`),
 };
