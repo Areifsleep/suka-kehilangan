@@ -17,6 +17,8 @@ enum ReportStatus {
   OPEN
   CLAIMED
   CLOSED
+  PENDING_VERIFICATION  // Status baru untuk laporan yang menunggu verifikasi
+  REJECTED             // Status untuk laporan yang ditolak
 }
 
 enum ReportType {
@@ -71,6 +73,8 @@ model User {
   profile         UserProfile?
   created_reports Report[]     @relation("created_reports")
   claimed_reports Report[]     @relation("claimed_reports")
+  verified_reports Report[]    @relation("verified_reports")   // Relasi untuk verifikasi
+  approved_reports Report[]    @relation("approved_reports")   // Relasi untuk approval
 
   role Role @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -165,13 +169,18 @@ model Report {
   id                 String       @id @default(uuid(7))
   created_by_user_id String       @db.VarChar(255)
   claimed_by_user_id String?      @db.VarChar(255)
+  verified_by_user_id String?     @db.VarChar(255)    // ID satpam yang memverifikasi
+  approved_by_user_id String?     @db.VarChar(255)    // ID satpam yang menyetujui
   report_category_id String       @db.VarChar(255)
   item_name          String       @db.VarChar(255)
   report_type        ReportType
-  report_status      ReportStatus @default(OPEN)
+  report_status      ReportStatus @default(PENDING_VERIFICATION)  // Default ke pending verification
   description        String?      @db.Text
   place_found        String       @db.VarChar(255)
   claimed_at         DateTime?    @db.Timestamp(6)
+  verified_at        DateTime?    @db.Timestamp(6)    // Waktu verifikasi
+  approved_at        DateTime?    @db.Timestamp(6)    // Waktu approval
+  rejection_reason   String?      @db.Text            // Alasan penolakan jika ditolak
   created_at         DateTime     @default(now()) @db.Timestamp(6)
   updated_at         DateTime     @updatedAt @db.Timestamp(6)
   lost_date         DateTime?    @db.Date        // Tanggal kehilangan
@@ -183,6 +192,8 @@ model Report {
 
   created_by User  @relation("created_reports", fields: [created_by_user_id], references: [id], onDelete: Cascade)
   claimed_by User? @relation("claimed_reports", fields: [claimed_by_user_id], references: [id], onDelete: Cascade)
+  verified_by User? @relation("verified_reports", fields: [verified_by_user_id], references: [id], onDelete: Cascade)
+  approved_by User? @relation("approved_reports", fields: [approved_by_user_id], references: [id], onDelete: Cascade)
 
   category ReportCategory @relation(fields: [report_category_id], references: [id], onDelete: Cascade)
 
