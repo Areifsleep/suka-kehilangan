@@ -43,6 +43,7 @@ export class ReportsController {
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async createReport(
     @Body() createReportDto: CreateReportDto,
+    // @ts-ignore
     @UploadedFiles() images: Express.Multer.File[],
     @Request() req,
   ) {
@@ -79,6 +80,7 @@ export class ReportsController {
   async updateReport(
     @Param('id') reportId: string,
     @Body() updateReportDto: CreateReportDto,
+    // @ts-ignore
     @UploadedFiles() images: Express.Multer.File[],
     @Request() req,
   ) {

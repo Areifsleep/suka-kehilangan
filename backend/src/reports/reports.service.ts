@@ -27,6 +27,7 @@ export class ReportsService {
 
   async createReport(
     createReportDto: CreateReportDto,
+    // @ts-ignore
     images: Express.Multer.File[],
     userId: string,
   ) {
@@ -314,6 +315,7 @@ export class ReportsService {
   async updateReport(
     reportId: string,
     updateReportDto: CreateReportDto,
+    // @ts-ignore
     images: Express.Multer.File[],
     userId: string,
     userRole: string,
