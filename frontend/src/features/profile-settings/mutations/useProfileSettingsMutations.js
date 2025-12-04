@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 import { api } from "@/lib/axios";
 

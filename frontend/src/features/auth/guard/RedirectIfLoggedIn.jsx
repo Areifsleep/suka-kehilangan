@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { ROLE_DASHBOARD_PATH } from "./ProtectedRoute";
 
 export const RedirectIfLoggedIn = () => {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiUsers, FiUserCheck, FiFileText, FiSearch } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common";
+
 import { useDashboardStats, useDashboardActivities } from "../mutations/adminManagementMutations";
 
 function StatCard({ title, value, icon, isLoading }) {

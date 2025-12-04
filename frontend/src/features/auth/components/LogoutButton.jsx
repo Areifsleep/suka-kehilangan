@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 export const LogoutButton = ({ className = "", children = "Logout", variant = "outline" }) => {
   const { logout, isLoggingOut } = useAuth();

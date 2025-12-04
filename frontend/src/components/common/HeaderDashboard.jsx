@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { Avatar } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/initials";
 

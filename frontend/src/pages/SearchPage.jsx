@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter, FiRefreshCw } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common";
 
 // FilterSection component
 function FilterSection({ filters, onFilterChange, onReset }) {

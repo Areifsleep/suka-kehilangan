@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiClock, FiPackage } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common";
 
 // ItemCard component untuk menampilkan setiap item barang hilang
 function ItemCard({ item, onViewDetail }) {

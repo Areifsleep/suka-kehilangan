@@ -20,7 +20,7 @@ import PetugasManageReportsPage from "./pages/PetugasManageReportsPage.jsx";
 import PetugasVerifyReportsPage from "./pages/PetugasVerifyReportsPage.jsx";
 import PetugasReportsPage from "./pages/PetugasReportsPage.jsx";
 import AuditReportsPage from "./features/admin-management/pages/AuditReportsPage.jsx";
-import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { AuthProvider } from "./features/auth/contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./features/auth/guard/ProtectedRoute";
 import { RedirectIfLoggedIn } from "./features/auth/guard/RedirectIfLoggedIn";
@@ -30,9 +30,9 @@ import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 
 import ProfileSettingsPage from "./features/profile-settings/pages/ProfileSettingsPage.jsx";
 
-import BerandaUserPage from "./pages/BerandaUser.jsx";
-import LaporKehilanganPage from "./pages/LaporKehilangan.jsx";
-import LaporanSayaPage from "./pages/LaporanSaya.jsx";
+import BerandaUserPage from "./features/user/pages/BerandaUser.jsx";
+import LaporKehilanganPage from "./features/user/pages/LaporKehilangan.jsx";
+import LaporanSayaPage from "./features/user/pages/LaporanSaya.jsx";
 import Detaillaporan from "./pages/DetailLaporan.jsx";
 
 function MainLayout() {

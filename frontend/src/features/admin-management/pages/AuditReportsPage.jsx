@@ -21,7 +21,7 @@ import {
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
-import { HeaderDashboard } from "@/components/common";
+
 import { auditReportsApi } from "../api/auditReportsApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";

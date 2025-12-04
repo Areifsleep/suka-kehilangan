@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -92,6 +86,7 @@ model UserProfile {
   nip              String?    @unique @db.VarChar(255)
   full_name        String     @db.VarChar(255)
   lokasi_pos       LokasiPos?
+  phone_number     String?    @db.VarChar(20)  // Nomor telepon
 
   user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   study_program StudyProgram? @relation(fields: [study_program_id], references: [id], onDelete: Cascade)
@@ -179,6 +174,10 @@ model Report {
   claimed_at         DateTime?    @db.Timestamp(6)
   created_at         DateTime     @default(now()) @db.Timestamp(6)
   updated_at         DateTime     @updatedAt @db.Timestamp(6)
+  lost_date         DateTime?    @db.Date        // Tanggal kehilangan
+  lost_time         String?      @db.VarChar(5)  // Waktu kehilangan (HH:MM)
+  specific_location String?      @db.VarChar(255) // Lokasi spesifik
+  additional_notes  String?      @db.Text        // Catatan tambahan
 
   report_images ReportImage[]
 

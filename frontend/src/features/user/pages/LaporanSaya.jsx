@@ -517,15 +517,6 @@ export default function LaporanSayaPage() {
                       <td className="px-6 py-4 text-sm text-gray-500">{formatDateTime(report.updated_at)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewReport(report)}
-                            className="text-gray-700 hover:bg-gray-100 border-gray-300"
-                            title="Lihat Detail"
-                          >
-                            <FiEye className="w-4 h-4" />
-                          </Button>
                           {report.report_status === "OPEN" && (
                             <Button
                               variant="outline"

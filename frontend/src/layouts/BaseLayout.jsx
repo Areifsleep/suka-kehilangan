@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { MobileHeader, MobileSidebar, DesktopSidebar, MainContent } from "@/layout";
+import { useLayoutStore } from "@/stores/layoutStore";
 
 export const BaseLayout = ({ menu = [] }) => {
   if (menu.length === 0) {
     throw new Error("Menu tidak boleh kosong. Silakan tambahkan item menu.");
   }
 
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, toggleCollapsed } = useLayoutStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleMobileMenuToggle = () => {
@@ -18,7 +19,7 @@ export const BaseLayout = ({ menu = [] }) => {
   };
 
   const handleDesktopSidebarToggle = () => {
-    setCollapsed((c) => !c);
+    toggleCollapsed();
   };
 
   return (

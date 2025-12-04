@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { PetugasPagination, CreatePetugasModal, EditUserModal, DeleteUserModal, ResetPasswordModal } from "../components";
-import { HeaderDashboard } from "@/components/common";
+
 import {
   usePetugas,
   useCreateUser,

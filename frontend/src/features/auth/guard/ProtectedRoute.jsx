@@ -1,6 +1,6 @@
 import { Navigate, useLocation, Outlet } from "react-router";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 export const ROLE_DASHBOARD_PATH = {
   USER: "/user",

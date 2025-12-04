@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router";
 import { FiSettings, FiLogOut } from "react-icons/fi";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 
 export const SidebarFooter = ({ collapsed = false, onItemClick }) => {
   const location = useLocation();

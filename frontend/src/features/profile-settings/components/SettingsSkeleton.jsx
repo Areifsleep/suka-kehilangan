@@ -1,7 +1,4 @@
-// frontend/src/components/skeletons/SettingsSkeleton.jsx
-
 import { Card, CardContent } from "@/components/ui/card";
-import { HeaderDashboard } from "@/components/common";
 
 const SkeletonLine = ({ width = "w-full", height = "h-4" }) => <div className={`${width} ${height} bg-gray-200 rounded animate-pulse`}></div>;
 
@@ -12,8 +9,6 @@ const SkeletonInput = () => <div className="w-full h-10 bg-gray-200 rounded anim
 export const SettingsSkeleton = () => {
   return (
     <>
-      <HeaderDashboard title="Settings" />
-
       <div className="space-y-4 sm:space-y-6">
         {/* Profile Card Skeleton */}
         <Card>

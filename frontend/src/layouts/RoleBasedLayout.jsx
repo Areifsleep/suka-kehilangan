@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { AdminLayout } from "./AdminLayout";
 import { UserLayout } from "./UserLayout";
 import { PetugasLayout } from "./PetugasLayout";
