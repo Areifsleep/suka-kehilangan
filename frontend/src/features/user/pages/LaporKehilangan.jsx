@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { FiUpload, FiX, FiMapPin, FiUser, FiPhone, FiMail, FiCalendar } from "react-icons/fi";
+import { FiUpload, FiX, FiMapPin, FiUser, FiPhone, FiMail, FiCalendar, FiLoader } from "react-icons/fi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -13,8 +13,8 @@ import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupText, InputGroupTextarea } from "@/components/ui/input-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/features/auth/contexts/AuthContext";
-
-const categories = ["Dompet", "Tas", "Kunci", "Handphone", "Laptop", "Buku", "Alat Tulis", "Jam Tangan", "Kacamata", "Jaket", "Lainnya"];
+import { useCreateReport } from "../mutations/useReportMutations";
+import { useReportCategories } from "../queries/useReportQueries";
 
 const locations = [
   "Masjid UIN",
@@ -31,45 +31,42 @@ const locations = [
 ];
 
 const formSchema = z.object({
-  itemName: z.string().min(3, "Nama barang harus minimal 3 karakter").max(50, "Nama barang maksimal 50 karakter"),
-  category: z.string().min(1, "Kategori harus dipilih"),
+  item_name: z.string().min(3, "Nama barang harus minimal 3 karakter").max(50, "Nama barang maksimal 50 karakter"),
+  report_category_id: z.string().min(1, "Kategori harus dipilih"),
   description: z.string().min(10, "Deskripsi harus minimal 10 karakter").max(500, "Deskripsi maksimal 500 karakter"),
-  location: z.string().min(1, "Lokasi harus dipilih"),
-  specificLocation: z.string().optional(),
-  lostDate: z.string().min(1, "Tanggal kehilangan harus diisi"),
-  lostTime: z.string().optional(),
-  reporterName: z.string().min(2, "Nama harus minimal 2 karakter").max(50, "Nama maksimal 50 karakter"),
-  reporterPhone: z
+  place_found: z.string().min(1, "Lokasi harus dipilih"),
+  specific_location: z.string().optional(),
+  lost_date: z.string().min(1, "Tanggal kehilangan harus diisi"),
+  lost_time: z.string().optional(),
+  phone_number: z
     .string()
     .min(10, "Nomor telepon harus minimal 10 digit")
     .max(15, "Nomor telepon maksimal 15 digit")
     .regex(/^[0-9+\-\s()]*$/, "Nomor telepon hanya boleh mengandung angka dan karakter khusus (+, -, spasi, tanda kurung)"),
-  reporterEmail: z.string().email("Format email tidak valid").min(1),
-  additionalNotes: z.string().max(300, "Catatan tambahan maksimal 300 karakter").optional(),
+  additional_notes: z.string().max(300, "Catatan tambahan maksimal 300 karakter").optional(),
 });
 
 export default function LaporKehilanganPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedImages, setSelectedImages] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log(user);
+  // React Query hooks
+  const { data: categories = [], isLoading: categoriesLoading } = useReportCategories();
+  const createReportMutation = useCreateReport();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      itemName: "",
-      category: "",
+      item_name: "",
+      report_category_id: "",
       description: "",
-      location: "",
-      specificLocation: "",
-      lostDate: "",
-      lostTime: "",
-      reporterName: user?.full_name || "",
-      reporterPhone: "",
-      reporterEmail: user?.email || "",
-      additionalNotes: "",
+      place_found: "",
+      specific_location: "",
+      lost_date: "",
+      lost_time: "",
+      phone_number: user?.profile?.phone_number || "",
+      additional_notes: "",
     },
   });
 
@@ -99,28 +96,22 @@ export default function LaporKehilanganPage() {
   };
 
   const handleSubmit = async (data) => {
-    setIsSubmitting(true);
-
     try {
-      // Include selected images in the data
+      // Prepare data according to backend schema
       const submitData = {
         ...data,
+        report_type: "LOST", // Always LOST for this form
         images: selectedImages,
       };
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Submit using React Query mutation
+      await createReportMutation.mutateAsync(submitData);
 
-      toast.success("Laporan kehilangan berhasil dikirim!");
-
-      // Show submitted data for demonstration
-      console.log("Submitted data:", submitData);
-
+      // Navigate to user dashboard on success
       navigate("/user");
     } catch (error) {
-      toast.error("Terjadi kesalahan saat mengirim laporan");
-    } finally {
-      setIsSubmitting(false);
+      // Error handling is done in the mutation
+      console.error("Submit error:", error);
     }
   };
 
@@ -146,7 +137,7 @@ export default function LaporKehilanganPage() {
               <FieldGroup>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
-                    name="itemName"
+                    name="item_name"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
@@ -167,34 +158,41 @@ export default function LaporKehilanganPage() {
                   />
 
                   <Controller
-                    name="category"
+                    name="report_category_id"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <FieldLabel htmlFor="category">
                           Kategori <span className="text-red-500">*</span>
                         </FieldLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger
-                            id="category"
-                            className="border-2 border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-xl py-3 px-4 text-base bg-gray-50 focus:bg-white"
+                        {categoriesLoading ? (
+                          <div className="border-2 border-gray-200 rounded-xl py-3 px-4 text-base bg-gray-50 flex items-center gap-2">
+                            <FiLoader className="w-4 h-4 animate-spin" />
+                            <span className="text-gray-500">Memuat kategori...</span>
+                          </div>
+                        ) : (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
                           >
-                            <SelectValue placeholder="Pilih kategori barang" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((category) => (
-                              <SelectItem
-                                key={category}
-                                value={category}
-                              >
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                            <SelectTrigger
+                              id="category"
+                              className="border-2 border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-xl py-3 px-4 text-base bg-gray-50 focus:bg-white"
+                            >
+                              <SelectValue placeholder="Pilih kategori barang" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id}
+                                >
+                                  {category.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
                     )}
@@ -298,7 +296,7 @@ export default function LaporKehilanganPage() {
               <FieldGroup>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
-                    name="location"
+                    name="place_found"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
@@ -332,7 +330,7 @@ export default function LaporKehilanganPage() {
                   />
 
                   <Controller
-                    name="specificLocation"
+                    name="specific_location"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
@@ -352,7 +350,7 @@ export default function LaporKehilanganPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
-                    name="lostDate"
+                    name="lost_date"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
@@ -376,7 +374,7 @@ export default function LaporKehilanganPage() {
                   />
 
                   <Controller
-                    name="lostTime"
+                    name="lost_time"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
@@ -411,81 +409,33 @@ export default function LaporKehilanganPage() {
             </CardHeader>
             <CardContent className="space-y-6 p-8">
               <FieldGroup>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    name="reporterName"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="reporter-name">
-                          Nama Lengkap <span className="text-red-500">*</span>
-                        </FieldLabel>
-                        <div className="relative">
-                          <FiUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input
-                            {...field}
-                            id="reporter-name"
-                            type="text"
-                            placeholder="Nama lengkap Anda"
-                            aria-invalid={fieldState.invalid}
-                            className="border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl py-3 pl-12 pr-4 text-base bg-gray-50 focus:bg-white transition-all duration-200"
-                          />
-                        </div>
-                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                      </Field>
-                    )}
-                  />
-
-                  <Controller
-                    name="reporterPhone"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="reporter-phone">
-                          Nomor Telepon <span className="text-red-500">*</span>
-                        </FieldLabel>
-                        <div className="relative">
-                          <FiPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input
-                            {...field}
-                            id="reporter-phone"
-                            type="tel"
-                            placeholder="08xxxxxxxxxx"
-                            aria-invalid={fieldState.invalid}
-                            className="border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl py-3 pl-12 pr-4 text-base bg-gray-50 focus:bg-white transition-all duration-200"
-                          />
-                        </div>
-                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                      </Field>
-                    )}
-                  />
-                </div>
-
                 <Controller
-                  name="reporterEmail"
+                  name="phone_number"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="reporter-email">Email</FieldLabel>
+                      <FieldLabel htmlFor="phone-number">
+                        Nomor Telepon <span className="text-red-500">*</span>
+                      </FieldLabel>
                       <div className="relative">
-                        <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <FiPhone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                         <Input
                           {...field}
-                          id="reporter-email"
-                          type="email"
-                          placeholder="email@example.com"
+                          id="phone-number"
+                          type="tel"
+                          placeholder="08xxxxxxxxxx"
                           aria-invalid={fieldState.invalid}
                           className="border-2 border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 rounded-xl py-3 pl-12 pr-4 text-base bg-gray-50 focus:bg-white transition-all duration-200"
                         />
                       </div>
-                      <FieldDescription>Email akan digunakan untuk notifikasi jika barang ditemukan.</FieldDescription>
+                      <FieldDescription>Nomor telepon akan digunakan untuk menghubungi Anda jika barang ditemukan.</FieldDescription>
                       {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
 
                 <Controller
-                  name="additionalNotes"
+                  name="additional_notes"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
@@ -525,17 +475,25 @@ export default function LaporKehilanganPage() {
                   form.reset();
                   navigate("/user");
                 }}
-                className="border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 px-8 py-3 rounded-xl font-semibold transition-all duration-200"
+                disabled={createReportMutation.isPending}
+                className="border-2 border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 px-8 py-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </Button>
               <Button
                 type="submit"
                 form="lapor-kehilangan-form"
-                disabled={isSubmitting}
-                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-w-[160px] px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+                disabled={createReportMutation.isPending}
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-w-[160px] px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
-                {isSubmitting ? "Mengirim..." : "Kirim Laporan"}
+                {createReportMutation.isPending ? (
+                  <>
+                    <FiLoader className="w-4 h-4 animate-spin mr-2" />
+                    Mengirim...
+                  </>
+                ) : (
+                  "Kirim Laporan"
+                )}
               </Button>
             </Field>
           </div>

@@ -9,6 +9,7 @@ import { SeederModule } from './seeder/seeder.module';
 import { UserModule } from './user/user.module';
 import { SettingsModule } from './settings/settings.module';
 import { ManagementModule } from './management/management.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ManagementModule } from './management/management.module';
     UserModule,
     SettingsModule,
     ManagementModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
