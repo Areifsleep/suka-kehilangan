@@ -1,0 +1,1 @@
+civitas akademika menemukan barang -> melapor ke satpam -> satpam upload detail barang ke aplikasi -> aplikasi memunculkan halaman beranda yang berisi info penemuan barang -> yang merasa kehilangan menuju lokasi pos satpam sesuai aplikasi -> verifikasi identitas -> mark barang diambil dan dicantumkan nama pengambil -> selesai

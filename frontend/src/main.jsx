@@ -38,11 +38,9 @@ import Detaillaporan from "./pages/DetailLaporan.jsx";
 function MainLayout() {
   return (
     <ProtectedRoute>
-      {/* Navbar, Header, dll. */}
       <main>
         <Outlet />
       </main>
-      {/* Footer, dll. */}
     </ProtectedRoute>
   );
 }
@@ -79,14 +77,14 @@ const router = createBrowserRouter([
                 path: "item/:id",
                 element: <Detaillaporan />,
               },
-              {
-                path: "report",
-                element: <LaporKehilanganPage />,
-              },
-              {
-                path: "my-reports",
-                element: <LaporanSayaPage />,
-              },
+              // {
+              //   path: "report",
+              //   element: <LaporKehilanganPage />,
+              // },
+              // {
+              //   path: "my-reports",
+              //   element: <LaporanSayaPage />,
+              // },
             ],
           },
           {
@@ -105,14 +103,14 @@ const router = createBrowserRouter([
                 path: "manage-reports",
                 element: <PetugasManageReportsPage />,
               },
-              {
-                path: "verify-reports",
-                element: <PetugasVerifyReportsPage />,
-              },
-              {
-                path: "reports",
-                element: <PetugasReportsPage />,
-              },
+              // {
+              //   path: "verify-reports",
+              //   element: <PetugasVerifyReportsPage />,
+              // },
+              // {
+              //   path: "reports",
+              //   element: <PetugasReportsPage />,
+              // },
             ],
           },
           {

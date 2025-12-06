@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
-import {
-  FiPackage,
-  FiClock,
-  FiCheck,
-  FiFileText,
-  FiEdit2,
-  FiSearch,
-  FiPlus,
-  FiFilter,
-  FiRefreshCw,
-  FiEye,
-  FiMapPin,
-  FiCalendar,
-  FiTrendingUp,
-  FiTag,
-  FiEdit,
-} from "react-icons/fi";
+import { FiPackage, FiClock, FiCheck, FiFileText, FiTrendingUp, FiMapPin, FiCalendar, FiUser, FiTag } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Filler,
+} from "chart.js";
+import { Bar, Doughnut, Line } from "react-chartjs-2";
+
+// Register ChartJS components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler);
 
 // Enhanced StatCard component with trends and animations
 function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {
@@ -27,12 +28,12 @@ function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "te
         <div className="flex flex-col flex-1">
           <div className="text-sm text-gray-500 mb-1">{title}</div>
           <div className="text-3xl font-bold text-gray-900 mb-2">{value}</div>
-          {trend && (
+          {/* {trend && (
             <div className={`flex items-center text-sm ${trend === "up" ? "text-green-600" : trend === "down" ? "text-red-600" : "text-gray-500"}`}>
               <FiTrendingUp className={`mr-1 text-xs ${trend === "down" ? "rotate-180" : ""}`} />
               <span>{trendValue}</span>
             </div>
-          )}
+          )} */}
         </div>
         <div className={`w-14 h-14 rounded-xl ${bgColor} flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
           <div className={`text-2xl ${iconColor}`}>{icon}</div>
@@ -42,146 +43,342 @@ function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "te
   );
 }
 
-function ItemRow({ item, onEdit, onView }) {
-  const statusConfig = {
-    Tersedia: {
-      color: "bg-green-100 text-green-800 border-green-200",
-      dot: "bg-green-500",
+// Chart.js Bar Chart Component
+function CategoryBarChart({ data }) {
+  const chartData = {
+    labels: data.map((item) => item.label),
+    datasets: [
+      {
+        label: "Jumlah Barang",
+        data: data.map((item) => item.value),
+        backgroundColor: [
+          "rgba(59, 130, 246, 0.8)", // blue
+          "rgba(139, 92, 246, 0.8)", // purple
+          "rgba(236, 72, 153, 0.8)", // pink
+          "rgba(34, 197, 94, 0.8)", // green
+          "rgba(234, 179, 8, 0.8)", // yellow
+          "rgba(249, 115, 22, 0.8)", // orange
+        ],
+        borderColor: ["rgb(59, 130, 246)", "rgb(139, 92, 246)", "rgb(236, 72, 153)", "rgb(34, 197, 94)", "rgb(234, 179, 8)", "rgb(249, 115, 22)"],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: 12,
+        borderRadius: 8,
+        titleFont: {
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          size: 13,
+        },
+        callbacks: {
+          label: function (context) {
+            return `Jumlah: ${context.parsed.y} item`;
+          },
+        },
+      },
     },
-    Diambil: {
-      color: "bg-red-100 text-red-800 border-red-200",
-      dot: "bg-red-500",
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12,
+          },
+          color: "#6B7280",
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)",
+          drawBorder: false,
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12,
+          },
+          color: "#6B7280",
+        },
+        grid: {
+          display: false,
+        },
+      },
     },
-    Proses: {
-      color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      dot: "bg-yellow-500",
+    animation: {
+      duration: 1000,
+      easing: "easeInOutQuart",
     },
   };
 
-  const config = statusConfig[item.status] || statusConfig["Tersedia"];
-
   return (
-    <tr className="border-b hover:bg-gray-50 transition-colors duration-200">
-      <td className="px-6 py-4">
-        <div className="relative w-16 h-16 bg-gray-100 rounded-xl overflow-hidden group">
-          {item.photo ? (
-            <img
-              src={item.photo}
-              alt={item.description}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <FiPackage className="text-gray-400 text-xl" />
-            </div>
-          )}
-          {item.isNew && <div className="absolute top-1 right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>}
+    <Card className="shadow-sm border-0">
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">Barang Berdasarkan Kategori</h3>
+        <div className="h-[300px]">
+          <Bar
+            data={chartData}
+            options={options}
+          />
         </div>
-      </td>
-      <td className="px-6 py-4">
-        <div className="font-semibold text-gray-900">{item.description}</div>
-        <div className="flex items-center text-sm text-gray-500 mt-1">
-          <FiCalendar className="mr-1 text-xs" />
-          <span>{item.foundDate}</span>
-        </div>
-        {item.reportedBy && <div className="text-xs text-gray-400 mt-1">Dilaporkan oleh: {item.reportedBy}</div>}
-      </td>
-      <td className="px-6 py-4">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">{item.category}</span>
-      </td>
-      <td className="px-6 py-4">
-        <div className="flex items-center text-sm text-gray-700">
-          <FiMapPin className="mr-1 text-gray-400" />
-          <span>{item.location}</span>
-        </div>
-      </td>
-      <td className="px-6 py-4">
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.color}`}>
-          <div className={`w-2 h-2 rounded-full mr-2 ${config.dot}`}></div>
-          {item.status}
-        </span>
-      </td>
-      <td className="px-6 py-4">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => onView(item)}
-            className="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition-colors text-blue-600"
-            title="Lihat Detail"
-          >
-            <FiEye className="text-sm" />
-          </button>
-          <button
-            onClick={() => onEdit(item)}
-            className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-600"
-            title="Edit"
-          >
-            <FiEdit2 className="text-sm" />
-          </button>
-        </div>
-      </td>
-    </tr>
+      </CardContent>
+    </Card>
   );
 }
 
-const ItemCard = ({ item, onEdit, onView }) => {
-  const statusConfig = {
-    Tersedia: "bg-green-100 text-green-800",
-    Diambil: "bg-blue-100 text-blue-800",
-    Hilang: "bg-red-100 text-red-800",
+// Chart.js Doughnut Chart Component
+function LocationDoughnutChart({ locations }) {
+  const chartData = {
+    labels: locations.map((loc) => loc.name),
+    datasets: [
+      {
+        data: locations.map((loc) => loc.count),
+        backgroundColor: [
+          "rgba(59, 130, 246, 0.8)",
+          "rgba(34, 197, 94, 0.8)",
+          "rgba(139, 92, 246, 0.8)",
+          "rgba(249, 115, 22, 0.8)",
+          "rgba(236, 72, 153, 0.8)",
+          "rgba(234, 179, 8, 0.8)",
+          "rgba(239, 68, 68, 0.8)",
+        ],
+        borderColor: [
+          "rgb(59, 130, 246)",
+          "rgb(34, 197, 94)",
+          "rgb(139, 92, 246)",
+          "rgb(249, 115, 22)",
+          "rgb(236, 72, 153)",
+          "rgb(234, 179, 8)",
+          "rgb(239, 68, 68)",
+        ],
+        borderWidth: 2,
+        hoverOffset: 8,
+      },
+    ],
   };
-  const statusColor = statusConfig[item.status] || "bg-gray-100 text-gray-800";
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "right",
+        labels: {
+          padding: 15,
+          font: {
+            size: 12,
+          },
+          color: "#374151",
+          usePointStyle: true,
+          pointStyle: "circle",
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: 12,
+        borderRadius: 8,
+        titleFont: {
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          size: 13,
+        },
+        callbacks: {
+          label: function (context) {
+            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = ((context.parsed / total) * 100).toFixed(1);
+            return `${context.label}: ${context.parsed} (${percentage}%)`;
+          },
+        },
+      },
+    },
+    animation: {
+      animateRotate: true,
+      animateScale: true,
+      duration: 1000,
+      easing: "easeInOutQuart",
+    },
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-4">
-      <div className="flex gap-4">
-        {/* Foto Barang */}
-        <img
-          src={item.image_url || "https://placehold.co/400"}
-          alt={item.name}
-          className="w-24 h-24 rounded-lg object-cover border"
-        />
-        {/* Info Utama */}
-        <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <h4 className="font-bold text-gray-900">{item.name}</h4>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColor}`}>{item.status}</span>
-          </div>
-          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.description}</p>
+    <Card className="shadow-sm border-0">
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">Distribusi Lokasi Penemuan</h3>
+        <div className="h-[300px]">
+          <Doughnut
+            data={chartData}
+            options={options}
+          />
         </div>
-      </div>
-
-      {/* Detail Tambahan */}
-      <div className="border-t my-3 pt-3 space-y-2 text-sm">
-        <div className="flex items-center text-gray-700">
-          <FiTag className="w-4 h-4 mr-2 text-gray-400" />
-          <span>{item.category}</span>
-        </div>
-        <div className="flex items-center text-gray-700">
-          <FiMapPin className="w-4 h-4 mr-2 text-gray-400" />
-          <span>{item.location}</span>
-        </div>
-      </div>
-
-      {/* Tombol Aksi */}
-      <div className="flex items-center justify-end gap-2 border-t pt-3">
-        <button
-          onClick={() => onView(item)}
-          className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-          title="Lihat Detail"
-        >
-          <FiEye className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => onEdit(item)}
-          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
-          title="Edit Item"
-        >
-          <FiEdit className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
-};
+}
+
+function TrendLineChart({ trendData }) {
+  const chartData = {
+    labels: trendData.map((item) => item.month),
+    datasets: [
+      {
+        label: "Barang Ditemukan",
+        data: trendData.map((item) => item.found),
+        borderColor: "rgb(59, 130, 246)",
+        backgroundColor: "rgba(59, 130, 246, 0.1)",
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: "rgb(59, 130, 246)",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+      },
+      {
+        label: "Barang Diambil",
+        data: trendData.map((item) => item.claimed),
+        borderColor: "rgb(34, 197, 94)",
+        backgroundColor: "rgba(34, 197, 94, 0.1)",
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: "rgb(34, 197, 94)",
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: "top",
+        labels: {
+          padding: 15,
+          font: {
+            size: 12,
+          },
+          color: "#374151",
+          usePointStyle: true,
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        padding: 12,
+        borderRadius: 8,
+        titleFont: {
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          size: 13,
+        },
+        mode: "index",
+        intersect: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12,
+          },
+          color: "#6B7280",
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.05)",
+          drawBorder: false,
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12,
+          },
+          color: "#6B7280",
+        },
+        grid: {
+          display: false,
+        },
+      },
+    },
+    interaction: {
+      mode: "nearest",
+      axis: "x",
+      intersect: false,
+    },
+    animation: {
+      duration: 1000,
+      easing: "easeInOutQuart",
+    },
+  };
+
+  return (
+    <Card className="shadow-sm border-0">
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">Tren Bulanan</h3>
+        <div className="h-[300px]">
+          <Line
+            data={chartData}
+            options={options}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Recent Activity Component
+function RecentActivity({ activities }) {
+  return (
+    <Card className="shadow-sm border-0">
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">Aktivitas Terbaru</h3>
+        <div className="space-y-4">
+          {activities.map((activity, index) => (
+            <div
+              key={index}
+              className="flex items-start space-x-3 pb-4 border-b last:border-0 last:pb-0"
+            >
+              <div className={`w-10 h-10 rounded-lg ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>{activity.icon}</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                <p className="text-xs text-gray-500 mt-1">{activity.description}</p>
+                <div className="flex items-center text-xs text-gray-400 mt-2">
+                  <FiCalendar
+                    className="mr-1"
+                    size={12}
+                  />
+                  <span>{activity.time}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function PetugasDashboard() {
   const [stats, setStats] = useState({
@@ -190,17 +387,13 @@ export default function PetugasDashboard() {
     claimed: 0,
     reports: 0,
   });
-  const [items, setItems] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterCategory, setFilterCategory] = useState("all");
-  const [loading, setLoading] = useState(false);
+
+  const [categoryData, setCategoryData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
+  const [trendData, setTrendData] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
 
   useEffect(() => {
-    // Simulating API calls - replace with actual API endpoints
-    setLoading(true);
-
     setTimeout(() => {
       // Enhanced dummy data dengan trend
       setStats({
@@ -210,119 +403,107 @@ export default function PetugasDashboard() {
         reports: 20,
       });
 
-      setItems([
+      // Data kategori untuk bar chart
+      setCategoryData([
+        { label: "Barang Pribadi", value: 150 },
+        { label: "Elektronik", value: 120 },
+        { label: "Aksesori", value: 80 },
+        { label: "Kendaraan", value: 70 },
+        { label: "Dokumen", value: 50 },
+        { label: "Pakaian", value: 30 },
+      ]);
+
+      // Data lokasi untuk doughnut chart
+      setLocationData([
+        { name: "Perpustakaan", count: 85 },
+        { name: "Masjid UIN", count: 75 },
+        { name: "Tempat Parkir", count: 120 },
+        { name: "Kantin", count: 60 },
+        { name: "Ruang Kelas", count: 95 },
+        { name: "Gedung A", count: 40 },
+        { name: "Gedung B", count: 25 },
+      ]);
+
+      // Data tren untuk line chart
+      setTrendData([
+        { month: "Jul", found: 45, claimed: 38 },
+        { month: "Agu", found: 52, claimed: 45 },
+        { month: "Sep", found: 48, claimed: 42 },
+        { month: "Okt", found: 65, claimed: 58 },
+        { month: "Nov", found: 70, claimed: 62 },
+        { month: "Des", found: 85, claimed: 55 },
+      ]);
+
+      // Recent activities
+      setRecentActivities([
         {
-          id: 1,
-          description: "Dompet Coklat",
-          foundDate: "24 September 2025",
-          category: "Barang Pribadi",
-          location: "Masjid UIN",
-          status: "Tersedia",
-          photo: null,
-          isNew: true,
-          reportedBy: "Satpam Ahmad",
+          title: "Barang Baru Ditemukan",
+          description: "Dompet coklat ditemukan di Masjid UIN",
+          time: "2 jam yang lalu",
+          icon: (
+            <FiPackage
+              className="text-blue-600"
+              size={18}
+            />
+          ),
+          bgColor: "bg-blue-100",
         },
         {
-          id: 2,
-          description: "Handphone Samsung Galaxy",
-          foundDate: "25 September 2025",
-          category: "Elektronik",
-          location: "Tempat Parkir",
-          status: "Diambil",
-          photo: null,
-          isNew: false,
-          reportedBy: "Petugas Keamanan",
+          title: "Barang Diambil",
+          description: "Samsung Galaxy telah diambil pemiliknya",
+          time: "5 jam yang lalu",
+          icon: (
+            <FiCheck
+              className="text-green-600"
+              size={18}
+            />
+          ),
+          bgColor: "bg-green-100",
         },
         {
-          id: 3,
-          description: "Kunci Motor Honda",
-          foundDate: "25 September 2025",
-          category: "Kendaraan",
-          location: "Tempat Parkir",
-          status: "Proses",
-          photo: null,
-          isNew: false,
-          reportedBy: "Mahasiswa",
+          title: "Laporan Baru",
+          description: "Laporan kehilangan kunci motor",
+          time: "1 hari yang lalu",
+          icon: (
+            <FiFileText
+              className="text-purple-600"
+              size={18}
+            />
+          ),
+          bgColor: "bg-purple-100",
         },
         {
-          id: 4,
-          description: "Tas Ransel Hitam",
-          foundDate: "26 September 2025",
-          category: "Barang Pribadi",
-          location: "Perpustakaan",
-          status: "Tersedia",
-          photo: null,
-          isNew: true,
-          reportedBy: "Petugas Perpus",
+          title: "Barang Pending",
+          description: "Verifikasi kunci motor Honda di parkiran",
+          time: "1 hari yang lalu",
+          icon: (
+            <FiClock
+              className="text-yellow-600"
+              size={18}
+            />
+          ),
+          bgColor: "bg-yellow-100",
         },
         {
-          id: 5,
-          description: "Kacamata",
-          foundDate: "27 September 2025",
-          category: "Aksesori",
-          location: "Ruang Kelas A",
-          status: "Tersedia",
-          photo: null,
-          isNew: true,
-          reportedBy: "Dosen",
+          title: "Barang Baru Ditemukan",
+          description: "Tas ransel hitam di Perpustakaan",
+          time: "2 hari yang lalu",
+          icon: (
+            <FiPackage
+              className="text-blue-600"
+              size={18}
+            />
+          ),
+          bgColor: "bg-blue-100",
         },
       ]);
-      setLoading(false);
-    }, 1000);
+    }, 100);
   }, []);
-
-  // Filter items berdasarkan search dan filter
-  useEffect(() => {
-    let filtered = items;
-
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (item) =>
-          item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.category.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (filterStatus !== "all") {
-      filtered = filtered.filter((item) => item.status === filterStatus);
-    }
-
-    if (filterCategory !== "all") {
-      filtered = filtered.filter((item) => item.category === filterCategory);
-    }
-
-    setFilteredItems(filtered);
-  }, [items, searchTerm, filterStatus, filterCategory]);
-
-  const handleEditItem = (item) => {
-    console.log("Edit item:", item);
-    // Implement edit functionality
-    // You can open a modal or navigate to edit page
-  };
-
-  const handleViewItem = (item) => {
-    console.log("View item:", item);
-    // Implement view functionality
-  };
-
-  const handleRefresh = () => {
-    setLoading(true);
-    // Simulate refresh
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
-
-  const categories = ["all", "Barang Pribadi", "Elektronik", "Kendaraan", "Aksesori"];
-  const statuses = ["all", "Tersedia", "Diambil", "Proses"];
 
   return (
     <>
-      {/* <HeaderDashboard title="Dashboard Petugas" /> */}
-
       {/* Stat cards dengan trend */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <StatCard
           title="Total Barang"
           value={stats.totalItems}
@@ -350,170 +531,18 @@ export default function PetugasDashboard() {
           trend="up"
           trendValue="+8% dari minggu lalu"
         />
-        <StatCard
-          title="Laporan Masuk"
-          value={stats.reports}
-          icon={<FiFileText />}
-          bgColor="bg-purple-100"
-          iconColor="text-purple-600"
-          trend="up"
-          trendValue="+3 hari ini"
-        />
       </div>
 
-      {/* Items Table with Enhanced Features */}
-      <Card className="shadow-sm border-0">
-        <CardContent className="p-0">
-          {/* Header dengan Search dan Filter */}
-          <div className="p-4 sm:p-6 border-b bg-gray-50/50">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <h3 className="text-xl font-semibold text-gray-900">Daftar Barang Temuan</h3>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">{filteredItems.length} item</span>
-              </div>
+      {/* Charts Section - Top Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <CategoryBarChart data={categoryData} />
+        <LocationDoughnutChart locations={locationData} />
+      </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleRefresh}
-                  disabled={loading}
-                  className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-white border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                >
-                  <FiRefreshCw className={`text-sm ${loading ? "animate-spin" : ""}`} />
-                  <span className="text-sm hidden sm:inline">Refresh</span>
-                </button>
-                <button className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex-1 sm:flex-initial">
-                  <FiPlus className="text-sm" />
-                  <span className="text-sm">Tambah Item</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Search and Filter Bar */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-              <div className="relative">
-                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Cari barang, lokasi, atau kategori..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                >
-                  {statuses.map((status) => (
-                    <option
-                      key={status}
-                      value={status}
-                    >
-                      {status === "all" ? "Semua Kategori" : status}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                >
-                  {categories.map((category) => (
-                    <option
-                      key={category}
-                      value={category}
-                    >
-                      {category === "all" ? "Semua Kategori" : category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* --- Tampilan Desktop (Tabel) --- */}
-          <div className="overflow-x-auto hidden md:block">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Foto</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lokasi</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-12 text-center"
-                    >
-                      <div className="flex items-center justify-center">
-                        <FiRefreshCw className="animate-spin mr-2" />
-                        <span>Memuat data...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredItems.length > 0 ? (
-                  filteredItems.map((item) => (
-                    <ItemRow
-                      key={item.id}
-                      item={item}
-                      onEdit={handleEditItem}
-                      onView={handleViewItem}
-                    />
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-12 text-center"
-                    >
-                      <div className="text-gray-500">
-                        {searchTerm || filterStatus !== "all" || filterCategory !== "all"
-                          ? "Tidak ada barang yang sesuai dengan filter"
-                          : "Tidak ada barang temuan"}
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* --- Tampilan Mobile (Kartu) --- */}
-          <div className="md:hidden bg-gray-50 p-4 space-y-4">
-            {loading ? (
-              <div className="p-12 text-center flex items-center justify-center">
-                <FiRefreshCw className="animate-spin mr-2" />
-                <span>Memuat data...</span>
-              </div>
-            ) : filteredItems.length > 0 ? (
-              filteredItems.map((item) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  onEdit={handleEditItem}
-                  onView={handleViewItem}
-                />
-              ))
-            ) : (
-              <div className="p-12 text-center text-gray-500">
-                {searchTerm || filterStatus !== "all" || filterCategory !== "all"
-                  ? "Tidak ada barang yang sesuai dengan filter"
-                  : "Tidak ada barang temuan"}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Charts Section - Bottom Row */}
+      <div className="mb-6">
+        <TrendLineChart trendData={trendData} />
+      </div>
     </>
   );
 }
