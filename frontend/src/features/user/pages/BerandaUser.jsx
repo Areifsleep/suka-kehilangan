@@ -162,7 +162,6 @@ function FilterBar({ searchTerm, setSearchTerm, selectedFilter, setSelectedFilte
   const filters = [
     { value: "all", label: "Semua" },
     { value: "FOUND", label: "Ditemukan" },
-    { value: "LOST", label: "Dicari" },
   ];
 
   return (

@@ -17,8 +17,6 @@ import ManagementPetugas from "./features/admin-management/pages/ManagementPetug
 import PetugasDashboard from "./pages/PetugasDashboard.jsx";
 import PetugasUploadPage from "./pages/PetugasUploadPage.jsx";
 import PetugasManageReportsPage from "./pages/PetugasManageReportsPage.jsx";
-import PetugasVerifyReportsPage from "./pages/PetugasVerifyReportsPage.jsx";
-import PetugasReportsPage from "./pages/PetugasReportsPage.jsx";
 import AuditReportsPage from "./features/admin-management/pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./features/auth/contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
@@ -31,8 +29,6 @@ import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 import ProfileSettingsPage from "./features/profile-settings/pages/ProfileSettingsPage.jsx";
 
 import BerandaUserPage from "./features/user/pages/BerandaUser.jsx";
-import LaporKehilanganPage from "./features/user/pages/LaporKehilangan.jsx";
-import LaporanSayaPage from "./features/user/pages/LaporanSaya.jsx";
 import Detaillaporan from "./pages/DetailLaporan.jsx";
 
 function MainLayout() {
@@ -77,14 +73,6 @@ const router = createBrowserRouter([
                 path: "item/:id",
                 element: <Detaillaporan />,
               },
-              // {
-              //   path: "report",
-              //   element: <LaporKehilanganPage />,
-              // },
-              // {
-              //   path: "my-reports",
-              //   element: <LaporanSayaPage />,
-              // },
             ],
           },
           {
@@ -103,14 +91,6 @@ const router = createBrowserRouter([
                 path: "manage-reports",
                 element: <PetugasManageReportsPage />,
               },
-              // {
-              //   path: "verify-reports",
-              //   element: <PetugasVerifyReportsPage />,
-              // },
-              // {
-              //   path: "reports",
-              //   element: <PetugasReportsPage />,
-              // },
             ],
           },
           {
@@ -137,7 +117,6 @@ const router = createBrowserRouter([
           },
           {
             path: "/settings",
-            // element: <SettingsPage />,
             element: <RoleBasedLayout />,
             children: [
               {

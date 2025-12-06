@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   FiPackage,
   FiSearch,
-  FiFilter,
   FiEye,
   FiEdit2,
   FiTrash2,
@@ -10,8 +9,6 @@ import {
   FiCalendar,
   FiUser,
   FiClock,
-  FiMoreVertical,
-  FiX,
   FiPlus,
   FiRefreshCw,
   FiTag,
@@ -68,19 +65,17 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
               <FiPackage className="text-gray-400 text-xl" />
             </div>
           )}
-          {item.isNew && <div className="absolute top-1 right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>}
         </div>
       </td>
       <td className="px-6 py-4">
         <div className="font-semibold text-gray-900">{item.description || item.name}</div>
-        <div className="flex items-center text-sm text-gray-500 mt-1">
-          <FiCalendar className="mr-1 text-xs" />
-          <span>{item.foundDate || new Date(item.dateFound).toLocaleDateString()}</span>
-        </div>
         {(item.reportedBy || item.foundBy) && <div className="text-xs text-gray-400 mt-1">Dilaporkan oleh: {item.reportedBy || item.foundBy}</div>}
       </td>
       <td className="px-6 py-4">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">{item.category}</span>
+        <div className="flex items-center text-sm text-gray-700">
+          <FiCalendar className="mr-2 text-gray-400" />
+          <span>{item.foundDate || new Date(item.dateFound).toLocaleDateString()}</span>
+        </div>
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center text-sm text-gray-700">
@@ -345,7 +340,16 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess }) {
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Kategori</label>
-              <p className="text-sm text-gray-900 mt-1">{item.category}</p>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {(Array.isArray(item.category) ? item.category : [item.category]).map((cat, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Status</label>
@@ -821,7 +825,7 @@ export default function PetugasManageReportsPage() {
       {/* Filters */}
       <Card className="mb-6 shadow-sm border-0">
         <CardContent className="p-0">
-          <div className="px-4 sm:px-6 border-b bg-gray-50/50">
+          <div className="px-4 sm:px-6 pb-6 border-b bg-gray-50/50">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <h3 className="text-xl font-semibold text-gray-900">Daftar Barang Temuan</h3>
@@ -836,10 +840,10 @@ export default function PetugasManageReportsPage() {
                   <FiRefreshCw className={`text-sm ${loading ? "animate-spin" : ""}`} />
                   <span className="text-sm hidden sm:inline">Refresh</span>
                 </button>
-                <button className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex-1 sm:flex-initial">
+                <Button>
                   <FiPlus className="text-sm" />
                   <span className="text-sm">Tambah Item</span>
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -905,7 +909,7 @@ export default function PetugasManageReportsPage() {
                 <tr className="border-b bg-gray-50">
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Foto</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal Penemuan</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lokasi</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
