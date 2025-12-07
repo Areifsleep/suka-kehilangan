@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsEnum, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ReportStatus, ReportType } from '@prisma/client';
+import { StatusBarang } from '@prisma/client';
 
 export class AuditReportsQueryDto {
   @IsOptional()
@@ -20,8 +20,8 @@ export class AuditReportsQueryDto {
   search?: string;
 
   @IsOptional()
-  @IsEnum(ReportStatus)
-  status?: ReportStatus;
+  @IsEnum(StatusBarang)
+  status?: StatusBarang;
 
   @IsOptional()
   @IsString()
@@ -30,10 +30,6 @@ export class AuditReportsQueryDto {
   @IsOptional()
   @IsEnum(['today', 'week', 'month', 'all'])
   dateRange?: string = 'all';
-
-  @IsOptional()
-  @IsEnum(ReportType)
-  reportType?: ReportType;
 }
 
 export class ExportAuditReportsDto {
@@ -42,8 +38,8 @@ export class ExportAuditReportsDto {
   search?: string;
 
   @IsOptional()
-  @IsEnum(ReportStatus)
-  status?: ReportStatus;
+  @IsEnum(StatusBarang)
+  status?: StatusBarang;
 
   @IsOptional()
   @IsString()
@@ -52,8 +48,4 @@ export class ExportAuditReportsDto {
   @IsOptional()
   @IsEnum(['today', 'week', 'month', 'all'])
   dateRange?: string = 'all';
-
-  @IsOptional()
-  @IsEnum(ReportType)
-  reportType?: ReportType;
 }

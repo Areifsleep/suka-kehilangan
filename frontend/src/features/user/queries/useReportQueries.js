@@ -5,7 +5,7 @@ export const useReportCategories = () => {
   return useQuery({
     queryKey: ["report-categories"],
     queryFn: reportApi.getCategories,
-    select: (data) => data.data.data,
+    select: (data) => data.data,
     staleTime: 1000 * 60 * 30, // 30 minutes - categories don't change often
     cacheTime: 1000 * 60 * 60, // 1 hour
     retry: 2,

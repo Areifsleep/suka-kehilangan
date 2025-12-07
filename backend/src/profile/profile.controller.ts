@@ -1,4 +1,3 @@
-// backend/src/settings/settings.controller.ts
 import {
   Controller,
   Get,
@@ -10,33 +9,30 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
-import { SettingsService } from './settings.service';
+import { ProfileService } from './profile.service';
 import { UpdateProfileDto, ChangePasswordDto } from './dto/settings.dto';
 
-@Controller('settings')
+@Controller('profile')
 @UseGuards(JwtAuthGuard)
-export class SettingsController {
-  constructor(private readonly settingsService: SettingsService) {}
+export class ProfileController {
+  constructor(private readonly profileService: ProfileService) {}
 
-  //  GET /api/v1/settings/profile
-  @Get('profile')
+  @Get('me')
   async getProfile(@Request() req) {
     const userId = req.user.id;
-    return this.settingsService.getProfile(userId);
+    return this.profileService.getProfile(userId);
   }
 
-  //  PUT /api/v1/settings/profile
-  @Put('profile')
+  @Put('/')
   @HttpCode(HttpStatus.OK)
   async updateProfile(
     @Request() req,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     const userId = req.user.id;
-    return this.settingsService.updateProfile(userId, updateProfileDto);
+    return this.profileService.updateProfile(userId, updateProfileDto);
   }
 
-  //  PUT /api/v1/settings/change-password
   @Put('change-password')
   @HttpCode(HttpStatus.OK)
   async changePassword(
@@ -44,6 +40,6 @@ export class SettingsController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     const userId = req.user.id;
-    return this.settingsService.changePassword(userId, changePasswordDto);
+    return this.profileService.changePassword(userId, changePasswordDto);
   }
 }

@@ -3,7 +3,7 @@ import { api } from "@/lib/axios";
 // Report API endpoints
 export const reportApi = {
   // Get report categories
-  getCategories: () => api.get("/reports/categories"),
+  getCategories: () => api.get("/categories"),
 
   // Create new report
   createReport: (reportData) => {

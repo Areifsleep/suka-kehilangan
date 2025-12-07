@@ -13,22 +13,14 @@ enum Level {
   S3
 }
 
-enum ReportStatus {
-  OPEN
-  CLAIMED
-  CLOSED
-  PENDING_VERIFICATION  // Status baru untuk laporan yang menunggu verifikasi
-  REJECTED             // Status untuk laporan yang ditolak
-}
-
-enum ReportType {
-  FOUND
-  LOST
-}
-
 enum LokasiPos {
   POS_BARAT
   POS_TIMUR
+}
+
+enum StatusBarang {
+  TERSEDIA // Barang ada di pos
+  SUDAH_DIAMBIL // Barang sudah dikembalikan ke pemilik
 }
 
 model Faculty {
@@ -69,14 +61,16 @@ model User {
   created_at           DateTime @default(now()) @db.Timestamp(6)
   updated_at           DateTime @updatedAt @db.Timestamp(6)
 
-  sessions        Session[]
-  profile         UserProfile?
-  created_reports Report[]     @relation("created_reports")
-  claimed_reports Report[]     @relation("claimed_reports")
-  verified_reports Report[]    @relation("verified_reports")   // Relasi untuk verifikasi
-  approved_reports Report[]    @relation("approved_reports")   // Relasi untuk approval
+  // Relasi Auth
+  sessions Session[]
+  profile  UserProfile?
+  role     Role         @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  role Role @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  // Satpam yang mencatat barang (Input awal)
+  barang_dicatat BarangTemuan[] @relation("pencatat_barang")
+
+  // Satpam yang menyerahkan barang (Saat diklaim)
+  barang_diserahkan BarangTemuan[] @relation("penyerah_barang")
 
   @@index([username], name: "idx_username")
   @@map("users")
@@ -90,7 +84,7 @@ model UserProfile {
   nip              String?    @unique @db.VarChar(255)
   full_name        String     @db.VarChar(255)
   lokasi_pos       LokasiPos?
-  phone_number     String?    @db.VarChar(20)  // Nomor telepon
+  phone_number     String?    @db.VarChar(20)
 
   user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   study_program StudyProgram? @relation(fields: [study_program_id], references: [id], onDelete: Cascade)
@@ -109,8 +103,6 @@ model Role {
 
   @@map("roles")
 }
-
-
 
 model Session {
   id                   String   @id @default(uuid(7)) @db.VarChar(255)
@@ -131,65 +123,62 @@ model RevokedJwt {
   @@map("revoked_jwts")
 }
 
-model ReportCategory {
-  id          String   @id @default(uuid(7))
-  name        String   @unique @db.VarChar(255)
-  description String?  @db.Text
-  created_at  DateTime @default(now()) @db.Timestamp(6)
-  updated_at  DateTime @updatedAt @db.Timestamp(6)
+model KategoriBarang {
+  id         String   @id @default(uuid(7))
+  nama       String   @unique @db.VarChar(255)
+  deskripsi  String?  @db.Text
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @updatedAt @db.Timestamp(6)
 
-  reports Report[]
+  daftar_barang BarangTemuan[]
 
-  @@map("report_categories")
+  @@map("kategori_barang")
 }
 
-model Report {
-  id                 String       @id @default(uuid(7))
-  created_by_user_id String       @db.VarChar(255)
-  claimed_by_user_id String?      @db.VarChar(255)
-  verified_by_user_id String?     @db.VarChar(255)    // ID satpam yang memverifikasi
-  approved_by_user_id String?     @db.VarChar(255)    // ID satpam yang menyetujui
-  report_category_id String       @db.VarChar(255)
-  item_name          String       @db.VarChar(255)
-  report_type        ReportType
-  report_status      ReportStatus @default(PENDING_VERIFICATION)  // Default ke pending verification
-  description        String?      @db.Text
-  place_found        String       @db.VarChar(255)
-  claimed_at         DateTime?    @db.Timestamp(6)
-  verified_at        DateTime?    @db.Timestamp(6)    // Waktu verifikasi
-  approved_at        DateTime?    @db.Timestamp(6)    // Waktu approval
-  rejection_reason   String?      @db.Text            // Alasan penolakan jika ditolak
-  created_at         DateTime     @default(now()) @db.Timestamp(6)
-  updated_at         DateTime     @updatedAt @db.Timestamp(6)
-  lost_date         DateTime?    @db.Date        // Tanggal kehilangan
-  lost_time         String?      @db.VarChar(5)  // Waktu kehilangan (HH:MM)
-  specific_location String?      @db.VarChar(255) // Lokasi spesifik
-  additional_notes  String?      @db.Text        // Catatan tambahan
+model BarangTemuan {
+  id String @id @default(uuid(7))
 
-  report_images ReportImage[]
+  // RELASI KE USER (SATPAM)
+  pencatat_id String  @db.VarChar(255) // User ID pencatat
+  penyerah_id String? @db.VarChar(255) // User ID penyerah (opsional)
 
-  created_by User  @relation("created_reports", fields: [created_by_user_id], references: [id], onDelete: Cascade)
-  claimed_by User? @relation("claimed_reports", fields: [claimed_by_user_id], references: [id], onDelete: Cascade)
-  verified_by User? @relation("verified_reports", fields: [verified_by_user_id], references: [id], onDelete: Cascade)
-  approved_by User? @relation("approved_reports", fields: [approved_by_user_id], references: [id], onDelete: Cascade)
+  // RELASI KATEGORI
+  kategori_id String @db.VarChar(255)
 
-  category ReportCategory @relation(fields: [report_category_id], references: [id], onDelete: Cascade)
+  // INFO BARANG
+  nama_barang      String       @db.VarChar(255)
+  status           StatusBarang @default(TERSEDIA)
+  deskripsi        String?      @db.Text
+  lokasi_ditemukan String       @db.VarChar(255)
 
-  @@map("reports")
+  // INFO PENGAMBILAN (CLAIM) - Diisi saat barang diambil
+  waktu_diambil       DateTime? @db.Timestamp(6)
+  nama_pengambil      String?   @db.VarChar(255)
+  identitas_pengambil String?   @db.VarChar(100) // NIM, NIP, atau No KTP
+  kontak_pengambil    String?   @db.VarChar(50)
+
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @updatedAt @db.Timestamp(6)
+
+  // RELASI TABEL
+  foto_barang FotoBarang[]
+
+  pencatat User           @relation("pencatat_barang", fields: [pencatat_id], references: [id], onDelete: Cascade)
+  penyerah User?          @relation("penyerah_barang", fields: [penyerah_id], references: [id], onDelete: Cascade)
+  kategori KategoriBarang @relation(fields: [kategori_id], references: [id], onDelete: Cascade)
+
+  @@map("barang_temuan")
 }
 
-model ReportImage {
-  id                String   @id @default(uuid(7))
-  report_id         String   @db.VarChar(255)
-  storage_key       String   @db.VarChar(255)
-  original_filename String   @db.VarChar(255)
-  file_size         Int
-  mime_type         String   @db.VarChar(255)
-  is_primary        Boolean  @default(false)
-  created_at        DateTime @default(now()) @db.Timestamp(6)
-  updated_at        DateTime @updatedAt @db.Timestamp(6)
+model FotoBarang {
+  id               String   @id @default(uuid(7))
+  barang_temuan_id String   @db.VarChar(255)
+  url_gambar       String   @db.VarChar(255)
+  nama_file_asli   String?  @db.VarChar(255)
+  mime_type        String?  @db.VarChar(50)
+  created_at       DateTime @default(now()) @db.Timestamp(6)
 
-  report Report @relation(fields: [report_id], references: [id], onDelete: Cascade)
+  barang_temuan BarangTemuan @relation(fields: [barang_temuan_id], references: [id], onDelete: Cascade)
 
-  @@map("report_images")
+  @@map("foto_barang")
 }

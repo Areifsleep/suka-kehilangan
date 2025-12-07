@@ -1,5 +1,5 @@
 import { IsNotEmpty, Matches, MaxLength, MinLength } from 'class-validator';
-import { passwordConstraints } from 'src/constants';
+import { passwordConstraints } from 'src/common/constants';
 
 export class UpdatePasswordBodyDto {
   @IsNotEmpty()

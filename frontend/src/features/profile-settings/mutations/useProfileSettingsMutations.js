@@ -10,7 +10,7 @@ export const useUpdateProfile = () => {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: (profileData) => api.put("/settings/profile", profileData),
+    mutationFn: (profileData) => api.put("/profile", profileData),
     onSuccess: (response) => {
       // Update specific user cache
       queryClient.setQueryData(["settings", "profile", user?.id], response.data.data);
@@ -32,7 +32,7 @@ export const useUpdateProfile = () => {
 export const useChangePassword = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (passwordData) => api.put("/settings/change-password", passwordData),
+    mutationFn: (passwordData) => api.put("/profile/change-password", passwordData),
     onSuccess: () => {
       // Optionally invalidate user session after password change
       queryClient.invalidateQueries({

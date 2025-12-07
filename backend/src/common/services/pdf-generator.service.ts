@@ -1,507 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ExportAuditReportsDto } from '../../management/dto/audit.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-
-interface ReportData {
-  id: string;
-  item_name: string;
-  description: string | null;
-  place_found: string;
-  report_type: string;
-  report_status: string;
-  created_at: Date;
-  updated_at: Date;
-  claimed_at: Date | null;
-  category: {
-    id: string;
-    name: string;
-  };
-  created_by: {
-    id: string;
-    profile: {
-      full_name: string;
-    } | null;
-    role: {
-      name: string;
-    };
-  };
-  claimed_by: {
-    id: string;
-    profile: {
-      full_name: string;
-    } | null;
-  } | null;
-}
 
 @Injectable()
 export class PdfGeneratorService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async generateAuditReportPDF(
-    queryDto: ExportAuditReportsDto,
-  ): Promise<{ buffer: Buffer; filename: string }> {
-    const PDFDocument = (await import('pdfkit')).default;
-
-    const {
-      search,
-      status,
-      categoryId,
-      dateRange = 'all',
-      reportType,
-    } = queryDto;
-
-    // Build where conditions (sama seperti di getAuditReports)
-    const where: any = {};
-
-    if (search) {
-      where.OR = [
-        { item_name: { contains: search } },
-        { description: { contains: search } },
-        { place_found: { contains: search } },
-        {
-          created_by: {
-            profile: {
-              full_name: { contains: search },
-            },
-          },
-        },
-      ];
-    }
-
-    if (status) {
-      where.report_status = status;
-    }
-
-    if (categoryId) {
-      where.report_category_id = categoryId;
-    }
-
-    if (reportType) {
-      where.report_type = reportType;
-    }
-
-    // Date range filtering
-    if (dateRange !== 'all') {
-      const now = new Date();
-      let startDate = new Date();
-
-      switch (dateRange) {
-        case 'today':
-          startDate.setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case 'month':
-          startDate.setMonth(now.getMonth() - 1);
-          break;
-      }
-
-      where.created_at = {
-        gte: startDate,
-      };
-    }
-
-    // Fetch all reports (no pagination for export)
-    const reports: ReportData[] = await this.prisma.report.findMany({
-      where,
-      select: {
-        id: true,
-        item_name: true,
-        description: true,
-        place_found: true,
-        report_type: true,
-        report_status: true,
-        created_at: true,
-        updated_at: true,
-        claimed_at: true,
-        category: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        created_by: {
-          select: {
-            id: true,
-            profile: {
-              select: {
-                full_name: true,
-              },
-            },
-            role: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        claimed_by: {
-          select: {
-            id: true,
-            profile: {
-              select: {
-                full_name: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-
-    // Create PDF
-    const doc = new PDFDocument({
-      size: 'A4',
-      margin: 50,
-      bufferPages: true,
-    });
-
-    const chunks: Buffer[] = [];
-    doc.on('data', (chunk) => chunks.push(chunk));
-
-    // Header dengan logo dan informasi universitas
-    await this.addHeader(doc);
-
-    // Judul laporan
-    doc
-      .fontSize(14)
-      .font('Helvetica-Bold')
-      .text('LAPORAN AUDIT BARANG HILANG DAN DITEMUKAN', 50, 180, {
-        align: 'center',
-      });
-
-    // Info periode/filter
-    let filterInfo = 'Periode: ';
-    switch (dateRange) {
-      case 'today':
-        filterInfo += 'Hari Ini';
-        break;
-      case 'week':
-        filterInfo += 'Minggu Ini';
-        break;
-      case 'month':
-        filterInfo += 'Bulan Ini';
-        break;
-      default:
-        filterInfo += 'Semua Waktu';
-    }
-
-    doc
-      .fontSize(10)
-      .font('Helvetica')
-      .text(filterInfo, 50, 200, { align: 'center' });
-
-    doc
-      .fontSize(10)
-      .text(`Tanggal Cetak: ${this.formatDate(new Date())}`, 50, 215, {
-        align: 'center',
-      });
-
-    // Tabel data
-    let yPosition = 250;
-
-    // Header tabel
-    doc.fontSize(9).font('Helvetica-Bold');
-
-    const colWidths = {
-      no: 30,
-      tanggal: 70,
-      nama: 100,
-      kategori: 80,
-      status: 60,
-      pelapor: 90,
-      lokasi: 95,
-    };
-
-    const startX = 50;
-
-    // Draw header background
-    doc
-      .rect(startX, yPosition - 5, 495, 20)
-      .fillAndStroke('#E5E7EB', '#9CA3AF');
-
-    doc.fillColor('#000000');
-    doc.text('No', startX + 5, yPosition, {
-      width: colWidths.no,
-      align: 'center',
-    });
-    doc.text('Tanggal', startX + colWidths.no + 5, yPosition, {
-      width: colWidths.tanggal,
-      align: 'left',
-    });
-    doc.text(
-      'Nama Barang',
-      startX + colWidths.no + colWidths.tanggal + 10,
-      yPosition,
-      { width: colWidths.nama, align: 'left' },
-    );
-    doc.text(
-      'Kategori',
-      startX + colWidths.no + colWidths.tanggal + colWidths.nama + 15,
-      yPosition,
-      { width: colWidths.kategori, align: 'left' },
-    );
-    doc.text(
-      'Status',
-      startX +
-        colWidths.no +
-        colWidths.tanggal +
-        colWidths.nama +
-        colWidths.kategori +
-        20,
-      yPosition,
-      { width: colWidths.status, align: 'left' },
-    );
-    doc.text(
-      'Pelapor',
-      startX +
-        colWidths.no +
-        colWidths.tanggal +
-        colWidths.nama +
-        colWidths.kategori +
-        colWidths.status +
-        25,
-      yPosition,
-      { width: colWidths.pelapor, align: 'left' },
-    );
-    doc.text(
-      'Lokasi',
-      startX +
-        colWidths.no +
-        colWidths.tanggal +
-        colWidths.nama +
-        colWidths.kategori +
-        colWidths.status +
-        colWidths.pelapor +
-        30,
-      yPosition,
-      { width: colWidths.lokasi, align: 'left' },
-    );
-
-    yPosition += 20;
-    doc.font('Helvetica').fontSize(8);
-
-    // Data rows
-    reports.forEach((report, index) => {
-      // Check if need new page
-      if (yPosition > 720) {
-        doc.addPage();
-        yPosition = 50;
-
-        // Repeat header on new page
-        doc.fontSize(9).font('Helvetica-Bold');
-        doc
-          .rect(startX, yPosition - 5, 495, 20)
-          .fillAndStroke('#E5E7EB', '#9CA3AF');
-
-        doc.fillColor('#000000');
-        doc.text('No', startX + 5, yPosition, {
-          width: colWidths.no,
-          align: 'center',
-        });
-        doc.text('Tanggal', startX + colWidths.no + 5, yPosition, {
-          width: colWidths.tanggal,
-          align: 'left',
-        });
-        doc.text(
-          'Nama Barang',
-          startX + colWidths.no + colWidths.tanggal + 10,
-          yPosition,
-          { width: colWidths.nama, align: 'left' },
-        );
-        doc.text(
-          'Kategori',
-          startX + colWidths.no + colWidths.tanggal + colWidths.nama + 15,
-          yPosition,
-          { width: colWidths.kategori, align: 'left' },
-        );
-        doc.text(
-          'Status',
-          startX +
-            colWidths.no +
-            colWidths.tanggal +
-            colWidths.nama +
-            colWidths.kategori +
-            20,
-          yPosition,
-          { width: colWidths.status, align: 'left' },
-        );
-        doc.text(
-          'Pelapor',
-          startX +
-            colWidths.no +
-            colWidths.tanggal +
-            colWidths.nama +
-            colWidths.kategori +
-            colWidths.status +
-            25,
-          yPosition,
-          { width: colWidths.pelapor, align: 'left' },
-        );
-        doc.text(
-          'Lokasi',
-          startX +
-            colWidths.no +
-            colWidths.tanggal +
-            colWidths.nama +
-            colWidths.kategori +
-            colWidths.status +
-            colWidths.pelapor +
-            30,
-          yPosition,
-          { width: colWidths.lokasi, align: 'left' },
-        );
-
-        yPosition += 20;
-        doc.font('Helvetica').fontSize(8);
-      }
-
-      // Zebra striping
-      if (index % 2 === 0) {
-        doc.rect(startX, yPosition - 3, 495, 18).fill('#F9FAFB');
-      }
-
-      doc.fillColor('#000000');
-
-      const rowY = yPosition;
-      doc.text((index + 1).toString(), startX + 5, rowY, {
-        width: colWidths.no,
-        align: 'center',
-      });
-      doc.text(
-        this.formatDate(report.created_at),
-        startX + colWidths.no + 5,
-        rowY,
-        { width: colWidths.tanggal },
-      );
-      doc.text(
-        this.truncate(report.item_name, 25),
-        startX + colWidths.no + colWidths.tanggal + 10,
-        rowY,
-        { width: colWidths.nama },
-      );
-      doc.text(
-        this.truncate(report.category.name, 20),
-        startX + colWidths.no + colWidths.tanggal + colWidths.nama + 15,
-        rowY,
-        { width: colWidths.kategori },
-      );
-      doc.text(
-        this.translateStatus(report.report_status),
-        startX +
-          colWidths.no +
-          colWidths.tanggal +
-          colWidths.nama +
-          colWidths.kategori +
-          20,
-        rowY,
-        { width: colWidths.status },
-      );
-      doc.text(
-        this.truncate(report.created_by.profile?.full_name || 'Unknown', 22),
-        startX +
-          colWidths.no +
-          colWidths.tanggal +
-          colWidths.nama +
-          colWidths.kategori +
-          colWidths.status +
-          25,
-        rowY,
-        { width: colWidths.pelapor },
-      );
-      doc.text(
-        this.truncate(report.place_found, 22),
-        startX +
-          colWidths.no +
-          colWidths.tanggal +
-          colWidths.nama +
-          colWidths.kategori +
-          colWidths.status +
-          colWidths.pelapor +
-          30,
-        rowY,
-        { width: colWidths.lokasi },
-      );
-
-      yPosition += 18;
-    });
-
-    // Summary
-    yPosition += 20;
-    if (yPosition > 700) {
-      doc.addPage();
-      yPosition = 50;
-    }
-
-    doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('Ringkasan:', 50, yPosition);
-    yPosition += 15;
-
-    doc.fontSize(9).font('Helvetica');
-    doc.text(`Total Laporan: ${reports.length}`, 50, yPosition);
-    yPosition += 12;
-
-    const foundCount = reports.filter((r) => r.report_type === 'FOUND').length;
-    const lostCount = reports.filter((r) => r.report_type === 'LOST').length;
-    const openCount = reports.filter((r) => r.report_status === 'OPEN').length;
-    const claimedCount = reports.filter(
-      (r) => r.report_status === 'CLAIMED',
-    ).length;
-    const closedCount = reports.filter(
-      (r) => r.report_status === 'CLOSED',
-    ).length;
-
-    doc.text(`Barang Ditemukan: ${foundCount}`, 50, yPosition);
-    yPosition += 12;
-    doc.text(`Barang Hilang: ${lostCount}`, 50, yPosition);
-    yPosition += 12;
-    doc.text(`Status Terbuka: ${openCount}`, 50, yPosition);
-    yPosition += 12;
-    doc.text(`Status Diklaim: ${claimedCount}`, 50, yPosition);
-    yPosition += 12;
-    doc.text(`Status Selesai: ${closedCount}`, 50, yPosition);
-
-    // Footer with page numbers
-    const pages = doc.bufferedPageRange();
-    for (let i = 0; i < pages.count; i++) {
-      doc.switchToPage(i);
-
-      // Footer line
-      doc.moveTo(50, 780).lineTo(545, 780).stroke('#9CA3AF');
-
-      doc
-        .fontSize(8)
-        .font('Helvetica')
-        .fillColor('#6B7280')
-        .text(`Halaman ${i + 1} dari ${pages.count}`, 50, 785, {
-          align: 'center',
-        });
-
-      doc
-        .fontSize(7)
-        .text(
-          'Dokumen ini dihasilkan secara otomatis oleh Sistem Informasi Barang Hilang UIN Sunan Kalijaga',
-          50,
-          795,
-          { align: 'center' },
-        );
-    }
-
-    doc.end();
-
-    return new Promise((resolve, reject) => {
-      doc.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        const filename = `laporan-audit-${Date.now()}.pdf`;
-        resolve({ buffer, filename });
-      });
-
-      doc.on('error', reject);
-    });
-  }
 
   private async addHeader(doc: any) {
     // Download logo UIN
@@ -595,6 +97,8 @@ export class PdfGeneratorService {
       OPEN: 'Terbuka',
       CLAIMED: 'Diklaim',
       CLOSED: 'Selesai',
+      TERSEDIA: 'Tersedia',
+      SUDAH_DIAMBIL: 'Sudah Diambil',
     };
     return statusMap[status] || status;
   }
@@ -604,5 +108,225 @@ export class PdfGeneratorService {
     return text.length > maxLength
       ? text.substring(0, maxLength - 3) + '...'
       : text;
+  }
+
+  // Generate PDF for Barang Temuan (Found Items) History
+  async generateBarangTemuanPDF(exportData: {
+    items: any[];
+    filters: any;
+    exportedAt: Date;
+    exportedBy: string;
+  }): Promise<{ buffer: Buffer; filename: string }> {
+    const PDFDocument = (await import('pdfkit')).default;
+
+    const { items, filters } = exportData;
+
+    // Create PDF
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 50,
+      bufferPages: true,
+    });
+
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk) => chunks.push(chunk));
+
+    // Header dengan logo dan informasi universitas
+    await this.addHeader(doc);
+
+    // Judul laporan
+    doc
+      .fontSize(14)
+      .font('Helvetica-Bold')
+      .text('LAPORAN HISTORI BARANG TEMUAN', 50, 180, {
+        align: 'center',
+      });
+
+    // Info periode/filter
+    let filterInfo = 'Periode: ';
+    switch (filters.dateRange) {
+      case 'today':
+        filterInfo += 'Hari Ini';
+        break;
+      case 'week':
+        filterInfo += 'Minggu Ini';
+        break;
+      case 'month':
+        filterInfo += 'Bulan Ini';
+        break;
+      default:
+        filterInfo += 'Semua Waktu';
+    }
+
+    doc
+      .fontSize(10)
+      .font('Helvetica')
+      .text(filterInfo, 50, 200, { align: 'center' });
+
+    doc
+      .fontSize(10)
+      .text(`Tanggal Cetak: ${this.formatDate(new Date())}`, 50, 215, {
+        align: 'center',
+      });
+
+    // Summary statistics
+    const totalItems = items.length;
+    const tersedia = items.filter((item) => item.status === 'TERSEDIA').length;
+    const sudahDiambil = items.filter(
+      (item) => item.status === 'SUDAH_DIAMBIL',
+    ).length;
+
+    doc.fontSize(10).font('Helvetica-Bold').text('Ringkasan:', 50, 240);
+    doc
+      .fontSize(9)
+      .font('Helvetica')
+      .text(`Total Barang: ${totalItems}`, 50, 255);
+    doc.text(`Tersedia: ${tersedia}`, 50, 268);
+    doc.text(`Sudah Diambil: ${sudahDiambil}`, 50, 281);
+
+    // Tabel header
+    const startY = 310;
+    let currentY = startY;
+
+    // Table header background
+    doc
+      .rect(50, currentY, 495, 20)
+      .fillAndStroke('#0066cc', '#000000')
+      .lineWidth(0.5);
+
+    // Table headers
+    doc.fontSize(9).font('Helvetica-Bold').fillColor('#ffffff');
+    doc.text('No', 55, currentY + 5, { width: 25, align: 'left' });
+    doc.text('Nama Barang', 85, currentY + 5, { width: 120, align: 'left' });
+    doc.text('Kategori', 210, currentY + 5, { width: 70, align: 'left' });
+    doc.text('Lokasi', 285, currentY + 5, { width: 80, align: 'left' });
+    doc.text('Status', 370, currentY + 5, { width: 60, align: 'left' });
+    doc.text('Tanggal', 435, currentY + 5, { width: 105, align: 'left' });
+
+    currentY += 20;
+
+    // Reset fill color for content
+    doc.fillColor('#000000');
+
+    // Table content
+    items.forEach((item, index) => {
+      // Check if we need a new page
+      if (currentY > 720) {
+        doc.addPage();
+        currentY = 50;
+
+        // Redraw header on new page
+        doc
+          .rect(50, currentY, 495, 20)
+          .fillAndStroke('#0066cc', '#000000')
+          .lineWidth(0.5);
+        doc.fontSize(9).font('Helvetica-Bold').fillColor('#ffffff');
+        doc.text('No', 55, currentY + 5, { width: 25, align: 'left' });
+        doc.text('Nama Barang', 85, currentY + 5, {
+          width: 120,
+          align: 'left',
+        });
+        doc.text('Kategori', 210, currentY + 5, { width: 70, align: 'left' });
+        doc.text('Lokasi', 285, currentY + 5, { width: 80, align: 'left' });
+        doc.text('Status', 370, currentY + 5, { width: 60, align: 'left' });
+        doc.text('Tanggal', 435, currentY + 5, { width: 105, align: 'left' });
+        currentY += 20;
+        doc.fillColor('#000000');
+      }
+
+      // Alternating row colors
+      if (index % 2 === 0) {
+        doc.rect(50, currentY, 495, 20).fill('#f5f5f5');
+      }
+
+      doc.fontSize(8).font('Helvetica');
+      doc.fillColor('#000000');
+
+      doc.text(`${index + 1}`, 55, currentY + 5, { width: 25, align: 'left' });
+      doc.text(this.truncate(item.nama_barang, 25), 85, currentY + 5, {
+        width: 120,
+        align: 'left',
+      });
+      doc.text(this.truncate(item.kategori.nama, 15), 210, currentY + 5, {
+        width: 70,
+        align: 'left',
+      });
+      doc.text(this.truncate(item.lokasi_ditemukan, 18), 285, currentY + 5, {
+        width: 80,
+        align: 'left',
+      });
+      doc.text(this.translateStatus(item.status), 370, currentY + 5, {
+        width: 60,
+        align: 'left',
+      });
+      doc.text(this.formatDate(item.created_at), 435, currentY + 5, {
+        width: 105,
+        align: 'left',
+      });
+
+      // Row border
+      doc
+        .moveTo(50, currentY)
+        .lineTo(545, currentY)
+        .lineWidth(0.5)
+        .stroke('#cccccc');
+
+      currentY += 20;
+    });
+
+    // Bottom border of table
+    doc
+      .moveTo(50, currentY)
+      .lineTo(545, currentY)
+      .lineWidth(0.5)
+      .stroke('#000000');
+
+    // Footer dengan tanda tangan
+    const footerY = currentY + 40;
+
+    // Check if footer fits on current page, otherwise add new page
+    if (footerY > 700) {
+      doc.addPage();
+      currentY = 50;
+    }
+
+    doc
+      .fontSize(9)
+      .font('Helvetica')
+      .text(
+        `Yogyakarta, ${this.formatDate(new Date())}`,
+        350,
+        footerY > 700 ? 80 : footerY,
+        {
+          align: 'left',
+        },
+      );
+
+    doc.text('Administrator', 350, footerY > 700 ? 95 : footerY + 15, {
+      align: 'left',
+    });
+
+    doc.text('___________________', 350, footerY > 700 ? 155 : footerY + 75, {
+      align: 'left',
+    });
+
+    // Finalize PDF
+    doc.end();
+
+    // Wait for PDF to finish
+    const buffer = await new Promise<Buffer>((resolve) => {
+      doc.on('end', () => {
+        resolve(Buffer.concat(chunks));
+      });
+    });
+
+    // Generate filename
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, '-')
+      .split('T')[0];
+    const filename = `Laporan_Barang_Temuan_${timestamp}.pdf`;
+
+    return { buffer, filename };
   }
 }

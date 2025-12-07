@@ -8,7 +8,7 @@ export const useProfile = () => {
   return useQuery({
     queryKey: ["settings", "profile", user?.id],
     queryFn: async () => {
-      const response = await api.get("/settings/profile");
+      const response = await api.get("/profile/me");
       return response.data.data;
     },
     enabled: !!user?.id,

@@ -7,9 +7,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { SeederModule } from './seeder/seeder.module';
 import { UserModule } from './user/user.module';
-import { SettingsModule } from './settings/settings.module';
+import { ProfileModule } from './profile/profile.module';
 import { ManagementModule } from './management/management.module';
-import { ReportsModule } from './reports/reports.module';
+import { BarangTemuanModule } from './barang-temuan/barang-temuan.module';
+import { KategoriModule } from './kategori/kategori.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -18,9 +20,11 @@ import { ReportsModule } from './reports/reports.module';
     AuthModule,
     SeederModule,
     UserModule,
-    SettingsModule,
+    ProfileModule,
     ManagementModule,
-    ReportsModule,
+    BarangTemuanModule,
+    KategoriModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

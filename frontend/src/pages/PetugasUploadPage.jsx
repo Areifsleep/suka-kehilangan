@@ -15,8 +15,6 @@ import { useAuth } from "@/features/auth/contexts/AuthContext";
 import { useCreateReport } from "@/features/user/mutations/useReportMutations";
 import { useReportCategories } from "@/features/user/queries/useReportQueries";
 
-import { MultiSelect, MultiSelectContent, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "@/components/ui/multi-select";
-
 const locations = [
   "Masjid UIN",
   "Area Parkir",
@@ -37,7 +35,7 @@ export const phoneIdSchema = z.string().trim().regex(INDONESIAN_PHONE_REGEX, "No
 
 const formSchema = z.object({
   item_name: z.string().min(3, "Nama barang harus minimal 3 karakter").max(50, "Nama barang maksimal 50 karakter"),
-  report_category_id: z.array(z.string()).min(1, "Kategori harus dipilih"),
+  report_category_id: z.string().min(1, "Kategori harus dipilih"),
   description: z.string().min(10, "Deskripsi harus minimal 10 karakter").max(500, "Deskripsi maksimal 500 karakter"),
   place_found: z.string().min(1, "Lokasi harus dipilih"),
   specific_location: z.string().optional(),
@@ -63,7 +61,7 @@ export default function PetugasUploadPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       item_name: "",
-      report_category_id: [],
+      report_category_id: "",
       description: "",
       place_found: "",
       specific_location: "",
@@ -209,26 +207,26 @@ export default function PetugasUploadPage() {
                             <span className="text-muted-foreground text-sm">Memuat kategori...</span>
                           </div>
                         ) : (
-                          <MultiSelect
-                            onValuesChange={(value) => {
+                          <Select
+                            onValueChange={(value) => {
                               field.onChange(value);
                             }}
-                            values={field.value || []}
+                            value={field.value}
                           >
-                            <MultiSelectTrigger id="category">
-                              <MultiSelectValue placeholder="Pilih kategori barang" />
-                            </MultiSelectTrigger>
-                            <MultiSelectContent>
+                            <SelectTrigger id="category">
+                              <SelectValue placeholder="Pilih kategori barang" />
+                            </SelectTrigger>
+                            <SelectContent>
                               {categories.map((category) => (
-                                <MultiSelectItem
+                                <SelectItem
                                   key={category.id}
                                   value={category.id}
                                 >
-                                  {category.name}
-                                </MultiSelectItem>
+                                  {category.nama}
+                                </SelectItem>
                               ))}
-                            </MultiSelectContent>
-                          </MultiSelect>
+                            </SelectContent>
+                          </Select>
                         )}
                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>

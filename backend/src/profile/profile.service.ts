@@ -1,4 +1,3 @@
-// backend/src/settings/settings.service.ts
 import {
   Injectable,
   BadRequestException,
@@ -11,7 +10,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto, ChangePasswordDto } from './dto/settings.dto';
 
 @Injectable()
-export class SettingsService {
+export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
   //  Get user profile - Based on your schema

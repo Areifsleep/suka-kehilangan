@@ -24,7 +24,6 @@ import {
   PaginationDto,
   ResetPasswordDto,
 } from './dto/management.dto';
-import { AuditReportsQueryDto, ExportAuditReportsDto } from './dto/audit.dto';
 
 @Controller('management')
 @UseGuards(JwtAuthGuard)
@@ -130,41 +129,34 @@ export class ManagementController {
     );
   }
 
-  // GET /api/v1/management/audit-reports
-  @Get('audit-reports')
+  // GET /api/v1/management/barang-temuan
+  @Get('barang-temuan')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async getAuditReports(
-    @Query() queryDto: AuditReportsQueryDto,
-    @Request() req,
-  ) {
+  async getBarangTemuan(@Query() paginationDto: PaginationDto, @Request() req) {
     const requestingUserId = req.user.id;
-    return this.managementService.getAuditReports(queryDto, requestingUserId);
+    return this.managementService.getBarangTemuan(
+      paginationDto,
+      requestingUserId,
+    );
   }
 
-  // GET /api/v1/management/audit-stats
-  @Get('audit-stats')
-  async getAuditStats(@Request() req) {
+  // GET /api/v1/management/barang-temuan-stats
+  @Get('barang-temuan-stats')
+  async getBarangTemuanStats(@Request() req) {
     const requestingUserId = req.user.id;
-    return this.managementService.getAuditStats(requestingUserId);
+    return this.managementService.getBarangTemuanStats(requestingUserId);
   }
 
-  // GET /api/v1/management/categories
-  @Get('categories')
-  async getCategories(@Request() req) {
-    const requestingUserId = req.user.id;
-    return this.managementService.getCategories(requestingUserId);
-  }
-
-  // GET /api/v1/management/audit-reports/export
-  @Get('audit-reports/export')
+  // GET /api/v1/management/barang-temuan/export
+  @Get('barang-temuan/export')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async exportAuditReports(
-    @Query() queryDto: ExportAuditReportsDto,
+  async exportBarangTemuan(
+    @Query() queryDto: PaginationDto,
     @Request() req,
     @Res() res: Response,
   ) {
     const requestingUserId = req.user.id;
-    const result = await this.managementService.exportAuditReportsToPDF(
+    const result = await this.managementService.exportBarangTemuanToPDF(
       queryDto,
       requestingUserId,
     );

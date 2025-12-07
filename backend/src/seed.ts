@@ -1,12 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
-import { AppModule } from './app.module'; // Import AppModule utama Anda
 import { SeederService } from './seeder/seeder.service';
+import { SeederModule } from './seeder/seeder.module';
 
 async function bootstrap() {
-  // Buat application context, bukan server HTTP penuh
-  const appContext = await NestFactory.createApplicationContext(AppModule);
+  const appContext = await NestFactory.createApplicationContext(SeederModule);
   const logger = new Logger('Seeder');
 
   if (process.env.NODE_ENV === 'production') {
@@ -27,7 +26,6 @@ async function bootstrap() {
   } catch (error) {
     logger.error('Seeding gagal!', error.stack);
   } finally {
-    // Tutup koneksi setelah selesai
     await appContext.close();
   }
 }

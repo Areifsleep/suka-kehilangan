@@ -25,6 +25,8 @@ import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { auditReportsApi } from "../api/auditReportsApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
+import { MdVolunteerActivism } from "react-icons/md";
+import { XCircle } from "lucide-react";
 
 function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {
   return (
@@ -672,7 +674,7 @@ export default function AuditReportsPage() {
 
       <div className="mb-12">
         {/* Stat cards sudah responsif */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <StatCard
             title="Total Barang"
             value={stats.totalItems}
@@ -681,23 +683,16 @@ export default function AuditReportsPage() {
             iconColor="text-blue-600"
           />
           <StatCard
-            title="Barang Ditemukan"
+            title="Belum Diambil"
             value={stats.foundItems}
-            icon={<FiCheckCircle />}
-            bgColor="bg-green-100"
-            iconColor="text-green-600"
-          />
-          <StatCard
-            title="Barang Hilang"
-            value={stats.lostItems}
-            icon={<FiAlertTriangle />}
+            icon={<XCircle className="stroke-red-500" />}
             bgColor="bg-red-100"
-            iconColor="text-red-600"
+            iconColor="text-green-600"
           />
           <StatCard
             title="Telah Diambil"
             value={stats.claimedItems}
-            icon={<FiTrendingUp />}
+            icon={<MdVolunteerActivism />}
             bgColor="bg-purple-100"
             iconColor="text-purple-600"
           />

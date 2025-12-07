@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiPackage, FiClock, FiCheck, FiFileText, FiTrendingUp, FiMapPin, FiCalendar, FiUser, FiTag } from "react-icons/fi";
+import { FiPackage, FiClock, FiCheck, FiFileText } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -28,12 +28,6 @@ function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "te
         <div className="flex flex-col flex-1">
           <div className="text-sm text-gray-500 mb-1">{title}</div>
           <div className="text-3xl font-bold text-gray-900 mb-2">{value}</div>
-          {/* {trend && (
-            <div className={`flex items-center text-sm ${trend === "up" ? "text-green-600" : trend === "down" ? "text-red-600" : "text-gray-500"}`}>
-              <FiTrendingUp className={`mr-1 text-xs ${trend === "down" ? "rotate-180" : ""}`} />
-              <span>{trendValue}</span>
-            </div>
-          )} */}
         </div>
         <div className={`w-14 h-14 rounded-xl ${bgColor} flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
           <div className={`text-2xl ${iconColor}`}>{icon}</div>
@@ -342,38 +336,6 @@ function TrendLineChart({ trendData }) {
             data={chartData}
             options={options}
           />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Recent Activity Component
-function RecentActivity({ activities }) {
-  return (
-    <Card className="shadow-sm border-0">
-      <CardContent className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Aktivitas Terbaru</h3>
-        <div className="space-y-4">
-          {activities.map((activity, index) => (
-            <div
-              key={index}
-              className="flex items-start space-x-3 pb-4 border-b last:border-0 last:pb-0"
-            >
-              <div className={`w-10 h-10 rounded-lg ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>{activity.icon}</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                <p className="text-xs text-gray-500 mt-1">{activity.description}</p>
-                <div className="flex items-center text-xs text-gray-400 mt-2">
-                  <FiCalendar
-                    className="mr-1"
-                    size={12}
-                  />
-                  <span>{activity.time}</span>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </CardContent>
     </Card>

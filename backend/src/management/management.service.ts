@@ -1,4 +1,3 @@
-// backend/src/management/management.service.ts
 import {
   Injectable,
   BadRequestException,
@@ -15,8 +14,7 @@ import {
   PaginationDto,
   ResetPasswordDto,
 } from './dto/management.dto';
-import { AuditReportsQueryDto, ExportAuditReportsDto } from './dto/audit.dto';
-import { LokasiPos } from '@prisma/client';
+import { LokasiPos, StatusBarang } from '@prisma/client';
 import { PdfGeneratorService } from '../common/services/pdf-generator.service';
 
 @Injectable()
@@ -771,9 +769,14 @@ export class ManagementService {
     });
   }
 
-  // Get audit reports for items
-  async getAuditReports(
-    queryDto: AuditReportsQueryDto,
+  // Get barang temuan (found items) for audit
+  async getBarangTemuan(
+    params: PaginationDto & {
+      search?: string;
+      status?: StatusBarang;
+      categoryId?: string;
+      dateRange?: 'all' | 'today' | 'week' | 'month';
+    },
     requestingUserId: string,
   ) {
     await this.validateAdminAccess(requestingUserId);
@@ -785,8 +788,7 @@ export class ManagementService {
       status,
       categoryId,
       dateRange = 'all',
-      reportType,
-    } = queryDto;
+    } = params;
 
     const skip = (page - 1) * limit;
 
@@ -795,11 +797,11 @@ export class ManagementService {
 
     if (search) {
       where.OR = [
-        { item_name: { contains: search } },
-        { description: { contains: search } },
-        { place_found: { contains: search } },
+        { nama_barang: { contains: search } },
+        { deskripsi: { contains: search } },
+        { lokasi_ditemukan: { contains: search } },
         {
-          created_by: {
+          pencatat: {
             profile: {
               full_name: { contains: search },
             },
@@ -809,15 +811,11 @@ export class ManagementService {
     }
 
     if (status) {
-      where.report_status = status;
+      where.status = status;
     }
 
     if (categoryId) {
-      where.report_category_id = categoryId;
-    }
-
-    if (reportType) {
-      where.report_type = reportType;
+      where.kategori_id = categoryId;
     }
 
     // Date range filtering
@@ -842,33 +840,35 @@ export class ManagementService {
       };
     }
 
-    const [reports, total] = await Promise.all([
-      this.prisma.report.findMany({
+    const [barangList, total] = await Promise.all([
+      this.prisma.barangTemuan.findMany({
         where,
         skip,
         take: limit,
         select: {
           id: true,
-          item_name: true,
-          description: true,
-          place_found: true,
-          report_type: true,
-          report_status: true,
+          nama_barang: true,
+          deskripsi: true,
+          lokasi_ditemukan: true,
+          status: true,
           created_at: true,
           updated_at: true,
-          claimed_at: true,
-          category: {
+          waktu_diambil: true,
+          nama_pengambil: true,
+          identitas_pengambil: true,
+          kategori: {
             select: {
               id: true,
-              name: true,
+              nama: true,
             },
           },
-          created_by: {
+          pencatat: {
             select: {
               id: true,
               profile: {
                 select: {
                   full_name: true,
+                  lokasi_pos: true,
                 },
               },
               role: {
@@ -878,7 +878,7 @@ export class ManagementService {
               },
             },
           },
-          claimed_by: {
+          penyerah: {
             select: {
               id: true,
               profile: {
@@ -888,13 +888,10 @@ export class ManagementService {
               },
             },
           },
-          report_images: {
-            where: {
-              is_primary: true,
-            },
+          foto_barang: {
             select: {
-              storage_key: true,
-              original_filename: true,
+              url_gambar: true,
+              nama_file_asli: true,
             },
             take: 1,
           },
@@ -903,34 +900,34 @@ export class ManagementService {
           created_at: 'desc',
         },
       }),
-      this.prisma.report.count({ where }),
+      this.prisma.barangTemuan.count({ where }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
 
     // Transform data for frontend
-    const transformedReports = reports.map((report) => ({
-      id: report.id,
-      item_name: report.item_name,
-      description: report.description,
-      location: report.place_found,
-      status: report.report_status.toLowerCase(),
-      category: report.category.name,
-      category_id: report.category.id,
-      report_type: report.report_type.toLowerCase(),
-      reporter_name: report.created_by.profile?.full_name || 'Unknown',
-      reporter_role: report.created_by.role.name,
-      claimed_by_name: report.claimed_by?.profile?.full_name,
-      image_url: report.report_images[0]?.storage_key
-        ? `/uploads/${report.report_images[0].storage_key}`
-        : null,
-      created_at: report.created_at,
-      updated_at: report.updated_at,
-      claimed_at: report.claimed_at,
+    const transformedData = barangList.map((item) => ({
+      id: item.id,
+      nama_barang: item.nama_barang,
+      deskripsi: item.deskripsi,
+      lokasi_ditemukan: item.lokasi_ditemukan,
+      status: item.status,
+      kategori: item.kategori.nama,
+      kategori_id: item.kategori.id,
+      pencatat_name: item.pencatat.profile?.full_name || 'Unknown',
+      pencatat_role: item.pencatat.role.name,
+      lokasi_pos: item.pencatat.profile?.lokasi_pos,
+      penyerah_name: item.penyerah?.profile?.full_name,
+      nama_pengambil: item.nama_pengambil,
+      identitas_pengambil: item.identitas_pengambil,
+      image_url: item.foto_barang[0]?.url_gambar || null,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      waktu_diambil: item.waktu_diambil,
     }));
 
     return {
-      data: transformedReports,
+      data: transformedData,
       pagination: {
         page,
         limit,
@@ -942,62 +939,44 @@ export class ManagementService {
     };
   }
 
-  // Get audit statistics
-  async getAuditStats(requestingUserId: string) {
+  // Get barang temuan statistics
+  async getBarangTemuanStats(requestingUserId: string) {
     await this.validateAdminAccess(requestingUserId);
 
     const now = new Date();
     const todayStart = new Date(now.setHours(0, 0, 0, 0));
 
-    const [
-      totalItems,
-      foundItems,
-      lostItems,
-      claimedItems,
-      returnedItems,
-      todayItems,
-    ] = await Promise.all([
-      // Total items
-      this.prisma.report.count(),
-      // Found items (FOUND type)
-      this.prisma.report.count({
-        where: {
-          report_type: 'FOUND',
-        },
-      }),
-      // Lost items (LOST type)
-      this.prisma.report.count({
-        where: {
-          report_type: 'LOST',
-        },
-      }),
-      // Claimed items (CLAIMED status)
-      this.prisma.report.count({
-        where: {
-          report_status: 'CLAIMED',
-        },
-      }),
-      // Returned items (CLOSED status)
-      this.prisma.report.count({
-        where: {
-          report_status: 'CLOSED',
-        },
-      }),
-      // Today's items
-      this.prisma.report.count({
-        where: {
-          created_at: {
-            gte: todayStart,
+    const [totalItems, tersediaItems, sudahDiambilItems, todayItems] =
+      await Promise.all([
+        // Total items
+        this.prisma.barangTemuan.count(),
+        // Available items (TERSEDIA status)
+        this.prisma.barangTemuan.count({
+          where: {
+            status: 'TERSEDIA',
           },
-        },
-      }),
-    ]);
+        }),
+        // Claimed items (SUDAH_DIAMBIL status)
+        this.prisma.barangTemuan.count({
+          where: {
+            status: 'SUDAH_DIAMBIL',
+          },
+        }),
+        // Today's items
+        this.prisma.barangTemuan.count({
+          where: {
+            created_at: {
+              gte: todayStart,
+            },
+          },
+        }),
+      ]);
 
     // Calculate trends (comparing with yesterday)
     const yesterdayStart = new Date(todayStart);
     yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
-    const yesterdayItems = await this.prisma.report.count({
+    const yesterdayItems = await this.prisma.barangTemuan.count({
       where: {
         created_at: {
           gte: yesterdayStart,
@@ -1010,10 +989,8 @@ export class ManagementService {
 
     return {
       totalItems,
-      foundItems,
-      lostItems,
-      claimedItems,
-      returnedItems,
+      tersediaItems,
+      sudahDiambilItems,
       todayItems,
       trends: {
         items: itemsTrend >= 0 ? 'up' : 'down',
@@ -1022,31 +999,134 @@ export class ManagementService {
     };
   }
 
-  // Get categories for dropdown
-  async getCategories(requestingUserId: string) {
-    await this.validateAdminAccess(requestingUserId);
-
-    return await this.prisma.reportCategory.findMany({
-      select: {
-        id: true,
-        name: true,
-        description: true,
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    });
-  }
-
-  // Export audit reports to PDF
-  async exportAuditReportsToPDF(
-    queryDto: ExportAuditReportsDto,
+  // Export barang temuan history to PDF
+  async exportBarangTemuanToPDF(
+    params: {
+      search?: string;
+      status?: StatusBarang;
+      categoryId?: string;
+      dateRange?: 'all' | 'today' | 'week' | 'month';
+      startDate?: Date;
+      endDate?: Date;
+    },
     requestingUserId: string,
   ) {
     await this.validateAdminAccess(requestingUserId);
 
+    const {
+      search,
+      status,
+      categoryId,
+      dateRange = 'all',
+      startDate,
+      endDate,
+    } = params;
+
+    // Build where conditions
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        { nama_barang: { contains: search } },
+        { deskripsi: { contains: search } },
+        { lokasi_ditemukan: { contains: search } },
+      ];
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (categoryId) {
+      where.kategori_id = categoryId;
+    }
+
+    // Date range filtering
+    if (startDate && endDate) {
+      where.created_at = {
+        gte: startDate,
+        lte: endDate,
+      };
+    } else if (dateRange !== 'all') {
+      const now = new Date();
+      let rangeStart = new Date();
+
+      switch (dateRange) {
+        case 'today':
+          rangeStart.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          rangeStart.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          rangeStart.setMonth(now.getMonth() - 1);
+          break;
+      }
+
+      where.created_at = {
+        gte: rangeStart,
+      };
+    }
+
+    const barangList = await this.prisma.barangTemuan.findMany({
+      where,
+      select: {
+        id: true,
+        nama_barang: true,
+        deskripsi: true,
+        lokasi_ditemukan: true,
+        status: true,
+        created_at: true,
+        waktu_diambil: true,
+        nama_pengambil: true,
+        identitas_pengambil: true,
+        kontak_pengambil: true,
+        kategori: {
+          select: {
+            nama: true,
+          },
+        },
+        pencatat: {
+          select: {
+            profile: {
+              select: {
+                full_name: true,
+                lokasi_pos: true,
+              },
+            },
+          },
+        },
+        penyerah: {
+          select: {
+            profile: {
+              select: {
+                full_name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+
+    const exportData = {
+      items: barangList,
+      filters: {
+        search,
+        status,
+        categoryId,
+        dateRange,
+        startDate,
+        endDate,
+      },
+      exportedAt: new Date(),
+      exportedBy: requestingUserId,
+    };
+
     const { buffer, filename } =
-      await this.pdfGenerator.generateAuditReportPDF(queryDto);
+      await this.pdfGenerator.generateBarangTemuanPDF(exportData);
 
     return {
       buffer: buffer.toString('base64'),
@@ -1064,22 +1144,20 @@ export class ManagementService {
       where: { name: 'PETUGAS' },
     });
 
-    const [totalReports, foundItems, claimedItems, activePetugas] =
+    const [totalItems, tersediaItems, sudahDiambilItems, activePetugas] =
       await Promise.all([
-        // Total reports
-        this.prisma.report.count(),
-        // Found items (FOUND type)
-        this.prisma.report.count({
+        // Total barang temuan
+        this.prisma.barangTemuan.count(),
+        // Available items (TERSEDIA status)
+        this.prisma.barangTemuan.count({
           where: {
-            report_type: 'FOUND',
+            status: 'TERSEDIA',
           },
         }),
-        // Claimed items (CLAIMED or CLOSED status)
-        this.prisma.report.count({
+        // Claimed items (SUDAH_DIAMBIL status)
+        this.prisma.barangTemuan.count({
           where: {
-            report_status: {
-              in: ['CLAIMED', 'CLOSED'],
-            },
+            status: 'SUDAH_DIAMBIL',
           },
         }),
         // Active petugas users
@@ -1093,9 +1171,9 @@ export class ManagementService {
       ]);
 
     return {
-      reports: totalReports,
-      found: foundItems,
-      claimed: claimedItems,
+      totalItems,
+      tersedia: tersediaItems,
+      sudahDiambil: sudahDiambilItems,
       officers: activePetugas,
     };
   }
@@ -1104,22 +1182,22 @@ export class ManagementService {
   async getRecentActivities(requestingUserId: string) {
     await this.validateAdminAccess(requestingUserId);
 
-    // Get recent reports (max 10)
-    const recentReports = await this.prisma.report.findMany({
+    // Get recent barang temuan (max 10)
+    const recentItems = await this.prisma.barangTemuan.findMany({
       take: 10,
       orderBy: {
         created_at: 'desc',
       },
       select: {
         id: true,
-        item_name: true,
-        place_found: true,
-        report_type: true,
-        report_status: true,
+        nama_barang: true,
+        lokasi_ditemukan: true,
+        status: true,
         created_at: true,
         updated_at: true,
-        claimed_at: true,
-        created_by: {
+        waktu_diambil: true,
+        nama_pengambil: true,
+        pencatat: {
           select: {
             profile: {
               select: {
@@ -1133,40 +1211,41 @@ export class ManagementService {
             },
           },
         },
+        penyerah: {
+          select: {
+            profile: {
+              select: {
+                full_name: true,
+              },
+            },
+          },
+        },
       },
     });
 
     // Transform to activities format
-    const activities = recentReports.map((report) => {
+    const activities = recentItems.map((item) => {
       let title = '';
       let subtitle = '';
       let type: 'info' | 'success' | 'danger' = 'info';
 
-      if (report.report_status === 'CLOSED') {
-        title = `${report.item_name} telah dikembalikan kepada pemilik`;
-        subtitle = `Diverifikasi oleh ${report.created_by.profile?.full_name || 'Unknown'}`;
+      if (item.status === 'SUDAH_DIAMBIL') {
+        title = `${item.nama_barang} telah diambil oleh ${item.nama_pengambil || 'pemilik'}`;
+        subtitle = `Diserahkan oleh ${item.penyerah?.profile?.full_name || 'petugas'}`;
         type = 'success';
-      } else if (report.report_status === 'CLAIMED') {
-        title = `${report.item_name} sedang dalam proses klaim`;
-        subtitle = `Dilaporkan oleh ${report.created_by.profile?.full_name || 'Unknown'}`;
-        type = 'info';
-      } else if (report.report_type === 'FOUND') {
-        title = `${report.item_name} ditemukan di ${report.place_found}`;
-        subtitle = `Dilaporkan oleh ${report.created_by.profile?.full_name || 'Unknown'} (${report.created_by.role.name})`;
-        type = 'info';
       } else {
-        title = `${report.item_name} dilaporkan hilang`;
-        subtitle = `Dilaporkan oleh ${report.created_by.profile?.full_name || 'Unknown'}`;
-        type = 'danger';
+        title = `${item.nama_barang} ditemukan di ${item.lokasi_ditemukan}`;
+        subtitle = `Dicatat oleh ${item.pencatat.profile?.full_name || 'Unknown'} (${item.pencatat.role.name})`;
+        type = 'info';
       }
 
       return {
-        id: report.id,
+        id: item.id,
         type,
         title,
         subtitle,
-        time: this.formatRelativeTime(report.created_at),
-        createdAt: report.created_at,
+        time: this.formatRelativeTime(item.created_at),
+        createdAt: item.created_at,
       };
     });
 
