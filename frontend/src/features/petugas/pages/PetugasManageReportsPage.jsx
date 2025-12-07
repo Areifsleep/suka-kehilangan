@@ -19,26 +19,64 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 import { PetugasPagination } from "@/features/admin-management/components";
+import { toast } from "react-toastify";
 
 // Status Badge Component
 function StatusBadge({ status }) {
   const statusConfig = {
-    AVAILABLE: { label: "Tersedia", className: "bg-green-100 text-green-800", dot: "bg-green-500" },
-    Tersedia: { label: "Tersedia", className: "bg-green-100 text-green-800", dot: "bg-green-500" },
-    CLAIMED: { label: "Diambil", className: "bg-blue-100 text-blue-800", dot: "bg-blue-500" },
-    Diambil: { label: "Diambil", className: "bg-red-100 text-red-800", dot: "bg-red-500" },
-    DISPOSED: { label: "Dimusnahkan", className: "bg-red-100 text-red-800", dot: "bg-red-500" },
-    Proses: { label: "Proses", className: "bg-yellow-100 text-yellow-800", dot: "bg-yellow-500" },
+    AVAILABLE: {
+      label: "Tersedia",
+      className: "bg-green-100 text-green-800",
+      dot: "bg-green-500",
+    },
+    Tersedia: {
+      label: "Tersedia",
+      className: "bg-green-100 text-green-800",
+      dot: "bg-green-500",
+    },
+    CLAIMED: {
+      label: "Diambil",
+      className: "bg-blue-100 text-blue-800",
+      dot: "bg-blue-500",
+    },
+    Diambil: {
+      label: "Diambil",
+      className: "bg-red-100 text-red-800",
+      dot: "bg-red-500",
+    },
+    DISPOSED: {
+      label: "Dimusnahkan",
+      className: "bg-red-100 text-red-800",
+      dot: "bg-red-500",
+    },
+    Proses: {
+      label: "Proses",
+      className: "bg-yellow-100 text-yellow-800",
+      dot: "bg-yellow-500",
+    },
   };
 
   const config = statusConfig[status] || statusConfig.AVAILABLE;
 
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.className}`}>
+    <span
+      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.className}`}
+    >
       <div className={`w-2 h-2 rounded-full mr-2 ${config.dot}`}></div>
       {config.label}
     </span>
@@ -68,13 +106,21 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
         </div>
       </td>
       <td className="px-6 py-4">
-        <div className="font-semibold text-gray-900">{item.description || item.name}</div>
-        {(item.reportedBy || item.foundBy) && <div className="text-xs text-gray-400 mt-1">Dilaporkan oleh: {item.reportedBy || item.foundBy}</div>}
+        <div className="font-semibold text-gray-900">
+          {item.description || item.name}
+        </div>
+        {(item.reportedBy || item.foundBy) && (
+          <div className="text-xs text-gray-400 mt-1">
+            Dilaporkan oleh: {item.reportedBy || item.foundBy}
+          </div>
+        )}
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center text-sm text-gray-700">
           <FiCalendar className="mr-2 text-gray-400" />
-          <span>{item.foundDate || new Date(item.dateFound).toLocaleDateString()}</span>
+          <span>
+            {item.foundDate || new Date(item.dateFound).toLocaleDateString()}
+          </span>
         </div>
       </td>
       <td className="px-6 py-4">
@@ -89,14 +135,20 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
       <td className="px-6 py-4">
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => onEdit(item)}
-            className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-colors text-gray-600"
-            title="Edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(item);
+            }}
+            className="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition-colors text-blue-600"
+            title="Lihat Detail"
           >
-            <FiEdit2 className="text-sm" />
+            <FiEye className="text-sm" />
           </button>
           <button
-            onClick={() => onDelete(item)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(item);
+            }}
             className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors text-red-600"
             title="Hapus"
           >
@@ -136,17 +188,24 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
               <FiPackage className="text-gray-400 text-xl" />
             </div>
           )}
-          {item.isNew && <div className="absolute top-1 right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>}
+          {item.isNew && (
+            <div className="absolute top-1 right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white"></div>
+          )}
         </div>
 
         {/* Info Utama */}
         <div className="flex-1">
           <div className="flex justify-between items-start">
-            <h4 className="font-bold text-gray-900">{item.name || item.description}</h4>
+            <h4 className="font-bold text-gray-900">
+              {item.name || item.description}
+            </h4>
             <StatusBadge status={item.status} />
           </div>
           <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-            {item.description || (item.additionalNotes ? item.additionalNotes : "Tidak ada deskripsi")}
+            {item.description ||
+              (item.additionalNotes
+                ? item.additionalNotes
+                : "Tidak ada deskripsi")}
           </p>
         </div>
       </div>
@@ -163,7 +222,9 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
         </div>
         <div className="flex items-center text-gray-700">
           <FiCalendar className="w-4 h-4 mr-2 text-gray-400" />
-          <span>{item.foundDate || new Date(item.dateFound).toLocaleDateString()}</span>
+          <span>
+            {item.foundDate || new Date(item.dateFound).toLocaleDateString()}
+          </span>
         </div>
       </div>
 
@@ -195,116 +256,167 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
   );
 }
 
-// Detail Modal Component with Claim Feature
-function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess }) {
+// Detail Modal Component with Claim Feature and Edit Mode
+function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
   const [showClaimForm, setShowClaimForm] = useState(false);
-  const [nim, setNim] = useState("");
-  const [studentData, setStudentData] = useState(null);
-  const [loadingStudent, setLoadingStudent] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedItem, setEditedItem] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  // Claim form data - sesuai dengan schema database
+  const [claimData, setClaimData] = useState({
+    nama_pengambil: "",
+    identitas_pengambil: "", // NIM, NIP, atau No KTP
+    kontak_pengambil: "",
+    keterangan_klaim: "",
+    foto_bukti_klaim: [], // Array untuk multiple files
+  });
 
   // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setShowClaimForm(false);
-      setNim("");
-      setStudentData(null);
-      setShowConfirmation(false);
+      setIsEditMode(false);
+      setEditedItem(null);
+      setClaimData({
+        nama_pengambil: "",
+        identitas_pengambil: "",
+        kontak_pengambil: "",
+        keterangan_klaim: "",
+        foto_bukti_klaim: [],
+      });
+    } else if (item) {
+      // Initialize edited item with current item data
+      setEditedItem({
+        name: item.name || "",
+        category: item.category || "",
+        description: item.description || "",
+        location: item.location || "",
+        condition: item.condition || "",
+        foundBy: item.foundBy || "",
+        additionalNotes: item.additionalNotes || "",
+      });
     }
-  }, [isOpen]);
+  }, [isOpen, item]);
 
   if (!item) return null;
 
-  // Dummy data mahasiswa berdasarkan NIM
-  const fetchStudentData = () => {
-    if (!nim || nim.length < 8) {
-      alert("Masukkan NIM yang valid (minimal 8 digit)");
+  const handleEditClick = () => {
+    setIsEditMode(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    // Reset to original item data
+    setEditedItem({
+      name: item.name || "",
+      category: item.category || "",
+      description: item.description || "",
+      location: item.location || "",
+      condition: item.condition || "",
+      foundBy: item.foundBy || "",
+      additionalNotes: item.additionalNotes || "",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      setSaving(true);
+      // TODO: Call update API when backend is ready
+      // await updateFoundItem({ id: item.id, ...editedItem });
+
+      // For now, just call the onUpdate callback if provided
+      if (onUpdate) {
+        await onUpdate(item.id, editedItem);
+      }
+
+      setIsEditMode(false);
+      toast.success("Berhasil memperbarui data barang!");
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast.error("Gagal memperbarui data barang");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditedItem((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleClaimInputChange = (field, value) => {
+    setClaimData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setClaimData((prev) => ({
+      ...prev,
+      foto_bukti_klaim: files,
+    }));
+  };
+
+  const handleClaimConfirm = async () => {
+    // Validasi form
+    if (
+      !claimData.nama_pengambil ||
+      !claimData.identitas_pengambil ||
+      !claimData.kontak_pengambil
+    ) {
+      toast.error("Mohon lengkapi data pengambil barang");
       return;
     }
 
-    setLoadingStudent(true);
+    try {
+      setClaiming(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Dummy data
-      const dummyStudents = {
-        21523001: {
-          nim: "21523001",
-          nama: "Ahmad Rizki Maulana",
-          prodi: "Teknik Informatika",
-          fakultas: "Sains dan Teknologi",
-          angkatan: "2021",
-          foto: "https://ui-avatars.com/api/?name=Ahmad+Rizki&background=3b82f6&color=fff&size=128",
-          noHp: "081234567890",
-          email: "ahmad.rizki@students.uin-suka.ac.id",
-        },
-        21523002: {
-          nim: "21523002",
-          nama: "Siti Nurhaliza",
-          prodi: "Sistem Informasi",
-          fakultas: "Sains dan Teknologi",
-          angkatan: "2021",
-          foto: "https://ui-avatars.com/api/?name=Siti+Nurhaliza&background=ec4899&color=fff&size=128",
-          noHp: "082345678901",
-          email: "siti.nurhaliza@students.uin-suka.ac.id",
-        },
-        20523045: {
-          nim: "20523045",
-          nama: "Muhammad Fauzi",
-          prodi: "Teknik Informatika",
-          fakultas: "Sains dan Teknologi",
-          angkatan: "2020",
-          foto: "https://ui-avatars.com/api/?name=Muhammad+Fauzi&background=8b5cf6&color=fff&size=128",
-          noHp: "083456789012",
-          email: "muhammad.fauzi@students.uin-suka.ac.id",
-        },
-      };
+      // TODO: Call API to process claim
+      // const formData = new FormData();
+      // formData.append('nama_pengambil', claimData.nama_pengambil);
+      // formData.append('identitas_pengambil', claimData.identitas_pengambil);
+      // formData.append('kontak_pengambil', claimData.kontak_pengambil);
+      // formData.append('keterangan_klaim', claimData.keterangan_klaim);
+      // formData.append('waktu_diambil', new Date().toISOString());
+      // claimData.foto_bukti_klaim.forEach((file) => {
+      //   formData.append('foto_bukti_klaim', file);
+      // });
+      // await claimItem(item.id, formData);
 
-      const student = dummyStudents[nim] || {
-        nim: nim,
-        nama: "Data Mahasiswa Tidak Ditemukan",
-        prodi: "-",
-        fakultas: "-",
-        angkatan: "-",
-        foto: "https://ui-avatars.com/api/?name=Unknown&background=9ca3af&color=fff&size=128",
-        noHp: "-",
-        email: "-",
-      };
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      setStudentData(student);
-      setLoadingStudent(false);
-
-      if (student.nama !== "Data Mahasiswa Tidak Ditemukan") {
-        setShowConfirmation(true);
+      // Call success callback
+      if (onClaimSuccess) {
+        onClaimSuccess(item.id, {
+          nama: claimData.nama_pengambil,
+          identitas: claimData.identitas_pengambil,
+          kontak: claimData.kontak_pengambil,
+        });
       }
-    }, 1000);
-  };
 
-  const handleClaimConfirm = () => {
-    setClaiming(true);
-
-    // Simulate claim process
-    setTimeout(() => {
-      setClaiming(false);
-      onClaimSuccess?.(item.id, studentData);
+      toast.success(
+        `Barang berhasil di-claim oleh ${claimData.nama_pengambil}`
+      );
       onClose();
-
-      // Reset form
-      setShowClaimForm(false);
-      setNim("");
-      setStudentData(null);
-      setShowConfirmation(false);
-    }, 1500);
+    } catch (error) {
+      console.error("Error claiming item:", error);
+      toast.error("Gagal memproses claim barang");
+    } finally {
+      setClaiming(false);
+    }
   };
 
   const canClaim = item.status === "Tersedia" || item.status === "AVAILABLE";
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={onClose}
-    >
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className="max-w-5xl! max-h-[90vh] overflow-y-auto"
         onInteractOutside={(e) => {
@@ -312,8 +424,17 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess }) {
         }}
       >
         <DialogHeader>
-          <DialogTitle>
-            <span>Detail Barang</span>
+          <DialogTitle className="flex items-center mpr-8">
+            <span>{isEditMode ? "Edit Barang" : "Detail Barang"}</span>
+            {!showClaimForm && !isEditMode && (
+              <button
+                onClick={handleEditClick}
+                className="text-gray-400 hover:text-blue-600 transition-colors p-1 rounded-md hover:bg-blue-50"
+                title="Edit barang"
+              >
+                <FiEdit className="w-5 h-5" />
+              </button>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -335,239 +456,389 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess }) {
           {/* Item Details */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">Nama Barang</label>
-              <p className="text-sm text-gray-900 mt-1">{item.name}</p>
+              <label className="text-sm font-medium text-gray-700">
+                Nama Barang
+              </label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedItem.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nama barang"
+                />
+              ) : (
+                <p className="text-sm text-gray-900 mt-1">{item.name}</p>
+              )}
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Kategori</label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {(Array.isArray(item.category) ? item.category : [item.category]).map((cat, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200"
-                  >
-                    {cat}
-                  </span>
-                ))}
-              </div>
+              <label className="text-sm font-medium text-gray-700">
+                Kategori
+              </label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedItem.category}
+                  onChange={(e) =>
+                    handleInputChange("category", e.target.value)
+                  }
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Kategori"
+                />
+              ) : (
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {(Array.isArray(item.category)
+                    ? item.category
+                    : [item.category]
+                  ).map((cat, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 border border-gray-200"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Status</label>
+              <label className="text-sm font-medium text-gray-700">
+                Status
+              </label>
               <div className="mt-1">
                 <StatusBadge status={item.status} />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Kondisi</label>
-              <p className="text-sm text-gray-900 mt-1">{item.condition}</p>
+              <label className="text-sm font-medium text-gray-700">
+                Kondisi
+              </label>
+              {isEditMode ? (
+                <select
+                  value={editedItem.condition}
+                  onChange={(e) =>
+                    handleInputChange("condition", e.target.value)
+                  }
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Pilih kondisi</option>
+                  <option value="Baik">Baik</option>
+                  <option value="Cukup Baik">Cukup Baik</option>
+                  <option value="Rusak">Rusak</option>
+                </select>
+              ) : (
+                <p className="text-sm text-gray-900 mt-1">{item.condition}</p>
+              )}
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Lokasi Ditemukan</label>
-              <p className="text-sm text-gray-900 mt-1">{item.location}</p>
+              <label className="text-sm font-medium text-gray-700">
+                Lokasi Ditemukan
+              </label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedItem.location}
+                  onChange={(e) =>
+                    handleInputChange("location", e.target.value)
+                  }
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Lokasi ditemukan"
+                />
+              ) : (
+                <p className="text-sm text-gray-900 mt-1">{item.location}</p>
+              )}
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Tanggal Ditemukan</label>
-              <p className="text-sm text-gray-900 mt-1">{new Date(item.dateFound).toLocaleDateString()}</p>
+              <label className="text-sm font-medium text-gray-700">
+                Tanggal Ditemukan
+              </label>
+              <p className="text-sm text-gray-900 mt-1">
+                {new Date(item.dateFound).toLocaleDateString()}
+              </p>
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Ditemukan Oleh</label>
-              <p className="text-sm text-gray-900 mt-1">{item.foundBy}</p>
+              <label className="text-sm font-medium text-gray-700">
+                Ditemukan Oleh
+              </label>
+              {isEditMode ? (
+                <input
+                  type="text"
+                  value={editedItem.foundBy}
+                  onChange={(e) => handleInputChange("foundBy", e.target.value)}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nama penemu"
+                />
+              ) : (
+                <p className="text-sm text-gray-900 mt-1">{item.foundBy}</p>
+              )}
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700">Tanggal Input</label>
-              <p className="text-sm text-gray-900 mt-1">{new Date(item.createdAt).toLocaleDateString()}</p>
+              <label className="text-sm font-medium text-gray-700">
+                Tanggal Input
+              </label>
+              <p className="text-sm text-gray-900 mt-1">
+                {new Date(item.createdAt).toLocaleDateString()}
+              </p>
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Deskripsi</label>
-            <p className="text-sm text-gray-900 mt-1">{item.description}</p>
+            <label className="text-sm font-medium text-gray-700">
+              Deskripsi
+            </label>
+            {isEditMode ? (
+              <textarea
+                value={editedItem.description}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="3"
+                placeholder="Deskripsi barang"
+              />
+            ) : (
+              <p className="text-sm text-gray-900 mt-1">{item.description}</p>
+            )}
           </div>
 
-          {item.additionalNotes && (
-            <div>
-              <label className="text-sm font-medium text-gray-700">Catatan Tambahan</label>
-              <p className="text-sm text-gray-900 mt-1">{item.additionalNotes}</p>
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Catatan Tambahan
+            </label>
+            {isEditMode ? (
+              <textarea
+                value={editedItem.additionalNotes}
+                onChange={(e) =>
+                  handleInputChange("additionalNotes", e.target.value)
+                }
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows="2"
+                placeholder="Catatan tambahan (opsional)"
+              />
+            ) : (
+              item.additionalNotes && (
+                <p className="text-sm text-gray-900 mt-1">
+                  {item.additionalNotes}
+                </p>
+              )
+            )}
+          </div>
+
+          {/* Edit Mode Actions */}
+          {isEditMode && (
+            <div className="flex justify-end gap-3 border-t pt-4">
+              <Button
+                onClick={handleCancelEdit}
+                variant="outline"
+                disabled={saving}
+              >
+                Batal
+              </Button>
+              <Button
+                onClick={handleSaveEdit}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={saving}
+              >
+                {saving ? "Menyimpan..." : "Simpan Perubahan"}
+              </Button>
             </div>
           )}
 
-          {/* Claim Section */}
-          {canClaim && (
+          {/* Claim Section - Hide when in edit mode */}
+          {canClaim && !isEditMode && (
             <div className="border-t pt-6">
               {!showClaimForm ? (
                 <Button
                   onClick={() => setShowClaimForm(true)}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <FiUser
-                    className="mr-2"
-                    size={16}
-                  />
+                  <FiUser className="mr-2" size={16} />
                   Proses Claim Barang
                 </Button>
               ) : (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Form Claim Barang</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Form Claim Barang
+                  </h3>
 
-                  {/* NIM Input */}
+                  {/* Nama Pengambil */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">NIM / NIP</label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Masukkan NIM/NIP pemilik barang"
-                        value={nim}
-                        onChange={(e) => setNim(e.target.value)}
-                        className="flex-1"
-                        maxLength={12}
-                      />
-                      <Button
-                        onClick={fetchStudentData}
-                        disabled={loadingStudent || !nim}
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        {loadingStudent ? (
-                          <>
-                            <FiRefreshCw
-                              className="mr-2 animate-spin"
-                              size={16}
-                            />
-                            Mencari...
-                          </>
-                        ) : (
-                          <>
-                            <FiSearch
-                              className="mr-2"
-                              size={16}
-                            />
-                            Cari
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-gray-500">Contoh NIM: 231060..., 10928273...</p>
+                    <label className="text-sm font-medium text-gray-700">
+                      Nama Lengkap Pengambil{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Masukkan nama lengkap pengambil barang"
+                      value={claimData.nama_pengambil}
+                      onChange={(e) =>
+                        handleClaimInputChange("nama_pengambil", e.target.value)
+                      }
+                      className="w-full"
+                      maxLength={255}
+                      required
+                    />
                   </div>
 
-                  {/* Student Data Display */}
-                  {studentData && (
-                    <div className="bg-gray-50 rounded-lg p-4 border">
-                      <div className="flex gap-4">
-                        <img
-                          src={studentData.foto}
-                          alt={studentData.nama}
-                          className="w-24 h-24 rounded-lg object-cover border-2 border-white shadow-sm"
-                        />
-                        <div className="flex-1 space-y-2">
-                          <div>
-                            <label className="text-xs font-medium text-gray-500">Nama Lengkap</label>
-                            <p className="text-sm font-semibold text-gray-900">{studentData.nama}</p>
+                  {/* Identitas Pengambil */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      NIM / NIP / No. KTP{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Masukkan NIM, NIP, atau No. KTP"
+                      value={claimData.identitas_pengambil}
+                      onChange={(e) =>
+                        handleClaimInputChange(
+                          "identitas_pengambil",
+                          e.target.value
+                        )
+                      }
+                      className="w-full"
+                      maxLength={100}
+                      required
+                    />
+                    <p className="text-xs text-gray-500">
+                      Contoh: 21523001 (NIM), 198501012010011001 (NIP),
+                      3304012345670001 (KTP)
+                    </p>
+                  </div>
+
+                  {/* Kontak Pengambil */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Nomor HP/WhatsApp <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="tel"
+                      placeholder="Masukkan nomor HP/WhatsApp"
+                      value={claimData.kontak_pengambil}
+                      onChange={(e) =>
+                        handleClaimInputChange(
+                          "kontak_pengambil",
+                          e.target.value
+                        )
+                      }
+                      className="w-full"
+                      maxLength={50}
+                      required
+                    />
+                    <p className="text-xs text-gray-500">
+                      Contoh: 081234567890
+                    </p>
+                  </div>
+
+                  {/* Keterangan Klaim */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Keterangan Klaim (Opsional)
+                    </label>
+                    <textarea
+                      placeholder="Catatan tambahan atau keterangan terkait pengambilan barang"
+                      value={claimData.keterangan_klaim}
+                      onChange={(e) =>
+                        handleClaimInputChange(
+                          "keterangan_klaim",
+                          e.target.value
+                        )
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
+                      rows="3"
+                    />
+                  </div>
+
+                  {/* Foto Bukti Klaim */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Foto Bukti Pengambilan (Opsional)
+                    </label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileChange}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Upload foto bukti pengambilan (KTP, selfie dengan barang,
+                      dll). Maks 5 foto.
+                    </p>
+                    {claimData.foto_bukti_klaim.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {claimData.foto_bukti_klaim.map((file, index) => (
+                          <div
+                            key={index}
+                            className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
+                          >
+                            {file.name}
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="text-xs font-medium text-gray-500">NIM</label>
-                              <p className="text-sm text-gray-900">{studentData.nim}</p>
-                            </div>
-                            <div>
-                              <label className="text-xs font-medium text-gray-500">Angkatan</label>
-                              <p className="text-sm text-gray-900">{studentData.angkatan}</p>
-                            </div>
-                            <div>
-                              <label className="text-xs font-medium text-gray-500">Program Studi</label>
-                              <p className="text-sm text-gray-900">{studentData.prodi}</p>
-                            </div>
-                            <div>
-                              <label className="text-xs font-medium text-gray-500">Fakultas</label>
-                              <p className="text-sm text-gray-900">{studentData.fakultas}</p>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="text-xs font-medium text-gray-500">No. HP</label>
-                              <p className="text-sm text-gray-900">{studentData.noHp}</p>
-                            </div>
-                            <div>
-                              <label className="text-xs font-medium text-gray-500">Email</label>
-                              <p className="text-sm text-gray-900 truncate">{studentData.email}</p>
-                            </div>
-                          </div>
-                        </div>
+                        ))}
                       </div>
+                    )}
+                  </div>
 
-                      {/* Confirmation */}
-                      {showConfirmation && (
-                        <div className="mt-4 space-y-3">
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                            <div className="flex items-start gap-2">
-                              <FiClock
-                                className="text-yellow-600 mt-0.5"
-                                size={18}
-                              />
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-yellow-900">Konfirmasi Claim Barang</p>
-                                <p className="text-xs text-yellow-700 mt-1">
-                                  Pastikan data mahasiswa sudah sesuai. Setelah dikonfirmasi, barang akan ditandai sebagai sudah diambil oleh{" "}
-                                  <span className="font-semibold">{studentData.nama}</span>.
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => {
-                                setShowClaimForm(false);
-                                setNim("");
-                                setStudentData(null);
-                                setShowConfirmation(false);
-                              }}
-                              variant="outline"
-                              className="flex-1"
-                            >
-                              Batal
-                            </Button>
-                            <Button
-                              onClick={handleClaimConfirm}
-                              disabled={claiming}
-                              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              {claiming ? (
-                                <>
-                                  <FiRefreshCw
-                                    className="mr-2 animate-spin"
-                                    size={16}
-                                  />
-                                  Memproses...
-                                </>
-                              ) : (
-                                <>
-                                  <FiCheck
-                                    className="mr-2"
-                                    size={16}
-                                  />
-                                  Konfirmasi Claim
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+                  {/* Waktu Diambil Info */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <FiClock className="text-blue-600 mt-0.5" size={18} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-900">
+                          Informasi Waktu Pengambilan
+                        </p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Waktu pengambilan barang akan dicatat secara otomatis
+                          saat Anda mengonfirmasi claim.
+                        </p>
+                      </div>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Cancel Claim Form */}
-                  {!showConfirmation && (
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-4">
                     <Button
                       onClick={() => {
                         setShowClaimForm(false);
-                        setNim("");
-                        setStudentData(null);
+                        setClaimData({
+                          nama_pengambil: "",
+                          identitas_pengambil: "",
+                          kontak_pengambil: "",
+                          keterangan_klaim: "",
+                          foto_bukti_klaim: [],
+                        });
                       }}
                       variant="outline"
-                      className="w-full"
+                      className="flex-1"
                     >
                       Batal
                     </Button>
-                  )}
+                    <Button
+                      onClick={handleClaimConfirm}
+                      disabled={
+                        claiming ||
+                        !claimData.nama_pengambil ||
+                        !claimData.identitas_pengambil ||
+                        !claimData.kontak_pengambil
+                      }
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      {claiming ? (
+                        <>
+                          <FiRefreshCw
+                            className="mr-2 animate-spin"
+                            size={16}
+                          />
+                          Memproses...
+                        </>
+                      ) : (
+                        <>
+                          <FiCheck className="mr-2" size={16} />
+                          Konfirmasi Claim
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -577,13 +848,15 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess }) {
           {!canClaim && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
-                <FiCheck
-                  className="text-blue-600 mt-0.5"
-                  size={18}
-                />
+                <FiCheck className="text-blue-600 mt-0.5" size={18} />
                 <div>
-                  <p className="text-sm font-medium text-blue-900">Barang Sudah Diambil</p>
-                  <p className="text-xs text-blue-700 mt-1">Barang ini sudah ditandai sebagai sudah diambil oleh pemiliknya.</p>
+                  <p className="text-sm font-medium text-blue-900">
+                    Barang Sudah Diambil
+                  </p>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Barang ini sudah ditandai sebagai sudah diambil oleh
+                    pemiliknya.
+                  </p>
                 </div>
               </div>
             </div>
@@ -701,7 +974,8 @@ export default function PetugasManageReportsPage() {
         {
           id: 6,
           name: "iPhone 13 Pro",
-          description: "iPhone 13 Pro warna biru, kondisi baik, ada casing transparan",
+          description:
+            "iPhone 13 Pro warna biru, kondisi baik, ada casing transparan",
           foundDate: "15 Januari 2024",
           dateFound: "2024-01-15",
           category: "Elektronik",
@@ -765,15 +1039,20 @@ export default function PetugasManageReportsPage() {
       item.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.category?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
-    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
+    const matchesStatus =
+      statusFilter === "all" || item.status === statusFilter;
+    const matchesCategory =
+      categoryFilter === "all" || item.category === categoryFilter;
 
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
   // Pagination
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleView = (item) => {
     setSelectedItem(item);
@@ -808,7 +1087,35 @@ export default function PetugasManageReportsPage() {
     );
 
     // Show success notification
-    alert(`Barang berhasil di-claim oleh ${studentData.nama} (${studentData.nim})`);
+    alert(
+      `Barang berhasil di-claim oleh ${studentData.nama} (${studentData.nim})`
+    );
+  };
+
+  const handleUpdate = async (itemId, updatedData) => {
+    // Update item in the list
+    setItems(
+      items.map((item) => {
+        if (item.id === itemId) {
+          return {
+            ...item,
+            ...updatedData,
+          };
+        }
+        return item;
+      })
+    );
+
+    // Also update selectedItem if it's the one being edited
+    setSelectedItem((prev) => {
+      if (prev && prev.id === itemId) {
+        return {
+          ...prev,
+          ...updatedData,
+        };
+      }
+      return prev;
+    });
   };
 
   const handleRefresh = () => {
@@ -818,7 +1125,15 @@ export default function PetugasManageReportsPage() {
     }, 1000);
   };
 
-  const categories = ["Elektronik", "Tas", "Aksesoris", "Dokumen", "Kendaraan", "Pakaian", "Barang Pribadi"];
+  const categories = [
+    "Elektronik",
+    "Tas",
+    "Aksesoris",
+    "Dokumen",
+    "Kendaraan",
+    "Pakaian",
+    "Barang Pribadi",
+  ];
 
   return (
     <div>
@@ -828,7 +1143,9 @@ export default function PetugasManageReportsPage() {
           <div className="px-4 sm:px-6 pb-6 border-b bg-gray-50/50">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <h3 className="text-xl font-semibold text-gray-900">Daftar Barang Temuan</h3>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Daftar Barang Temuan
+                </h3>
               </div>
 
               <div className="flex items-center gap-3">
@@ -837,7 +1154,9 @@ export default function PetugasManageReportsPage() {
                   disabled={loading}
                   className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-white border rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  <FiRefreshCw className={`text-sm ${loading ? "animate-spin" : ""}`} />
+                  <FiRefreshCw
+                    className={`text-sm ${loading ? "animate-spin" : ""}`}
+                  />
                   <span className="text-sm hidden sm:inline">Refresh</span>
                 </button>
                 <Button>
@@ -861,10 +1180,7 @@ export default function PetugasManageReportsPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Select
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
-                >
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
@@ -889,10 +1205,7 @@ export default function PetugasManageReportsPage() {
                   <SelectContent>
                     <SelectItem value="all">Semua Kategori</SelectItem>
                     {categories.map((category) => (
-                      <SelectItem
-                        key={category}
-                        value={category}
-                      >
+                      <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
                     ))}
@@ -907,21 +1220,30 @@ export default function PetugasManageReportsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-gray-50">
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Foto</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal Penemuan</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lokasi</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Foto
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Deskripsi
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Tanggal Penemuan
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Lokasi
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-12 text-center"
-                    >
+                    <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="flex items-center justify-center">
                         <FiRefreshCw className="animate-spin mr-2" />
                         <span>Memuat data...</span>
@@ -940,12 +1262,11 @@ export default function PetugasManageReportsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan="6"
-                      className="px-6 py-12 text-center"
-                    >
+                    <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="text-gray-500">
-                        {searchTerm || filterStatus !== "all" || categoryFilter !== "all"
+                        {searchTerm ||
+                        filterStatus !== "all" ||
+                        categoryFilter !== "all"
                           ? "Tidak ada barang yang sesuai dengan filter"
                           : "Tidak ada barang temuan"}
                       </div>
@@ -975,7 +1296,9 @@ export default function PetugasManageReportsPage() {
               ))
             ) : (
               <div className="p-12 text-center text-gray-500">
-                {searchTerm || statusFilter !== "all" || categoryFilter !== "all"
+                {searchTerm ||
+                statusFilter !== "all" ||
+                categoryFilter !== "all"
                   ? "Tidak ada barang yang sesuai dengan filter"
                   : "Tidak ada barang temuan"}
               </div>
@@ -1001,6 +1324,7 @@ export default function PetugasManageReportsPage() {
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         onClaimSuccess={handleClaimSuccess}
+        onUpdate={handleUpdate}
       />
     </div>
   );

@@ -167,12 +167,14 @@ model BarangTemuan {
   nama_pengambil      String?   @db.VarChar(255)
   identitas_pengambil String?   @db.VarChar(100) // NIM, NIP, atau No KTP
   kontak_pengambil    String?   @db.VarChar(50)
+  keterangan_klaim     String?   @db.Text
 
   created_at DateTime @default(now()) @db.Timestamp(6)
   updated_at DateTime @updatedAt @db.Timestamp(6)
 
   // RELASI TABEL
   foto_barang FotoBarang[]
+  foto_bukti_klaim FotoBuktiKlaim[]
 
   pencatat User           @relation("pencatat_barang", fields: [pencatat_id], references: [id], onDelete: Cascade)
   penyerah User?          @relation("penyerah_barang", fields: [penyerah_id], references: [id], onDelete: Cascade)
@@ -192,4 +194,17 @@ model FotoBarang {
   barang_temuan BarangTemuan @relation(fields: [barang_temuan_id], references: [id], onDelete: Cascade)
 
   @@map("foto_barang")
+}
+
+model FotoBuktiKlaim {
+  id               String   @id @default(uuid(7))
+  barang_temuan_id String   @db.VarChar(255)
+  url_gambar       String   @db.VarChar(255)
+  nama_file_asli   String?  @db.VarChar(255)
+  mime_type        String?  @db.VarChar(50)
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+
+  barang_temuan BarangTemuan @relation(fields: [barang_temuan_id], references: [id], onDelete: Cascade)
+
+  @@map("foto_bukti_klaim")
 }
