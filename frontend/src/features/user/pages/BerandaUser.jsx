@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter, FiTag } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter, FiImage } from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// Dummy data sesuai dengan schema database
 const dummyItems = [
   {
     id: "abc123",
     item_name: "Dompet Coklat",
     description:
       "Barang ditemukan di sekitar Masjid UIN. Bagi yang merasa kehilangan silahkan menghubungi Pos Satpam dekat Masjid UIN untuk melakukan verifikasi.",
-    report_type: "FOUND", // FOUND atau LOST
-    report_status: "OPEN", // OPEN, CLAIMED, atau CLOSED
+    report_status: "BELUM_DIAMBIL",
     place_found: "Masjid UIN",
     created_at: "2025-09-25T10:30:00Z",
     created_by: {
@@ -24,14 +22,17 @@ const dummyItems = [
     category: {
       name: "Dompet",
     },
-    report_images: [],
+    report_images: [
+      {
+        url: "https://media.istockphoto.com/id/180756294/id/foto/dompet.jpg?s=612x612&w=0&k=20&c=C_C9g30YcZv5qYbTIGyJsWUVVxdriFBdIb2nfCPoI98=",
+      },
+    ],
   },
   {
     id: "def456",
     item_name: "Tas Hitam",
     description: "Tas ransel warna hitam merek Eiger ditemukan di area parkir. Berisi buku dan alat tulis.",
-    report_type: "FOUND",
-    report_status: "OPEN",
+    report_status: "BELUM_DIAMBIL",
     place_found: "Area Parkir",
     created_at: "2025-09-24T14:15:00Z",
     created_by: {
@@ -42,14 +43,17 @@ const dummyItems = [
     category: {
       name: "Tas",
     },
-    report_images: [],
+    report_images: [
+      {
+        url: "https://down-id.img.susercontent.com/file/0ecb35771cd44cb77aad7e57b5772a92",
+      },
+    ],
   },
   {
     id: "ghi789",
     item_name: "Kunci Motor",
     description: "Gantungan kunci motor dengan gantungan karakter anime hilang di dekat kantin. Mohon bantuan untuk menemukannya.",
-    report_type: "LOST",
-    report_status: "OPEN",
+    report_status: "SUDAH_DIAMBIL",
     place_found: "Kantin",
     created_at: "2025-09-23T09:00:00Z",
     created_by: {
@@ -60,7 +64,11 @@ const dummyItems = [
     category: {
       name: "Kunci",
     },
-    report_images: [],
+    report_images: [
+      {
+        url: "https://moladin.com/wp-content/uploads/2020/03/Kunci-Motor-Hilang-Simak-5-Hal-yang-Mesti-Dilakukan.-saibumi.jpg",
+      },
+    ],
   },
 ];
 
@@ -74,18 +82,33 @@ function ItemCard({ item, onViewDetail }) {
     });
   };
 
-  const getReportTypeLabel = (type) => {
-    return type === "FOUND" ? "Ditemukan" : "Dicari";
-  };
-
-  const getReportTypeColor = (type) => {
-    return type === "FOUND" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800";
-  };
-
   return (
     <Card className="border border-gray-200 shadow-sm group bg-white overflow-hidden rounded-lg">
       <CardContent className="p-0">
         <div className="flex flex-col">
+          {/* Image Cover */}
+          <div className="relative w-full h-96 overflow-hidden">
+            {item.report_images.length != 0 ? (
+              <img
+                src={item.report_images[0].url}
+                alt={item.item_name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <FiImage className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500 font-medium">Tidak ada foto</p>
+                </div>
+              </div>
+            )}
+
+            {/* Badge overlay on image */}
+            <div className="absolute top-4 right-4">
+              <span className={`px-3 py-1.5 rounded-md text-xs font-bold shadow-lg bg-green-300`}>Ditemukan</span>
+            </div>
+          </div>
+
           {/* Header with badges */}
           <div className="p-5 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between mb-3">
@@ -94,11 +117,6 @@ function ItemCard({ item, onViewDetail }) {
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-100 text-xs font-semibold text-gray-700 border border-gray-200">
                   {item.category.name}
                 </div>
-              </div>
-              <div className="flex flex-col gap-2 items-end ml-4">
-                <span className={`px-3 py-1.5 rounded-md text-xs font-bold ${getReportTypeColor(item.report_type)}`}>
-                  {getReportTypeLabel(item.report_type)}
-                </span>
               </div>
             </div>
           </div>
@@ -135,7 +153,7 @@ function ItemCard({ item, onViewDetail }) {
                   <FiUser className="w-5 h-5 text-orange-600" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-orange-600 font-medium mb-0.5">Pelapor</p>
+                  <p className="text-xs text-orange-600 font-medium mb-0.5">Diunggah oleh</p>
                   <p className="text-sm font-semibold text-gray-900 truncate">{item.created_by.profile.full_name}</p>
                 </div>
               </div>

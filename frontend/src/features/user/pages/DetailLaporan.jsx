@@ -1,16 +1,14 @@
 import { useNavigate, useParams } from "react-router";
-import { FiArrowLeft, FiMapPin, FiCalendar, FiUser, FiMail, FiClock, FiPackage, FiMessageCircle, FiTag } from "react-icons/fi";
+import { FiArrowLeft, FiMapPin, FiCalendar, FiUser, FiMail, FiClock, FiPackage, FiTag } from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-// Dummy data sesuai schema database - untuk preview UI
 const dummyReport = {
   id: "abc123",
   item_name: "Dompet Kulit Coklat",
   description:
     "Dompet kulit coklat tua dengan bahan kulit sintetis berkualitas. Ditemukan dalam kondisi tertutup rapat. Di dalam dompet terdapat beberapa kartu identitas dan uang tunai. Barang ini ditemukan oleh petugas keamanan saat melakukan patroli rutin di area masjid kampus pada pagi hari. Dompet memiliki ukuran sedang dengan beberapa slot kartu dan satu kompartemen utama untuk uang kertas.",
-  report_type: "FOUND", // FOUND atau LOST
-  report_status: "OPEN", // OPEN, CLAIMED, CLOSED
+  report_status: "SUDAH_DIAMBIL", // BELUM_DIAMBIL atau SUDAH_DIAMBIL
   place_found: "Masjid UIN Sunan Kalijaga",
   created_at: "2025-09-25T14:30:00Z",
   updated_at: "2025-09-25T14:30:00Z",
@@ -28,13 +26,13 @@ const dummyReport = {
   report_images: [
     {
       id: "img1",
-      storage_key: "dummy-image-1.jpg",
+      storage_key: "https://media.istockphoto.com/id/180756294/id/foto/dompet.jpg?s=612x612&w=0&k=20&c=C_C9g30YcZv5qYbTIGyJsWUVVxdriFBdIb2nfCPoI98=",
       original_filename: "dompet-depan.jpg",
       is_primary: true,
     },
     {
       id: "img2",
-      storage_key: "dummy-image-2.jpg",
+      storage_key: "https://media.istockphoto.com/id/180756294/id/foto/dompet.jpg?s=612x612&w=0&k=20&c=C_C9g30YcZv5qYbTIGyJsWUVVxdriFBdIb2nfCPoI98=",
       original_filename: "dompet-dalam.jpg",
       is_primary: false,
     },
@@ -63,37 +61,11 @@ const formatDateTime = (dateString) => {
 };
 
 const getReportTypeLabel = (type) => {
-  return type === "FOUND" ? "Ditemukan" : "Dicari";
+  return type === "BELUM_DIAMBIL" ? "Belum Diambil" : "Sudah Diambil";
 };
 
 const getReportTypeColor = (type) => {
-  return type === "FOUND" ? "bg-green-100 text-green-800 border-green-200" : "bg-yellow-100 text-yellow-800 border-yellow-200";
-};
-
-const getStatusLabel = (status) => {
-  switch (status) {
-    case "OPEN":
-      return "Terbuka";
-    case "CLAIMED":
-      return "Diklaim";
-    case "CLOSED":
-      return "Selesai";
-    default:
-      return status;
-  }
-};
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case "OPEN":
-      return "bg-blue-100 text-blue-800 border-blue-200";
-    case "CLAIMED":
-      return "bg-orange-100 text-orange-800 border-orange-200";
-    case "CLOSED":
-      return "bg-gray-100 text-gray-800 border-gray-200";
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
-  }
+  return type === "SUDAH_DIAMBIL" ? "bg-green-100 text-green-800 border-green-200" : "bg-yellow-100 text-yellow-800 border-yellow-200";
 };
 
 export default function Detaillaporan() {
@@ -129,17 +101,13 @@ export default function Detaillaporan() {
                     <h1 className="text-3xl font-bold text-gray-900 mb-3">{item.item_name}</h1>
                     <div className="flex items-center gap-3 flex-wrap">
                       <span
-                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold border ${getReportTypeColor(item.report_type)}`}
-                      >
-                        {getReportTypeLabel(item.report_type)}
-                      </span>
-                      <span
-                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-semibold border ${getStatusColor(
+                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold border ${getReportTypeColor(
                           item.report_status
                         )}`}
                       >
-                        {getStatusLabel(item.report_status)}
+                        {getReportTypeLabel(item.report_status)}
                       </span>
+
                       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-sm font-semibold text-gray-700 border border-gray-200">
                         <FiTag className="w-4 h-4" />
                         {item.category.name}
@@ -182,8 +150,8 @@ export default function Detaillaporan() {
               </Card>
             )}
 
-            {/* Claim process untuk barang yang ditemukan */}
-            {item.report_type === "FOUND" && item.report_status === "OPEN" && (
+            {/* Claim process atau status sudah diambil */}
+            {item.report_status === "BELUM_DIAMBIL" ? (
               <Card className="border-l-4 border-l-green-600 border border-gray-200 shadow-md bg-green-50">
                 <CardContent className="p-6">
                   <h3 className="font-bold text-lg mb-4 text-green-900 flex items-center gap-2">
@@ -192,10 +160,9 @@ export default function Detaillaporan() {
                   </h3>
                   <div className="bg-white rounded-lg p-4 mb-4 border border-green-200">
                     <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                      <li>Hubungi pelapor melalui kontak yang tersedia</li>
                       <li>Siapkan identitas diri yang valid (KTM/KTP)</li>
                       <li>Siapkan bukti kepemilikan barang</li>
-                      <li>Datang langsung ke lokasi yang ditentukan pelapor</li>
+                      <li>Silahkan datangi Pos "LOKASI_POS_SATPAM" untuk melakukan claim barang</li>
                       <li>Lakukan verifikasi kepemilikan dengan petugas</li>
                     </ol>
                   </div>
@@ -212,23 +179,40 @@ export default function Detaillaporan() {
                   </div>
                 </CardContent>
               </Card>
-            )}
-
-            {/* Info untuk barang yang dicari */}
-            {item.report_type === "LOST" && (
-              <Card className="border-l-4 border-l-yellow-600 border border-gray-200 shadow-md bg-yellow-50">
+            ) : (
+              <Card className="border-l-4 border-l-green-600 border border-gray-200 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
                 <CardContent className="p-6">
-                  <h3 className="font-bold text-lg mb-4 text-yellow-900 flex items-center gap-2">
-                    <FiMessageCircle className="w-5 h-5" />
-                    Menemukan Barang Ini?
-                  </h3>
-                  <div className="bg-white rounded-lg p-4 border border-yellow-200">
-                    <p className="text-gray-700 mb-3">
-                      Jika Anda menemukan barang ini, silakan hubungi pemilik melalui kontak yang tersedia di samping.
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Kami sangat menghargai bantuan Anda dalam mengembalikan barang yang hilang kepada pemiliknya.
-                    </p>
+                  <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl mb-2 text-green-900">Barang Sudah Diambil</h3>
+                      <p className="text-green-800 text-sm leading-relaxed mb-4">
+                        Barang ini telah diklaim dan diambil oleh pemiliknya pada{" "}
+                        <span className="font-semibold">{formatDateTime(item.updated_at)}</span>.
+                      </p>
+                      <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-green-200">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p className="text-xs font-medium text-green-600 mb-0.5">Diambil oleh</p>
+                            <p className="text-sm font-bold text-green-900">{item.claimed_by?.profile?.full_name || "Pemilik Sah"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -334,23 +318,6 @@ export default function Detaillaporan() {
                         <p className="text-sm font-semibold text-gray-900">{item.created_by.profile.nip}</p>
                       </div>
                     </div>
-                  )}
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-6">
-                    <FiMessageCircle className="w-5 h-5 mr-2" />
-                    Hubungi Pelapor
-                  </Button>
-
-                  {item.report_type === "FOUND" && item.report_status === "OPEN" && (
-                    <Button
-                      variant="outline"
-                      className="w-full border-2 border-green-600 text-green-700 hover:bg-green-50 font-semibold py-6"
-                    >
-                      <FiPackage className="w-5 h-5 mr-2" />
-                      Klaim Barang Ini
-                    </Button>
                   )}
                 </div>
               </CardContent>

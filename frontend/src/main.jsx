@@ -30,30 +30,35 @@ import ProfileSettingsPage from "./features/profile-settings/pages/ProfileSettin
 
 import BerandaUserPage from "./features/user/pages/BerandaUser.jsx";
 import Detaillaporan from "./features/user/pages/DetailLaporan.jsx";
+import { FullPageSpinner } from "./components/FullPageSpinner";
+import { getSessionQueryOptions } from "./features/auth/queries/useGetSession";
 
 function MainLayout() {
   return (
     <ProtectedRoute>
-      <main>
-        <Outlet />
-      </main>
+      <Outlet />
     </ProtectedRoute>
   );
 }
 
 function RootLayout() {
   return (
-    <>
-      <AuthProvider>
-        <ToastContainer />
-        <Outlet />
-      </AuthProvider>
-    </>
+    <AuthProvider>
+      <ToastContainer />
+      <Outlet />
+    </AuthProvider>
   );
 }
 
 const router = createBrowserRouter([
   {
+    loader: async () => {
+      const queryClient = new QueryClient();
+      await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate a short delay
+      await queryClient.ensureQueryData(getSessionQueryOptions);
+      return null;
+    },
+    HydrateFallback: () => <FullPageSpinner />,
     element: <RootLayout />,
     errorElement: <GlobalErrorPage />,
     children: [

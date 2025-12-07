@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import { FullPageSpinner } from "@/components/FullPageSpinner";
 import { useAuthStore } from "@/stores/authStore";
+import { getSessionQueryOptions } from "../queries/useGetSession";
 
 const AuthContext = createContext(null);
 
@@ -13,30 +14,7 @@ export const AuthProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const { setAuthenticated, setUnauthenticated } = useAuthStore.getState();
 
-  const {
-    data: user,
-    isLoading,
-    error,
-    isSuccess,
-  } = useQuery({
-    queryKey: ["auth-session"],
-    queryFn: async () => {
-      const response = await api.get("/auth/session");
-      return response.data.data;
-    },
-    throwOnError: (error) => {
-      // Apakah error ini harus dilempar?
-      // Jika error 401, JANGAN lempar
-      if (error.response?.status === 401) {
-        return false;
-      }
-      // Untuk semua error lainnya (500, network error), LEMPAR
-      return true;
-    },
-
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
+  const { data: user, isLoading, error, isSuccess } = useQuery(getSessionQueryOptions);
 
   // Logout mutation
   const logout = useMutation({
