@@ -30,7 +30,6 @@ import {
 export class ManagementController {
   constructor(private readonly managementService: ManagementService) {}
 
-  // GET /api/v1/management/users
   @Get('users')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getUsers(@Query() paginationDto: PaginationDto, @Request() req) {
@@ -38,14 +37,12 @@ export class ManagementController {
     return this.managementService.getUsers(paginationDto, requestingUserId);
   }
 
-  // GET /api/v1/management/users/:id
   @Get('users/:id')
   async getUserById(@Param('id') userId: string, @Request() req) {
     const requestingUserId = req.user.id;
     return this.managementService.getUserById(userId, requestingUserId);
   }
 
-  // POST /api/v1/management/users
   @Post('users')
   @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() createUserDto: CreateUserDto, @Request() req) {
@@ -53,7 +50,6 @@ export class ManagementController {
     return this.managementService.createUser(createUserDto, requestingUserId);
   }
 
-  // PUT /api/v1/management/users/:id
   @Put('users/:id')
   @HttpCode(HttpStatus.OK)
   async updateUser(
@@ -69,7 +65,6 @@ export class ManagementController {
     );
   }
 
-  // DELETE /api/v1/management/users/:id
   @Delete('users/:id')
   @HttpCode(HttpStatus.OK)
   async deleteUser(@Param('id') userId: string, @Request() req) {
@@ -77,7 +72,6 @@ export class ManagementController {
     return this.managementService.deleteUser(userId, requestingUserId);
   }
 
-  // PUT /api/v1/management/users/:id/reset-password
   @Put('users/:id/reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(
@@ -93,21 +87,18 @@ export class ManagementController {
     );
   }
 
-  // GET /api/v1/management/roles
   @Get('roles')
   async getRoles(@Request() req) {
     const requestingUserId = req.user.id;
     return this.managementService.getRoles(requestingUserId);
   }
 
-  // GET /api/v1/management/study-programs
   @Get('study-programs')
   async getStudyPrograms(@Request() req) {
     const requestingUserId = req.user.id;
     return this.managementService.getStudyPrograms(requestingUserId);
   }
 
-  // GET /api/v1/management/petugas
   @Get('petugas')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getPetugas(@Query() paginationDto: PaginationDto, @Request() req) {
@@ -118,7 +109,6 @@ export class ManagementController {
     );
   }
 
-  // GET /api/v1/management/regular-users
   @Get('regular-users')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getRegularUsers(@Query() paginationDto: PaginationDto, @Request() req) {
@@ -129,7 +119,6 @@ export class ManagementController {
     );
   }
 
-  // GET /api/v1/management/barang-temuan
   @Get('barang-temuan')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async getBarangTemuan(@Query() paginationDto: PaginationDto, @Request() req) {
@@ -140,14 +129,12 @@ export class ManagementController {
     );
   }
 
-  // GET /api/v1/management/barang-temuan-stats
   @Get('barang-temuan-stats')
   async getBarangTemuanStats(@Request() req) {
     const requestingUserId = req.user.id;
     return this.managementService.getBarangTemuanStats(requestingUserId);
   }
 
-  // GET /api/v1/management/barang-temuan/export
   @Get('barang-temuan/export')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async exportBarangTemuan(
@@ -172,14 +159,12 @@ export class ManagementController {
     res.send(buffer);
   }
 
-  // GET /api/v1/management/dashboard/stats
   @Get('dashboard/stats')
   async getDashboardStats(@Request() req) {
     const requestingUserId = req.user.id;
     return this.managementService.getDashboardStats(requestingUserId);
   }
 
-  // GET /api/v1/management/dashboard/activities
   @Get('dashboard/activities')
   async getRecentActivities(@Request() req) {
     const requestingUserId = req.user.id;
