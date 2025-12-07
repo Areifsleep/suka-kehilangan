@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/axios";
-import { FullPageSpinner } from "@/components/common";
+import { FullPageSpinner } from "@/components/FullPageSpinner";
 import { useAuthStore } from "@/stores/authStore";
 
 const AuthContext = createContext(null);
@@ -24,15 +24,13 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get("/auth/session");
       return response.data.data;
     },
-
-    // Logika pemilahan error dipindahkan ke sini
     throwOnError: (error) => {
       // Apakah error ini harus dilempar?
-      // Jika error 401, JANGAN lempar (return false)
+      // Jika error 401, JANGAN lempar
       if (error.response?.status === 401) {
         return false;
       }
-      // Untuk semua error lainnya (500, network error), LEMPAR (return true)
+      // Untuk semua error lainnya (500, network error), LEMPAR
       return true;
     },
 
@@ -98,9 +96,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isSuccess, user, setAuthenticated, setUnauthenticated]);
 
-  // Selalu render children. Biarkan komponen lain yang memutuskan
-  // untuk menampilkan loading spinner berdasarkan 'isLoading' dari context.
-  // Ini menghindari layar putih/flicker.
   return <AuthContext.Provider value={value}>{isLoading ? <FullPageSpinner /> : children}</AuthContext.Provider>;
 };
 

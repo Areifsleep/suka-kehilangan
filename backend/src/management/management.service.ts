@@ -953,7 +953,7 @@ export class ManagementService {
         // Available items (TERSEDIA status)
         this.prisma.barangTemuan.count({
           where: {
-            status: 'TERSEDIA',
+            status: 'BELUM_DIAMBIL',
           },
         }),
         // Claimed items (SUDAH_DIAMBIL status)
@@ -1151,7 +1151,7 @@ export class ManagementService {
         // Available items (TERSEDIA status)
         this.prisma.barangTemuan.count({
           where: {
-            status: 'TERSEDIA',
+            status: 'BELUM_DIAMBIL',
           },
         }),
         // Claimed items (SUDAH_DIAMBIL status)

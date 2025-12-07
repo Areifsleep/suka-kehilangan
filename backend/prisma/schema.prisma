@@ -19,8 +19,8 @@ enum LokasiPos {
 }
 
 enum StatusBarang {
-  TERSEDIA // Barang ada di pos
-  SUDAH_DIAMBIL // Barang sudah dikembalikan ke pemilik
+  BELUM_DIAMBIL
+  SUDAH_DIAMBIL
 }
 
 model Faculty {
@@ -140,16 +140,27 @@ model BarangTemuan {
 
   // RELASI KE USER (SATPAM)
   pencatat_id String  @db.VarChar(255) // User ID pencatat
-  penyerah_id String? @db.VarChar(255) // User ID penyerah (opsional)
+  penyerah_id String? @db.VarChar(255) // User ID penyerah
 
   // RELASI KATEGORI
   kategori_id String @db.VarChar(255)
 
   // INFO BARANG
-  nama_barang      String       @db.VarChar(255)
-  status           StatusBarang @default(TERSEDIA)
-  deskripsi        String?      @db.Text
-  lokasi_ditemukan String       @db.VarChar(255)
+  nama_barang               String       @db.VarChar(255)
+  status                    StatusBarang @default(BELUM_DIAMBIL)
+  deskripsi                 String?      @db.Text
+  lokasi_ditemukan          String       @db.VarChar(255)
+  tanggal_ditemukan         DateTime     @db.Date
+  lokasi_umum               String?      @db.VarChar(255)
+  lokasi_spesifik           String?      @db.VarChar(255)
+  perkiraan_waktu_ditemukan String?      @db.VarChar(255)
+
+  // Data orang yang menyerahkan ke satpam
+  nama_penemu      String  @db.VarChar(255)
+  nomor_hp_penemu  String  @db.VarChar(50)
+  identitas_penemu String? @db.VarChar(100) // NIM, NIP, atau No KTP
+  email_penemu     String? @db.VarChar(255)
+  catatan_penemu   String? @db.Text
 
   // INFO PENGAMBILAN (CLAIM) - Diisi saat barang diambil
   waktu_diambil       DateTime? @db.Timestamp(6)

@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { MobileHeader, MobileSidebar, DesktopSidebar, MainContent } from "@/layout";
+
 import { useLayoutStore } from "@/stores/layoutStore";
+
+import { MobileHeader } from "@/components/MobileHeader";
+import { MobileSidebar } from "@/components/MobileSidebar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
+
+import { MainContent } from "./MainContent";
 
 export const BaseLayout = ({ menu = [] }) => {
   if (menu.length === 0) {

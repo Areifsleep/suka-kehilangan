@@ -12,6 +12,7 @@ import { ManagementModule } from './management/management.module';
 import { BarangTemuanModule } from './barang-temuan/barang-temuan.module';
 import { KategoriModule } from './kategori/kategori.module';
 import { StorageModule } from './storage/storage.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { StorageModule } from './storage/storage.module';
     BarangTemuanModule,
     KategoriModule,
     StorageModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

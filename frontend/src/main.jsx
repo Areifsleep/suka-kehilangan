@@ -14,9 +14,9 @@ import AdminDashboard from "./features/admin-management/pages/AdminDashboard.jsx
 import ManagementUser from "./features/admin-management/pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./features/admin-management/pages/ManagementPetugas.jsx";
-import PetugasDashboard from "./pages/PetugasDashboard.jsx";
-import PetugasUploadPage from "./pages/PetugasUploadPage.jsx";
-import PetugasManageReportsPage from "./pages/PetugasManageReportsPage.jsx";
+import PetugasDashboard from "./features/petugas/pages/PetugasDashboard.jsx";
+import PetugasUploadPage from "./features/petugas/pages/PetugasUploadPage.jsx";
+import PetugasManageReportsPage from "./features/petugas/pages/PetugasManageReportsPage.jsx";
 import AuditReportsPage from "./features/admin-management/pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./features/auth/contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
@@ -29,7 +29,7 @@ import { RoleBasedLayout } from "./layouts/RoleBasedLayout.jsx";
 import ProfileSettingsPage from "./features/profile-settings/pages/ProfileSettingsPage.jsx";
 
 import BerandaUserPage from "./features/user/pages/BerandaUser.jsx";
-import Detaillaporan from "./pages/DetailLaporan.jsx";
+import Detaillaporan from "./features/user/pages/DetailLaporan.jsx";
 
 function MainLayout() {
   return (
