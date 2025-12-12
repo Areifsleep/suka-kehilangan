@@ -1,9 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { FiSearch, FiMapPin, FiCalendar, FiUser, FiEye, FiFilter, FiImage } from "react-icons/fi";
+import {
+  FiSearch,
+  FiMapPin,
+  FiCalendar,
+  FiUser,
+  FiEye,
+  FiFilter,
+  FiImage,
+  FiLoader,
+  FiChevronLeft,
+  FiChevronRight,
+  FiAlertCircle,
+} from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useBarangTemuanList, useCategories } from "../queries/useBarangTemuan";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const dummyItems = [
   {
@@ -31,7 +45,8 @@ const dummyItems = [
   {
     id: "def456",
     item_name: "Tas Hitam",
-    description: "Tas ransel warna hitam merek Eiger ditemukan di area parkir. Berisi buku dan alat tulis.",
+    description:
+      "Tas ransel warna hitam merek Eiger ditemukan di area parkir. Berisi buku dan alat tulis.",
     report_status: "BELUM_DIAMBIL",
     place_found: "Area Parkir",
     created_at: "2025-09-24T14:15:00Z",
@@ -52,7 +67,8 @@ const dummyItems = [
   {
     id: "ghi789",
     item_name: "Kunci Motor",
-    description: "Gantungan kunci motor dengan gantungan karakter anime hilang di dekat kantin. Mohon bantuan untuk menemukannya.",
+    description:
+      "Gantungan kunci motor dengan gantungan karakter anime hilang di dekat kantin. Mohon bantuan untuk menemukannya.",
     report_status: "SUDAH_DIAMBIL",
     place_found: "Kantin",
     created_at: "2025-09-23T09:00:00Z",
@@ -82,30 +98,51 @@ function ItemCard({ item, onViewDetail }) {
     });
   };
 
+  // Map backend response to frontend format
+  const mappedItem = {
+    id: item.id,
+    item_name: item.nama_barang,
+    description: item.deskripsi,
+    report_status: item.status,
+    place_found: item.lokasi_ditemukan,
+    created_at: item.created_at,
+    created_by: item.pencatat,
+    category: {
+      name: item.kategori?.nama || "Tidak ada kategori",
+    },
+    report_images: item.foto_barang || [],
+  };
+
   return (
     <Card className="border border-gray-200 shadow-sm group bg-white overflow-hidden rounded-lg">
       <CardContent className="p-0">
         <div className="flex flex-col">
           {/* Image Cover */}
           <div className="relative w-full h-96 overflow-hidden">
-            {item.report_images.length != 0 ? (
+            {mappedItem.report_images.length !== 0 ? (
               <img
-                src={item.report_images[0].url}
-                alt={item.item_name}
+                src={mappedItem.report_images[0].url_gambar}
+                alt={mappedItem.item_name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <FiImage className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500 font-medium">Tidak ada foto</p>
+                  <p className="text-sm text-gray-500 font-medium">
+                    Tidak ada foto
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Badge overlay on image */}
             <div className="absolute top-4 right-4">
-              <span className={`px-3 py-1.5 rounded-md text-xs font-bold shadow-lg bg-green-300`}>Ditemukan</span>
+              <span
+                className={`px-3 py-1.5 rounded-md text-xs font-bold shadow-lg bg-green-300`}
+              >
+                Ditemukan
+              </span>
             </div>
           </div>
 
@@ -113,9 +150,11 @@ function ItemCard({ item, onViewDetail }) {
           <div className="p-5 pb-4 border-b border-gray-100">
             <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
-                <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-green-600 transition-colors leading-tight">{item.item_name}</h3>
+                <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-green-600 transition-colors leading-tight">
+                  {mappedItem.item_name}
+                </h3>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-100 text-xs font-semibold text-gray-700 border border-gray-200">
-                  {item.category.name}
+                  {mappedItem.category.name}
                 </div>
               </div>
             </div>
@@ -124,7 +163,9 @@ function ItemCard({ item, onViewDetail }) {
           {/* Content */}
           <div className="p-5">
             {/* Description */}
-            <p className="text-sm text-gray-600 leading-relaxed mb-5 line-clamp-3">{item.description}</p>
+            <p className="text-sm text-gray-600 leading-relaxed mb-5 line-clamp-3">
+              {mappedItem.description}
+            </p>
 
             {/* Meta information grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
@@ -133,8 +174,12 @@ function ItemCard({ item, onViewDetail }) {
                   <FiCalendar className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-blue-600 font-medium mb-0.5">Tanggal</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{formatDate(item.created_at)}</p>
+                  <p className="text-xs text-blue-600 font-medium mb-0.5">
+                    Tanggal
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {formatDate(mappedItem.created_at)}
+                  </p>
                 </div>
               </div>
 
@@ -143,8 +188,12 @@ function ItemCard({ item, onViewDetail }) {
                   <FiMapPin className="w-5 h-5 text-purple-600" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-purple-600 font-medium mb-0.5">Lokasi</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.place_found}</p>
+                  <p className="text-xs text-purple-600 font-medium mb-0.5">
+                    Lokasi
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {mappedItem.place_found}
+                  </p>
                 </div>
               </div>
 
@@ -153,15 +202,19 @@ function ItemCard({ item, onViewDetail }) {
                   <FiUser className="w-5 h-5 text-orange-600" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-orange-600 font-medium mb-0.5">Diunggah oleh</p>
-                  <p className="text-sm font-semibold text-gray-900 truncate">{item.created_by.profile.full_name}</p>
+                  <p className="text-xs text-orange-600 font-medium mb-0.5">
+                    Diunggah oleh
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {mappedItem.created_by?.profile?.full_name || "Unknown"}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Action button */}
             <Button
-              onClick={() => onViewDetail(item)}
+              onClick={() => onViewDetail(mappedItem)}
               className="w-full bg-green-600 hover:bg-green-700 text-white transition-all duration-200 hover:shadow-lg font-semibold py-6"
               size="lg"
             >
@@ -176,12 +229,14 @@ function ItemCard({ item, onViewDetail }) {
 }
 
 // FilterBar component
-function FilterBar({ searchTerm, setSearchTerm, selectedFilter, setSelectedFilter }) {
-  const filters = [
-    { value: "all", label: "Semua" },
-    { value: "FOUND", label: "Ditemukan" },
-  ];
-
+function FilterBar({
+  searchTerm,
+  setSearchTerm,
+  selectedCategory,
+  setSelectedCategory,
+  categories,
+  isLoadingCategories,
+}) {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 mb-8">
       <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center">
@@ -192,26 +247,35 @@ function FilterBar({ searchTerm, setSearchTerm, selectedFilter, setSelectedFilte
           </div>
           <Input
             type="text"
-            placeholder="Cari barang hilang berdasarkan nama, lokasi, atau deskripsi..."
+            placeholder="Cari barang berdasarkan nama, lokasi, atau deskripsi..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-14 pr-5 py-4 border-2 border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-xl text-base bg-white transition-all duration-200 hover:border-gray-400 shadow-sm"
+            className="pl-14 pr-5 py-3 h-12 border-2 border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-xl text-base bg-white transition-all duration-200 hover:border-gray-400 shadow-sm"
           />
         </div>
 
-        {/* Filter buttons */}
-        <div className="flex gap-3 flex-wrap lg:flex-nowrap">
-          {filters.map((filter) => (
-            <Button
-              key={filter.value}
-              variant={selectedFilter === filter.value ? "default" : "outline"}
-              size="lg"
-              onClick={() => setSelectedFilter(filter.value)}
-            >
-              <FiFilter className="w-4 h-4 mr-2" />
-              {filter.label}
-            </Button>
-          ))}
+        {/* Category filter dropdown */}
+        <div className="lg:w-64">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            disabled={isLoadingCategories}
+            className="w-full h-12 px-4 py-3 border-2 border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-xl text-base bg-white transition-all duration-200 hover:border-gray-400 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 0.5rem center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '1.5em 1.5em',
+              paddingRight: '2.5rem'
+            }}
+          >
+            <option value="">Semua Kategori</option>
+            {categories?.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.nama} ({category._count?.barang_temuan || 0})
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -219,7 +283,8 @@ function FilterBar({ searchTerm, setSearchTerm, selectedFilter, setSelectedFilte
       {searchTerm && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="text-sm text-gray-600">
-            Menampilkan hasil pencarian untuk: <span className="font-semibold text-gray-900">"{searchTerm}"</span>
+            Menampilkan hasil pencarian untuk:{" "}
+            <span className="font-semibold text-gray-900">"{searchTerm}"</span>
           </p>
         </div>
       )}
@@ -230,37 +295,80 @@ function FilterBar({ searchTerm, setSearchTerm, selectedFilter, setSelectedFilte
 // Main component
 export default function BerandaUserPage() {
   const navigate = useNavigate();
-  const [items, setItems] = useState(dummyItems);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [filteredItems, setFilteredItems] = useState(dummyItems);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
-  // Filter items based on search term and selected filter
-  useEffect(() => {
-    let filtered = items;
+  // Debounce search term to avoid too many API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (item) =>
-          item.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.place_found.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.category.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  // Fetch barang temuan with filters
+  const {
+    data: barangData,
+    isLoading,
+    isError,
+    error,
+  } = useBarangTemuanList({
+    search: debouncedSearchTerm,
+    kategori_id: selectedCategory,
+    page,
+    limit,
+  });
 
-    // Filter by report type
-    if (selectedFilter !== "all") {
-      filtered = filtered.filter((item) => item.report_type === selectedFilter);
-    }
-
-    setFilteredItems(filtered);
-  }, [items, searchTerm, selectedFilter]);
+  // Fetch categories for filter dropdown
+  const { data: categories, isLoading: isLoadingCategories } = useCategories();
 
   const handleViewDetail = (item) => {
     navigate(`/user/item/${item.id}`);
   };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-green-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Memuat data barang temuan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+            <FiAlertCircle className="w-12 h-12 text-red-600" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-3">
+            Gagal Memuat Data
+          </h3>
+          <p className="text-gray-600 mb-6">
+            {error?.message ||
+              "Terjadi kesalahan saat memuat data barang temuan."}
+          </p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Coba Lagi
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const items = barangData?.data || [];
+  const totalPages = barangData?.meta?.totalPages || 1;
+  const totalItems = barangData?.meta?.total || 0;
 
   return (
     <div className="min-h-screen">
@@ -269,39 +377,109 @@ export default function BerandaUserPage() {
         <FilterBar
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categories={categories}
+          isLoadingCategories={isLoadingCategories}
         />
 
         {/* Items list */}
-        {filteredItems.length > 0 ? (
+        {items.length > 0 ? (
           <div>
+            {/* Results info */}
+            <div className="mb-4 flex justify-between items-center">
+              <p className="text-sm text-gray-600">
+                Menampilkan{" "}
+                <span className="font-semibold">{items.length}</span> dari{" "}
+                <span className="font-semibold">{totalItems}</span> barang
+              </p>
+              <p className="text-sm text-gray-600">
+                Halaman {page} dari {totalPages}
+              </p>
+            </div>
+
             {/* Items grid */}
             <div className="space-y-5">
-              {filteredItems.map((item, index) => (
+              {items.map((item) => (
                 <div key={item.id}>
-                  <ItemCard
-                    item={item}
-                    onViewDetail={handleViewDetail}
-                  />
+                  <ItemCard item={item} onViewDetail={handleViewDetail} />
                 </div>
               ))}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center gap-2">
+                <Button
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                  variant="outline"
+                  className="px-4"
+                >
+                  <FiChevronLeft className="w-5 h-5" />
+                  Sebelumnya
+                </Button>
+
+                <div className="flex gap-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (page <= 3) {
+                      pageNum = i + 1;
+                    } else if (page >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = page - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        variant={page === pageNum ? "default" : "outline"}
+                        className={
+                          page === pageNum
+                            ? "bg-green-600 hover:bg-green-700"
+                            : ""
+                        }
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page === totalPages}
+                  variant="outline"
+                  className="px-4"
+                >
+                  Selanjutnya
+                  <FiChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-gray-300">
             <div className="w-24 h-24 mx-auto bg-gray-100 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
               <FiSearch className="w-12 h-12 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Tidak Ada Barang Ditemukan</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
+              Tidak Ada Barang Ditemukan
+            </h3>
             <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
-              Tidak ada barang yang cocok dengan kriteria pencarian Anda. Coba ubah kata kunci atau filter yang digunakan.
+              Tidak ada barang yang cocok dengan kriteria pencarian Anda. Coba
+              ubah kata kunci atau filter yang digunakan.
             </p>
-            {(searchTerm || selectedFilter !== "all") && (
+            {(searchTerm || selectedCategory) && (
               <Button
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedFilter("all");
+                  setSelectedCategory("");
+                  setPage(1);
                 }}
                 variant="outline"
                 className="mt-6 border-2 border-green-600 text-green-600 hover:bg-green-50 font-semibold"

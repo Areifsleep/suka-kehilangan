@@ -35,6 +35,9 @@ import {
 
 import { PetugasPagination } from "@/features/admin-management/components";
 import { toast } from "react-toastify";
+import { usePetugasBarangTemuanList } from "../queries/useBarangTemuan";
+import { getImageUrl } from "@/utils/imageHelper";
+import { useDebounce } from "@/hooks/useDebounce";
 
 // Status Badge Component
 function StatusBadge({ status }) {
@@ -878,158 +881,51 @@ export default function PetugasManageReportsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  // Mock data - combining both data sources
+  // Fetch real items for petugas using React Query hook
+  const debouncedSearch = useDebounce(searchTerm, 400);
+  const { data: listData, isLoading: listLoading, isError: listError } =
+    usePetugasBarangTemuanList({
+      page: currentPage,
+      limit: itemsPerPage,
+      search: debouncedSearch,
+      status: statusFilter === "all" ? undefined : statusFilter,
+      kategori_id: categoryFilter === "all" ? undefined : categoryFilter,
+    });
+
   useEffect(() => {
-    setLoading(true);
+    setLoading(listLoading);
+  }, [listLoading]);
 
-    setTimeout(() => {
-      const combinedMockItems = [
-        // Data from Dashboard
-        {
-          id: 1,
-          name: "Dompet Coklat",
-          description: "Dompet Coklat",
-          foundDate: "24 September 2025",
-          dateFound: "2025-09-24",
-          category: "Barang Pribadi",
-          location: "Masjid UIN",
-          status: "Tersedia",
-          photo: null,
-          images: [],
-          isNew: true,
-          reportedBy: "Satpam Ahmad",
-          foundBy: "Satpam Ahmad",
-          condition: "Baik",
-          createdAt: "2025-09-24T10:30:00Z",
-        },
-        {
-          id: 2,
-          name: "Handphone Samsung Galaxy",
-          description: "Handphone Samsung Galaxy",
-          foundDate: "25 September 2025",
-          dateFound: "2025-09-25",
-          category: "Elektronik",
-          location: "Tempat Parkir",
-          status: "Diambil",
-          photo: null,
-          images: [],
-          isNew: false,
-          reportedBy: "Petugas Keamanan",
-          foundBy: "Petugas Keamanan",
-          condition: "Baik",
-          createdAt: "2025-09-25T11:30:00Z",
-        },
-        {
-          id: 3,
-          name: "Kunci Motor Honda",
-          description: "Kunci Motor Honda",
-          foundDate: "25 September 2025",
-          dateFound: "2025-09-25",
-          category: "Kendaraan",
-          location: "Tempat Parkir",
-          status: "Proses",
-          photo: null,
-          images: [],
-          isNew: false,
-          reportedBy: "Mahasiswa",
-          foundBy: "Mahasiswa",
-          condition: "Baik",
-          createdAt: "2025-09-25T14:30:00Z",
-        },
-        {
-          id: 4,
-          name: "Tas Ransel Hitam",
-          description: "Tas Ransel Hitam",
-          foundDate: "26 September 2025",
-          dateFound: "2025-09-26",
-          category: "Barang Pribadi",
-          location: "Perpustakaan",
-          status: "Tersedia",
-          photo: null,
-          images: [],
-          isNew: true,
-          reportedBy: "Petugas Perpus",
-          foundBy: "Petugas Perpus",
-          condition: "Baik",
-          createdAt: "2025-09-26T09:30:00Z",
-        },
-        {
-          id: 5,
-          name: "Kacamata",
-          description: "Kacamata",
-          foundDate: "27 September 2025",
-          dateFound: "2025-09-27",
-          category: "Aksesori",
-          location: "Ruang Kelas A",
-          status: "Tersedia",
-          photo: null,
-          images: [],
-          isNew: true,
-          reportedBy: "Dosen",
-          foundBy: "Dosen",
-          condition: "Baik",
-          createdAt: "2025-09-27T13:30:00Z",
-        },
-        // Additional items from original ManageReportsPage
-        {
-          id: 6,
-          name: "iPhone 13 Pro",
-          description:
-            "iPhone 13 Pro warna biru, kondisi baik, ada casing transparan",
-          foundDate: "15 Januari 2024",
-          dateFound: "2024-01-15",
-          category: "Elektronik",
-          location: "Perpustakaan Lantai 2",
-          status: "AVAILABLE",
-          photo: null,
-          images: ["https://placehold.co/600x400"],
-          isNew: false,
-          reportedBy: "Ahmad Petugas",
-          foundBy: "Ahmad Petugas",
-          condition: "Baik",
-          createdAt: "2024-01-15T10:30:00Z",
-          additionalNotes: "Ditemukan di meja baca nomor 15",
-        },
-        {
-          id: 7,
-          name: "Tas Ransel Hitam Eiger",
-          description: "Tas ransel warna hitam merk Eiger, ada gantungan kunci",
-          foundDate: "14 Januari 2024",
-          dateFound: "2024-01-14",
-          category: "Tas",
-          location: "Gedung A Lantai 1",
-          status: "CLAIMED",
-          photo: null,
-          images: ["https://placehold.co/600x400"],
-          isNew: false,
-          reportedBy: "Siti Petugas",
-          foundBy: "Siti Petugas",
-          condition: "Sangat Baik",
-          createdAt: "2024-01-14T14:20:00Z",
-        },
-        {
-          id: 8,
-          name: "Dompet Kulit Coklat",
-          description: "Dompet kulit warna coklat, berisi KTP dan kartu ATM",
-          foundDate: "12 Januari 2024",
-          dateFound: "2024-01-12",
-          category: "Aksesoris",
-          location: "Kantin Utama",
-          status: "AVAILABLE",
-          photo: null,
-          images: ["https://placehold.co/600x400"],
-          isNew: false,
-          reportedBy: "Dewi Petugas",
-          foundBy: "Dewi Petugas",
-          condition: "Baik",
-          createdAt: "2024-01-12T12:30:00Z",
-        },
-      ];
+  useEffect(() => {
+    if (listData && listData.data) {
+      const mapped = listData.data.map((b) => ({
+        id: b.id,
+        name: b.nama_barang,
+        description: b.deskripsi,
+        foundDate: b.tanggal_ditemukan
+          ? new Date(b.tanggal_ditemukan).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })
+          : null,
+        dateFound: b.tanggal_ditemukan,
+        category: b.kategori?.nama,
+        location: b.lokasi_ditemukan,
+        status: b.status === "BELUM_DIAMBIL" ? "Tersedia" : "Diambil",
+        photo: b.foto_barang && b.foto_barang[0] ? getImageUrl(b.foto_barang[0].url_gambar) : null,
+        images: b.foto_barang ? b.foto_barang.map((f) => getImageUrl(f.url_gambar)) : [],
+        isNew: false,
+        reportedBy: b.pencatat?.profile?.full_name,
+        foundBy: b.pencatat?.profile?.full_name,
+        condition: "-",
+        createdAt: b.created_at,
+        raw: b,
+      }));
 
-      setItems(combinedMockItems);
-      setLoading(false);
-    }, 1000);
-  }, []);
+      setItems(mapped);
+    }
+  }, [listData]);
 
   // Filter items
   const filteredItems = items.filter((item) => {
