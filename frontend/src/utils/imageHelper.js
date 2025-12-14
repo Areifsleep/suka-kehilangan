@@ -10,15 +10,15 @@
  */
 export const getImageUrl = (key) => {
   if (!key) return null;
-  
+
   // If already a full URL (http/https), return as is
-  if (key.startsWith('http://') || key.startsWith('https://')) {
+  if (key.startsWith("http://") || key.startsWith("https://")) {
     return key;
   }
-  
+
   // Get base URL from environment or use default
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-  
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   // Convert key to full URL: http://localhost:3000/uploads/foto-barang/123-file.jpg
   return `${baseUrl}/uploads/${key}`;
 };
@@ -29,7 +29,10 @@ export const getImageUrl = (key) => {
  * @param {string} fallback - Fallback URL if image is null
  * @returns {string} Image URL or fallback
  */
-export const getImageUrlWithFallback = (image, fallback = 'https://via.placeholder.com/400x300?text=Foto+Tidak+Tersedia') => {
+export const getImageUrlWithFallback = (
+  image,
+  fallback = "https://via.placeholder.com/400x300?text=Foto+Tidak+Tersedia"
+) => {
   if (!image || !image.url_gambar) return fallback;
   return getImageUrl(image.url_gambar);
 };

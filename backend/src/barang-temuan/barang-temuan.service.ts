@@ -5,6 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { StatusBarang } from '@prisma/client';
 import { CreateBarangTemuanDto } from './dto/create-barang-temuan.dto';
 import { UpdateBarangTemuanDto } from './dto/update-barang-temuan.dto';
@@ -13,7 +14,37 @@ import { FilterBarangTemuanDto } from './dto/filter-barang-temuan.dto';
 
 @Injectable()
 export class BarangTemuanService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private storageService: StorageService,
+  ) {}
+
+  /**
+   * Transform foto_barang URLs from keys to full URLs
+   * Handle both:
+   * - Local keys: "foto-barang/123.png" -> "http://localhost:3000/uploads/foto-barang/123.png"
+   * - External URLs: "https://..." -> keep as is
+   * - Already transformed local URLs: keep as is
+   */
+  private transformFotoUrls(barang: any) {
+    if (barang.foto_barang && Array.isArray(barang.foto_barang)) {
+      barang.foto_barang = barang.foto_barang.map((foto) => {
+        let urlGambar = foto.url_gambar;
+
+        // Check if it's already a full URL (starts with http:// or https://)
+        if (urlGambar && !urlGambar.startsWith('http')) {
+          // It's a local key, transform it to full URL
+          urlGambar = this.storageService.getPublicUrl(urlGambar);
+        }
+
+        return {
+          ...foto,
+          url_gambar: urlGambar,
+        };
+      });
+    }
+    return barang;
+  }
 
   /**
    * Create barang temuan baru (Petugas only)
@@ -39,7 +70,6 @@ export class BarangTemuanService {
         kategori_id: dto.kategori_id,
         nama_barang: dto.nama_barang,
         deskripsi: dto.deskripsi,
-        lokasi_ditemukan: dto.lokasi_ditemukan,
         tanggal_ditemukan: new Date(dto.tanggal_ditemukan),
         lokasi_umum: dto.lokasi_umum,
         lokasi_spesifik: dto.lokasi_spesifik,
@@ -75,7 +105,7 @@ export class BarangTemuanService {
       },
     });
 
-    return barang;
+    return this.transformFotoUrls(barang);
   }
 
   /**
@@ -129,9 +159,10 @@ export class BarangTemuanService {
 
     if (search) {
       where.OR = [
-        { nama_barang: { contains: search, mode: 'insensitive' } },
-        { lokasi_ditemukan: { contains: search, mode: 'insensitive' } },
-        { deskripsi: { contains: search, mode: 'insensitive' } },
+        { nama_barang: { contains: search } },
+        { lokasi_umum: { contains: search } },
+        { lokasi_spesifik: { contains: search } },
+        { deskripsi: { contains: search } },
       ];
     }
 
@@ -160,6 +191,12 @@ export class BarangTemuanService {
           pencatat: {
             select: {
               id: true,
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
               profile: {
                 select: {
                   full_name: true,
@@ -178,8 +215,11 @@ export class BarangTemuanService {
       this.prisma.barangTemuan.count({ where }),
     ]);
 
+    // Transform foto URLs for all items
+    const transformedItems = items.map((item) => this.transformFotoUrls(item));
+
     return {
-      data: items,
+      data: transformedItems,
       meta: {
         total,
         page: Number(page),
@@ -202,6 +242,12 @@ export class BarangTemuanService {
         pencatat: {
           select: {
             id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             profile: {
               select: {
                 full_name: true,
@@ -214,6 +260,12 @@ export class BarangTemuanService {
         penyerah: {
           select: {
             id: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
             profile: {
               select: {
                 full_name: true,
@@ -227,6 +279,24 @@ export class BarangTemuanService {
 
     if (!barang) {
       throw new NotFoundException(`Barang dengan ID ${id} tidak ditemukan`);
+    }
+
+    // Transform foto URLs including foto_bukti_klaim
+    this.transformFotoUrls(barang);
+    if (barang.foto_bukti_klaim && Array.isArray(barang.foto_bukti_klaim)) {
+      barang.foto_bukti_klaim = barang.foto_bukti_klaim.map((foto) => {
+        let urlGambar = foto.url_gambar;
+
+        // Check if it's already a full URL
+        if (urlGambar && !urlGambar.startsWith('http')) {
+          urlGambar = this.storageService.getPublicUrl(urlGambar);
+        }
+
+        return {
+          ...foto,
+          url_gambar: urlGambar,
+        };
+      });
     }
 
     return barang;
@@ -267,8 +337,6 @@ export class BarangTemuanService {
       updateData.kategori_id = dto.kategori_id;
     }
     if (dto.deskripsi !== undefined) updateData.deskripsi = dto.deskripsi;
-    if (dto.lokasi_ditemukan)
-      updateData.lokasi_ditemukan = dto.lokasi_ditemukan;
     if (dto.tanggal_ditemukan)
       updateData.tanggal_ditemukan = new Date(dto.tanggal_ditemukan);
     if (dto.lokasi_umum !== undefined) updateData.lokasi_umum = dto.lokasi_umum;
@@ -316,7 +384,7 @@ export class BarangTemuanService {
       },
     });
 
-    return updatedBarang;
+    return this.transformFotoUrls(updatedBarang);
   }
 
   /**
@@ -383,6 +451,29 @@ export class BarangTemuanService {
         },
       },
     });
+
+    // Transform foto URLs including foto_bukti_klaim
+    this.transformFotoUrls(updatedBarang);
+    if (
+      updatedBarang.foto_bukti_klaim &&
+      Array.isArray(updatedBarang.foto_bukti_klaim)
+    ) {
+      updatedBarang.foto_bukti_klaim = updatedBarang.foto_bukti_klaim.map(
+        (foto) => {
+          let urlGambar = foto.url_gambar;
+
+          // Check if it's already a full URL
+          if (urlGambar && !urlGambar.startsWith('http')) {
+            urlGambar = this.storageService.getPublicUrl(urlGambar);
+          }
+
+          return {
+            ...foto,
+            url_gambar: urlGambar,
+          };
+        },
+      );
+    }
 
     return updatedBarang;
   }

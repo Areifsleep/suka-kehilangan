@@ -36,11 +36,31 @@ export class StorageService {
   }
 
   getPublicUrl(key: string): string {
-    // Ambil domain dari .env (http://localhost:3000)
-    const baseUrl = this.configService.get<string>('APP_URL');
+    // Handle null/undefined
+    if (!key) {
+      return '';
+    }
 
-    // Gabungkan: http://localhost:3000 + /uploads/ + barang-temuan/file.jpg
-    return `${baseUrl}/${this.staticBasePath}/${key}`;
+    // If already a full URL (http/https), return as is
+    if (key.startsWith('http://') || key.startsWith('https://')) {
+      return key;
+    }
+
+    // Ambil domain dari .env atau fallback ke localhost
+    const baseUrl =
+      this.configService.get<string>('APP_URL') || 'http://localhost:8000';
+
+    // Remove leading slash and /uploads/ if present
+    let cleanKey = key;
+    if (cleanKey.startsWith('/')) {
+      cleanKey = cleanKey.substring(1);
+    }
+    if (cleanKey.startsWith('uploads/')) {
+      cleanKey = cleanKey.substring(8);
+    }
+
+    // Gabungkan: http://localhost:8000 + /uploads/ + foto-barang/file.jpg
+    return `${baseUrl}/${this.staticBasePath}/${cleanKey}`;
   }
 
   async deleteFile(key: string): Promise<void> {

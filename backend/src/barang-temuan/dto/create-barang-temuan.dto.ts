@@ -21,19 +21,14 @@ export class CreateBarangTemuanDto {
   @IsOptional()
   deskripsi?: string;
 
-  @IsString()
-  @IsNotEmpty({ message: 'Lokasi ditemukan harus diisi' })
-  @MaxLength(255)
-  lokasi_ditemukan: string;
-
   @IsDateString({}, { message: 'Format tanggal tidak valid' })
   @IsNotEmpty({ message: 'Tanggal ditemukan harus diisi' })
   tanggal_ditemukan: string;
 
   @IsString()
-  @IsOptional()
+  @IsNotEmpty({ message: 'Lokasi umum harus diisi' })
   @MaxLength(255)
-  lokasi_umum?: string;
+  lokasi_umum: string;
 
   @IsString()
   @IsOptional()

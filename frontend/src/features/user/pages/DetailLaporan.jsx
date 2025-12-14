@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useBarangTemuanDetail } from "../queries/useBarangTemuan";
 import { getImageUrl } from "@/utils/imageHelper";
+import { SafeImage } from "@/components/ui/safe-image";
 
 // Helper functions
 const formatDate = (dateString) => {
@@ -110,7 +111,12 @@ export default function Detaillaporan() {
         item_name: barangDetail.nama_barang,
         description: barangDetail.deskripsi,
         report_status: barangDetail.status,
-        place_found: barangDetail.lokasi_ditemukan,
+        place_found:
+          barangDetail.lokasi_umum && barangDetail.lokasi_spesifik
+            ? `${barangDetail.lokasi_umum} - ${barangDetail.lokasi_spesifik}`
+            : barangDetail.lokasi_umum ||
+              barangDetail.lokasi_spesifik ||
+              "Lokasi tidak diketahui",
         lokasi_umum: barangDetail.lokasi_umum,
         lokasi_spesifik: barangDetail.lokasi_spesifik,
         tanggal_ditemukan: barangDetail.tanggal_ditemukan,
@@ -232,15 +238,11 @@ export default function Detaillaporan() {
                         key={image.id}
                         className="relative aspect-video bg-gray-100 rounded-xl overflow-hidden border border-gray-200 group"
                       >
-                        <img
+                        <SafeImage
                           src={getImageUrl(image.url_gambar)}
                           alt={`Foto barang ${index + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src =
-                              "https://via.placeholder.com/400x300?text=Foto+Tidak+Tersedia";
-                          }}
+                          fallbackClassName="w-full h-full object-cover"
                         />
                         {index === 0 && (
                           <div className="absolute top-3 right-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -393,16 +395,12 @@ export default function Detaillaporan() {
                             </p>
                             <div className="grid grid-cols-3 gap-2">
                               {item.foto_bukti_klaim.map((foto, index) => (
-                                <img
+                                <SafeImage
                                   key={foto.id}
                                   src={getImageUrl(foto.url_gambar)}
                                   alt={`Bukti klaim ${index + 1}`}
                                   className="w-full h-20 object-cover rounded border border-green-200"
-                                  onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src =
-                                      "https://via.placeholder.com/100?text=No+Image";
-                                  }}
+                                  fallbackClassName="w-full h-20"
                                 />
                               ))}
                             </div>

@@ -27,6 +27,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/components/ui/button";
 import { MdVolunteerActivism } from "react-icons/md";
 import { XCircle } from "lucide-react";
+import { SafeImage } from "@/components/ui/safe-image";
 
 function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {
   return (
@@ -98,10 +99,11 @@ function ItemAuditCard({ audit, onView }) {
       {/* Header dengan gambar dan nama barang */}
       <div className="flex items-start gap-3 mb-3">
         {audit.image_url ? (
-          <img
+          <SafeImage
             src={audit.image_url}
             alt={audit.item_name}
             className="w-16 h-16 rounded-lg object-cover border flex-shrink-0"
+            fallbackClassName="w-16 h-16 flex-shrink-0"
           />
         ) : (
           <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center border flex-shrink-0">
@@ -301,10 +303,11 @@ function AuditDetailModal({ audit, isOpen, onClose }) {
         <div className="relative">
           {audit.image_url ? (
             <div className="relative h-80 bg-gray-100">
-              <img
+              <SafeImage
                 src={audit.image_url}
                 alt={audit.item_name}
                 className="w-full h-full object-contain"
+                fallbackClassName="w-full h-full"
               />
             </div>
           ) : (

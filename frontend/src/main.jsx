@@ -14,6 +14,7 @@ import AdminDashboard from "./features/admin-management/pages/AdminDashboard.jsx
 import ManagementUser from "./features/admin-management/pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./features/admin-management/pages/ManagementPetugas.jsx";
+import ManageKategoriPage from "./features/admin/pages/ManageKategoriPage.jsx";
 import PetugasDashboard from "./features/petugas/pages/PetugasDashboard.jsx";
 import PetugasUploadPage from "./features/petugas/pages/PetugasUploadPage.jsx";
 import PetugasManageReportsPage from "./features/petugas/pages/PetugasManageReportsPage.jsx";
@@ -104,6 +105,10 @@ const router = createBrowserRouter([
               {
                 path: "manage-officers",
                 element: <ManagementPetugas />,
+              },
+              {
+                path: "manage-categories",
+                element: <ManageKategoriPage />,
               },
               {
                 path: "audit-reports",

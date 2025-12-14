@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { KategoriService } from './kategori.service';
 import { CreateKategoriDto } from './dto/create-kategori.dto';
@@ -24,11 +25,28 @@ export class KategoriController {
   /**
    * Get all categories
    * PUBLIC (authenticated) - untuk dropdown/filter
+   * Support pagination dengan query params: page, limit, search
    */
   @Get()
-  async findAll() {
-    const data = await this.kategoriService.findAll();
+  async findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
+    const pageNum = page ? parseInt(page, 10) : undefined;
+    const limitNum = limit ? parseInt(limit, 10) : undefined;
 
+    // Jika ada pagination params, gunakan findAllPaginated
+    if (pageNum || limitNum || search) {
+      return await this.kategoriService.findAllPaginated({
+        page: pageNum,
+        limit: limitNum,
+        search,
+      });
+    }
+
+    // Jika tidak, return semua data (untuk dropdown)
+    const data = await this.kategoriService.findAll();
     return {
       data,
     };

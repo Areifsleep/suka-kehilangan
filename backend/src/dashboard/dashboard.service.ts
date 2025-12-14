@@ -74,7 +74,8 @@ export class DashboardService {
         kategori: {
           select: { nama: true },
         },
-        lokasi_ditemukan: true,
+        lokasi_umum: true,
+        lokasi_spesifik: true,
         tanggal_ditemukan: true,
         created_at: true,
       },

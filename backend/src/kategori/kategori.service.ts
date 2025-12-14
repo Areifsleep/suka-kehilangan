@@ -32,6 +32,66 @@ export class KategoriService {
   }
 
   /**
+   * Get all categories with pagination (untuk management page)
+   */
+  async findAllPaginated(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) {
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: any = {};
+    if (params.search) {
+      where.OR = [
+        { nama: { contains: params.search } },
+        { deskripsi: { contains: params.search } },
+      ];
+    }
+
+    // Get total count
+    const total = await this.prismaService.kategoriBarang.count({ where });
+
+    // Get paginated data
+    const data = await this.prismaService.kategoriBarang.findMany({
+      where,
+      select: {
+        id: true,
+        nama: true,
+        deskripsi: true,
+        created_at: true,
+        _count: {
+          select: {
+            daftar_barang: true,
+          },
+        },
+      },
+      orderBy: {
+        nama: 'asc',
+      },
+      skip,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  /**
    * Get category by ID
    */
   async findOne(id: string) {

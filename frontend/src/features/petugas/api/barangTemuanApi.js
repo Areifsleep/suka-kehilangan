@@ -28,6 +28,12 @@ export const petugasBarangTemuanApi = {
       });
     }
 
+    // Debug logging
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
     return api.post("/barang-temuan", formData, {
       headers: {
         "Content-Type": "multipart/form-data",

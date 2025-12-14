@@ -37,7 +37,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'iPhone 13 Pro Max',
           deskripsi:
             'iPhone 13 Pro Max warna biru dengan casing hitam. Kondisi baik, layar tidak retak. Ditemukan dalam keadaan mati (baterai habis).',
-          lokasi_ditemukan: 'Gedung Rektorat',
           lokasi_umum: 'Lantai 2',
           lokasi_spesifik: 'Ruang tunggu depan lift',
           tanggal_ditemukan: new Date('2024-12-05'),
@@ -70,7 +69,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Dompet Kulit Coklat',
           deskripsi:
             'Dompet kulit warna coklat tua merek Bellroy. Berisi KTM, uang tunai Rp 500.000, dan beberapa kartu ATM.',
-          lokasi_ditemukan: 'Masjid Kampus',
           lokasi_umum: 'Area Wudhu',
           lokasi_spesifik: 'Dekat tempat sandal laki-laki',
           tanggal_ditemukan: new Date('2024-12-06'),
@@ -101,7 +99,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Tas Ransel Eiger Hitam',
           deskripsi:
             'Tas ransel merek Eiger warna hitam ukuran sedang. Berisi buku kuliah, laptop Asus ROG, dan alat tulis.',
-          lokasi_ditemukan: 'Perpustakaan Pusat',
           lokasi_umum: 'Lantai 3',
           lokasi_spesifik: 'Meja baca nomor 15',
           tanggal_ditemukan: new Date('2024-12-07'),
@@ -134,7 +131,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Kunci Motor Honda Beat',
           deskripsi:
             'Kunci motor Honda Beat dengan gantungan karakter Doraemon. Ada remote alarm warna hitam.',
-          lokasi_ditemukan: 'Area Parkir Motor',
           lokasi_umum: 'Blok A',
           lokasi_spesifik: 'Dekat pintu masuk parkir',
           tanggal_ditemukan: new Date('2024-12-06'),
@@ -165,7 +161,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'KTM (Kartu Tanda Mahasiswa)',
           deskripsi:
             'KTM atas nama Rizki Ramadhan, NIM H07345678, Jurusan Teknik Informatika angkatan 2021.',
-          lokasi_ditemukan: 'Kantin Fakultas MIPA',
           lokasi_umum: 'Meja makan',
           lokasi_spesifik: 'Meja nomor 8 dekat jendela',
           tanggal_ditemukan: new Date('2024-12-07'),
@@ -197,7 +192,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Laptop MacBook Air M1',
           deskripsi:
             'MacBook Air M1 2020 warna silver. Ada stiker Apple Developer di bagian belakang. Kondisi baik, lengkap dengan charger.',
-          lokasi_ditemukan: 'Ruang Kelas C301',
           lokasi_umum: 'Gedung C Lantai 3',
           lokasi_spesifik: 'Meja paling depan dekat papan tulis',
           tanggal_ditemukan: new Date('2024-12-05'),
@@ -250,7 +244,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Smartwatch Samsung Galaxy Watch 5',
           deskripsi:
             'Samsung Galaxy Watch 5 warna hitam ukuran 44mm. Kondisi baik, masih menyala dengan baterai 30%.',
-          lokasi_ditemukan: 'Lapangan Basket',
           lokasi_umum: 'Area Olahraga',
           lokasi_spesifik: 'Pinggir lapangan dekat bangku penonton',
           tanggal_ditemukan: new Date('2024-12-07'),
@@ -282,7 +275,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Kacamata Ray-Ban Original',
           deskripsi:
             'Kacamata Ray-Ban Aviator warna gold dengan lensa coklat. Kondisi sangat baik, ada case nya.',
-          lokasi_ditemukan: 'Aula Serbaguna',
           lokasi_umum: 'Lantai 1',
           lokasi_spesifik: 'Kursi baris ke-5 dari depan',
           tanggal_ditemukan: new Date('2024-12-06'),
@@ -315,7 +307,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Charger Laptop HP Original',
           deskripsi:
             'Charger laptop HP original 65W dengan kabel sepanjang 1.8 meter. Kondisi baik, tidak ada kerusakan.',
-          lokasi_ditemukan: 'Lab Komputer 2',
           lokasi_umum: 'Geduk F Lantai 2',
           lokasi_spesifik: 'Meja komputer nomor 12',
           tanggal_ditemukan: new Date('2024-12-05'),
@@ -347,7 +338,6 @@ export class BarangTemuanSeeder {
           nama_barang: 'Jaket Bomber Hitam',
           deskripsi:
             'Jaket bomber warna hitam ukuran L merek Pull&Bear. Ada patch bordir di lengan kanan.',
-          lokasi_ditemukan: 'Ruang Kuliah B205',
           lokasi_umum: 'Gedung B Lantai 2',
           lokasi_spesifik: 'Gantungan baju belakang pintu',
           tanggal_ditemukan: new Date('2024-12-06'),
@@ -398,8 +388,8 @@ export class BarangTemuanSeeder {
         // Additional items for pagination testing
         {
           nama_barang: 'Tumbler Stainless Steel',
-          deskripsi: 'Tumbler warna hijau merek Tupperware ukuran 500ml. Masih bersih dan tidak penyok.',
-          lokasi_ditemukan: 'Kantin Pusat',
+          deskripsi:
+            'Tumbler warna hijau merek Tupperware ukuran 500ml. Masih bersih dan tidak penyok.',
           lokasi_umum: 'Meja makan',
           lokasi_spesifik: 'Meja dekat jendela kanan',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -413,7 +403,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800',
               nama_file_asli: 'tumbler.jpg',
               mime_type: 'image/jpeg',
             },
@@ -421,8 +412,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Earphone AirPods Pro',
-          deskripsi: 'AirPods Pro generasi 2 dengan charging case. Kondisi sangat baik, baterai masih penuh.',
-          lokasi_ditemukan: 'Ruang Kelas A101',
+          deskripsi:
+            'AirPods Pro generasi 2 dengan charging case. Kondisi sangat baik, baterai masih penuh.',
           lokasi_umum: 'Gedung A Lantai 1',
           lokasi_spesifik: 'Meja dosen',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -436,7 +427,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=800',
               nama_file_asli: 'airpods.jpg',
               mime_type: 'image/jpeg',
             },
@@ -445,7 +437,6 @@ export class BarangTemuanSeeder {
         {
           nama_barang: 'Payung Lipat Hitam',
           deskripsi: 'Payung lipat warna hitam polos, kondisi baik.',
-          lokasi_ditemukan: 'Perpustakaan Pusat',
           lokasi_umum: 'Lantai 1',
           lokasi_spesifik: 'Rak payung dekat pintu masuk',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -459,7 +450,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[2].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1527556897832-0c6d8e0c715b?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1527556897832-0c6d8e0c715b?w=800',
               nama_file_asli: 'payung.jpg',
               mime_type: 'image/jpeg',
             },
@@ -467,8 +459,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Buku Kalkulus Jilid 2',
-          deskripsi: 'Buku kuliah Kalkulus Jilid 2 karangan Purcell. Ada nama pemilik di halaman depan.',
-          lokasi_ditemukan: 'Ruang Kelas C205',
+          deskripsi:
+            'Buku kuliah Kalkulus Jilid 2 karangan Purcell. Ada nama pemilik di halaman depan.',
           lokasi_umum: 'Gedung C Lantai 2',
           lokasi_spesifik: 'Laci meja nomor 10',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -482,7 +474,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=800',
               nama_file_asli: 'buku_kalkulus.jpg',
               mime_type: 'image/jpeg',
             },
@@ -490,8 +483,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Helm Full Face Merah',
-          deskripsi: 'Helm full face warna merah merek KYT. Ada goresan kecil di bagian belakang.',
-          lokasi_ditemukan: 'Area Parkir Motor',
+          deskripsi:
+            'Helm full face warna merah merek KYT. Ada goresan kecil di bagian belakang.',
           lokasi_umum: 'Blok B',
           lokasi_spesifik: 'Dekat motor Honda Vario putih',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -505,7 +498,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
               nama_file_asli: 'helm.jpg',
               mime_type: 'image/jpeg',
             },
@@ -513,8 +507,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Power Bank Xiaomi 20000mAh',
-          deskripsi: 'Power bank Xiaomi warna putih kapasitas 20000mAh. Kondisi baik, baterai 50%.',
-          lokasi_ditemukan: 'Lab Komputer 1',
+          deskripsi:
+            'Power bank Xiaomi warna putih kapasitas 20000mAh. Kondisi baik, baterai 50%.',
           lokasi_umum: 'Gedung F Lantai 1',
           lokasi_spesifik: 'Meja komputer nomor 5',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -528,7 +522,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[2].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=800',
               nama_file_asli: 'powerbank.jpg',
               mime_type: 'image/jpeg',
             },
@@ -536,8 +531,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Jaket Jeans Biru',
-          deskripsi: 'Jaket jeans warna biru muda ukuran M. Ada logo bordir di bagian dada kiri.',
-          lokasi_ditemukan: 'Aula Serbaguna',
+          deskripsi:
+            'Jaket jeans warna biru muda ukuran M. Ada logo bordir di bagian dada kiri.',
           lokasi_umum: 'Lantai 2',
           lokasi_spesifik: 'Kursi nomor 25',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -551,7 +546,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=800',
               nama_file_asli: 'jaket_jeans.jpg',
               mime_type: 'image/jpeg',
             },
@@ -559,8 +555,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Kartu ATM BCA',
-          deskripsi: 'Kartu ATM BCA atas nama Rina Susanti. Ditemukan terpisah dari dompet.',
-          lokasi_ditemukan: 'ATM Center Kampus',
+          deskripsi:
+            'Kartu ATM BCA atas nama Rina Susanti. Ditemukan terpisah dari dompet.',
           lokasi_umum: 'Dekat Kantin Pusat',
           lokasi_spesifik: 'Di lantai dekat mesin ATM BCA',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -574,7 +570,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://via.placeholder.com/800x600/0073EA/FFFFFF?text=BCA+Card',
+              url_gambar:
+                'https://via.placeholder.com/800x600/0073EA/FFFFFF?text=BCA+Card',
               nama_file_asli: 'atm_bca.jpg',
               mime_type: 'image/jpeg',
             },
@@ -582,8 +579,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Mouse Wireless Logitech',
-          deskripsi: 'Mouse wireless Logitech M185 warna abu-abu. Kondisi baik, masih ada baterai.',
-          lokasi_ditemukan: 'Perpustakaan Pusat',
+          deskripsi:
+            'Mouse wireless Logitech M185 warna abu-abu. Kondisi baik, masih ada baterai.',
           lokasi_umum: 'Lantai 2',
           lokasi_spesifik: 'Meja baca nomor 20',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -597,7 +594,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[2].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800',
               nama_file_asli: 'mouse.jpg',
               mime_type: 'image/jpeg',
             },
@@ -605,8 +603,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Gelang Emas 24 Karat',
-          deskripsi: 'Gelang emas warna kuning 24 karat dengan ukiran nama. Berat sekitar 10 gram.',
-          lokasi_ditemukan: 'Masjid Kampus',
+          deskripsi:
+            'Gelang emas warna kuning 24 karat dengan ukiran nama. Berat sekitar 10 gram.',
           lokasi_umum: 'Area Wudhu Wanita',
           lokasi_spesifik: 'Dekat wastafel nomor 3',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -620,7 +618,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800',
               nama_file_asli: 'gelang_emas.jpg',
               mime_type: 'image/jpeg',
             },
@@ -628,8 +627,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Sepatu Sneakers Nike Hitam',
-          deskripsi: 'Sepatu Nike Air Force 1 warna hitam ukuran 42. Kondisi masih bagus.',
-          lokasi_ditemukan: 'Lapangan Futsal',
+          deskripsi:
+            'Sepatu Nike Air Force 1 warna hitam ukuran 42. Kondisi masih bagus.',
           lokasi_umum: 'Area Olahraga',
           lokasi_spesifik: 'Pinggir lapangan dekat gawang kanan',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -637,13 +636,15 @@ export class BarangTemuanSeeder {
           nama_penemu: 'Umar Faruq',
           nomor_hp_penemu: '085456789012',
           identitas_penemu: 'H07112244',
-          catatan_penemu: 'Sepatu tertinggal di pinggir lapangan setelah main futsal.',
+          catatan_penemu:
+            'Sepatu tertinggal di pinggir lapangan setelah main futsal.',
           status: StatusBarang.BELUM_DIAMBIL,
           kategori_id: categories.find((c) => c.nama === 'Aksesoris')?.id,
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800',
               nama_file_asli: 'nike_af1.jpg',
               mime_type: 'image/jpeg',
             },
@@ -651,8 +652,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Tablet Samsung Galaxy Tab S8',
-          deskripsi: 'Samsung Galaxy Tab S8 warna silver dengan keyboard case. Kondisi mulus.',
-          lokasi_ditemukan: 'Ruang Kuliah D301',
+          deskripsi:
+            'Samsung Galaxy Tab S8 warna silver dengan keyboard case. Kondisi mulus.',
           lokasi_umum: 'Gedung D Lantai 3',
           lokasi_spesifik: 'Meja paling belakang dekat jendela',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -666,7 +667,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[2].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=800',
               nama_file_asli: 'tablet_samsung.jpg',
               mime_type: 'image/jpeg',
             },
@@ -674,8 +676,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Dompet Kulit Hitam Pria',
-          deskripsi: 'Dompet kulit hitam merek Pierre Cardin. Berisi KTP, SIM, dan kartu ATM.',
-          lokasi_ditemukan: 'Kantin Fakultas Teknik',
+          deskripsi:
+            'Dompet kulit hitam merek Pierre Cardin. Berisi KTP, SIM, dan kartu ATM.',
           lokasi_umum: 'Meja makan',
           lokasi_spesifik: 'Meja nomor 12 dekat kasir',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -689,7 +691,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800',
               nama_file_asli: 'dompet_pria.jpg',
               mime_type: 'image/jpeg',
             },
@@ -697,8 +700,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Jam Tangan Casio G-Shock',
-          deskripsi: 'Jam tangan Casio G-Shock warna hitam model GW-B5600. Kondisi sangat baik.',
-          lokasi_ditemukan: 'Ruang Ganti Olahraga',
+          deskripsi:
+            'Jam tangan Casio G-Shock warna hitam model GW-B5600. Kondisi sangat baik.',
           lokasi_umum: 'Gedung Olahraga',
           lokasi_spesifik: 'Loker nomor 18',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -712,7 +715,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
               nama_file_asli: 'gshock.jpg',
               mime_type: 'image/jpeg',
             },
@@ -720,8 +724,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Kalung Perak dengan Liontin',
-          deskripsi: 'Kalung perak dengan liontin berbentuk hati. Ada inisial "S" di liontin.',
-          lokasi_ditemukan: 'Toilet Wanita Gedung B',
+          deskripsi:
+            'Kalung perak dengan liontin berbentuk hati. Ada inisial "S" di liontin.',
           lokasi_umum: 'Gedung B Lantai 1',
           lokasi_spesifik: 'Dekat wastafel',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -735,7 +739,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[2].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800',
               nama_file_asli: 'kalung_perak.jpg',
               mime_type: 'image/jpeg',
             },
@@ -743,8 +748,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Flash Disk SanDisk 64GB',
-          deskripsi: 'Flash disk SanDisk Ultra 64GB warna hitam. Berisi file dokumen penting.',
-          lokasi_ditemukan: 'Lab Komputer 3',
+          deskripsi:
+            'Flash disk SanDisk Ultra 64GB warna hitam. Berisi file dokumen penting.',
           lokasi_umum: 'Gedung F Lantai 3',
           lokasi_spesifik: 'Komputer nomor 8',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -758,7 +763,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1624823183493-ed5832f48f18?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1624823183493-ed5832f48f18?w=800',
               nama_file_asli: 'flashdisk.jpg',
               mime_type: 'image/jpeg',
             },
@@ -766,8 +772,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Sweater Hoodie Abu-abu',
-          deskripsi: 'Sweater hoodie warna abu-abu ukuran XL merek Uniqlo. Kondisi masih bagus.',
-          lokasi_ditemukan: 'Ruang Kuliah E202',
+          deskripsi:
+            'Sweater hoodie warna abu-abu ukuran XL merek Uniqlo. Kondisi masih bagus.',
           lokasi_umum: 'Gedung E Lantai 2',
           lokasi_spesifik: 'Kursi nomor 15',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -781,7 +787,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800',
               nama_file_asli: 'hoodie.jpg',
               mime_type: 'image/jpeg',
             },
@@ -789,8 +796,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Kacamata Minus Bulat',
-          deskripsi: 'Kacamata minus dengan frame bulat warna hitam. Lensa agak tebal (minus tinggi).',
-          lokasi_ditemukan: 'Perpustakaan Fakultas',
+          deskripsi:
+            'Kacamata minus dengan frame bulat warna hitam. Lensa agak tebal (minus tinggi).',
           lokasi_umum: 'Lantai 1',
           lokasi_spesifik: 'Rak buku kategori Komputer',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -804,7 +811,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[2].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800',
               nama_file_asli: 'kacamata_minus.jpg',
               mime_type: 'image/jpeg',
             },
@@ -812,8 +820,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Kabel Charger iPhone Lightning',
-          deskripsi: 'Kabel charger iPhone original lightning to USB-C panjang 1 meter.',
-          lokasi_ditemukan: 'Ruang Tunggu Rektorat',
+          deskripsi:
+            'Kabel charger iPhone original lightning to USB-C panjang 1 meter.',
           lokasi_umum: 'Lantai 1',
           lokasi_spesifik: 'Sofa dekat resepsionis',
           tanggal_ditemukan: new Date('2024-12-08'),
@@ -827,7 +835,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[0].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1591290619762-5e4a77f7c5c2?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1591290619762-5e4a77f7c5c2?w=800',
               nama_file_asli: 'kabel_iphone.jpg',
               mime_type: 'image/jpeg',
             },
@@ -835,8 +844,8 @@ export class BarangTemuanSeeder {
         },
         {
           nama_barang: 'Topi Snapback Hitam',
-          deskripsi: 'Topi snapback warna hitam polos tanpa logo. Kondisi bersih.',
-          lokasi_ditemukan: 'Lapangan Basket',
+          deskripsi:
+            'Topi snapback warna hitam polos tanpa logo. Kondisi bersih.',
           lokasi_umum: 'Area Olahraga',
           lokasi_spesifik: 'Bangku penonton sebelah kiri',
           tanggal_ditemukan: new Date('2024-12-09'),
@@ -850,7 +859,8 @@ export class BarangTemuanSeeder {
           pencatat_id: petugas[1].id,
           foto_barang: [
             {
-              url_gambar: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800',
+              url_gambar:
+                'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800',
               nama_file_asli: 'topi.jpg',
               mime_type: 'image/jpeg',
             },
@@ -873,7 +883,6 @@ export class BarangTemuanSeeder {
           data: {
             nama_barang: data.nama_barang,
             deskripsi: data.deskripsi,
-            lokasi_ditemukan: data.lokasi_ditemukan,
             lokasi_umum: data.lokasi_umum,
             lokasi_spesifik: data.lokasi_spesifik,
             tanggal_ditemukan: data.tanggal_ditemukan,

@@ -20,11 +20,6 @@ export class UpdateBarangTemuanDto {
   @IsOptional()
   deskripsi?: string;
 
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  lokasi_ditemukan?: string;
-
   @IsDateString()
   @IsOptional()
   tanggal_ditemukan?: string;

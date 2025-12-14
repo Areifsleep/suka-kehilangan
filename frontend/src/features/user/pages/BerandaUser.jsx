@@ -16,6 +16,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useBarangTemuanList, useCategories } from "../queries/useBarangTemuan";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -104,7 +105,10 @@ function ItemCard({ item, onViewDetail }) {
     item_name: item.nama_barang,
     description: item.deskripsi,
     report_status: item.status,
-    place_found: item.lokasi_ditemukan,
+    place_found:
+      item.lokasi_umum && item.lokasi_spesifik
+        ? `${item.lokasi_umum} - ${item.lokasi_spesifik}`
+        : item.lokasi_umum || item.lokasi_spesifik || "Lokasi tidak diketahui",
     created_at: item.created_at,
     created_by: item.pencatat,
     category: {
@@ -118,12 +122,13 @@ function ItemCard({ item, onViewDetail }) {
       <CardContent className="p-0">
         <div className="flex flex-col">
           {/* Image Cover */}
-          <div className="relative w-full h-96 overflow-hidden">
+          <div className="relative w-full h-96 overflow-hidden bg-gray-100">
             {mappedItem.report_images.length !== 0 ? (
-              <img
+              <SafeImage
                 src={mappedItem.report_images[0].url_gambar}
                 alt={mappedItem.item_name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                fallbackClassName="w-full h-full"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -263,10 +268,10 @@ function FilterBar({
             className="w-full h-12 px-4 py-3 border-2 border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500 rounded-xl text-base bg-white transition-all duration-200 hover:border-gray-400 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-              backgroundPosition: 'right 0.5rem center',
-              backgroundRepeat: 'no-repeat',
-              backgroundSize: '1.5em 1.5em',
-              paddingRight: '2.5rem'
+              backgroundPosition: "right 0.5rem center",
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "1.5em 1.5em",
+              paddingRight: "2.5rem",
             }}
           >
             <option value="">Semua Kategori</option>

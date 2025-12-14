@@ -14,6 +14,8 @@ import {
   FiTag,
   FiEdit,
   FiCheck,
+  FiX,
+  FiAlertTriangle,
 } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,9 +37,13 @@ import {
 
 import { PetugasPagination } from "@/features/admin-management/components";
 import { toast } from "react-toastify";
-import { usePetugasBarangTemuanList } from "../queries/useBarangTemuan";
+import {
+  usePetugasBarangTemuanList,
+  usePetugasCategories,
+} from "../queries/useBarangTemuan";
 import { getImageUrl } from "@/utils/imageHelper";
 import { useDebounce } from "@/hooks/useDebounce";
+import { SafeImage } from "@/components/ui/safe-image";
 
 // Status Badge Component
 function StatusBadge({ status }) {
@@ -96,10 +102,11 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
       <td className="px-6 py-4">
         <div className="relative w-16 h-16 bg-gray-100 rounded-xl overflow-hidden group">
           {item.photo || item.images?.[0] ? (
-            <img
+            <SafeImage
               src={item.photo || item.images[0]}
               alt={item.description || item.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fallbackClassName="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -181,10 +188,11 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
         {/* Foto Barang */}
         <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
           {item.photo || item.images?.[0] ? (
-            <img
+            <SafeImage
               src={item.photo || item.images[0]}
               alt={item.name || item.description}
               className="w-full h-full object-cover"
+              fallbackClassName="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -446,11 +454,12 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
           {item.images && item.images.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
               {item.images.map((image, index) => (
-                <img
+                <SafeImage
                   key={index}
                   src={image}
                   alt={`${item.name} ${index + 1}`}
                   className="w-full h-32 object-cover rounded-lg border"
+                  fallbackClassName="w-full h-32"
                 />
               ))}
             </div>
@@ -878,23 +887,36 @@ export default function PetugasManageReportsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
   // Fetch real items for petugas using React Query hook
   const debouncedSearch = useDebounce(searchTerm, 400);
-  const { data: listData, isLoading: listLoading, isError: listError } =
-    usePetugasBarangTemuanList({
-      page: currentPage,
-      limit: itemsPerPage,
-      search: debouncedSearch,
-      status: statusFilter === "all" ? undefined : statusFilter,
-      kategori_id: categoryFilter === "all" ? undefined : categoryFilter,
-    });
+  const {
+    data: listData,
+    isLoading: listLoading,
+    isError: listError,
+  } = usePetugasBarangTemuanList({
+    page: currentPage,
+    limit: itemsPerPage,
+    search: debouncedSearch,
+    status: statusFilter === "all" ? undefined : statusFilter,
+    kategori_id: categoryFilter === "all" ? undefined : categoryFilter,
+  });
+
+  // Fetch categories
+  const { data: categoriesData } = usePetugasCategories();
 
   useEffect(() => {
     setLoading(listLoading);
   }, [listLoading]);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter, categoryFilter]);
 
   useEffect(() => {
     if (listData && listData.data) {
@@ -911,10 +933,18 @@ export default function PetugasManageReportsPage() {
           : null,
         dateFound: b.tanggal_ditemukan,
         category: b.kategori?.nama,
-        location: b.lokasi_ditemukan,
+        location:
+          b.lokasi_umum && b.lokasi_spesifik
+            ? `${b.lokasi_umum} - ${b.lokasi_spesifik}`
+            : b.lokasi_umum || b.lokasi_spesifik || "Lokasi tidak diketahui",
         status: b.status === "BELUM_DIAMBIL" ? "Tersedia" : "Diambil",
-        photo: b.foto_barang && b.foto_barang[0] ? getImageUrl(b.foto_barang[0].url_gambar) : null,
-        images: b.foto_barang ? b.foto_barang.map((f) => getImageUrl(f.url_gambar)) : [],
+        photo:
+          b.foto_barang && b.foto_barang[0]
+            ? getImageUrl(b.foto_barang[0].url_gambar)
+            : null,
+        images: b.foto_barang
+          ? b.foto_barang.map((f) => getImageUrl(f.url_gambar))
+          : [],
         isNew: false,
         reportedBy: b.pencatat?.profile?.full_name,
         foundBy: b.pencatat?.profile?.full_name,
@@ -927,28 +957,11 @@ export default function PetugasManageReportsPage() {
     }
   }, [listData]);
 
-  // Filter items
-  const filteredItems = items.filter((item) => {
-    const matchesSearch =
-      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "all" || item.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || item.category === categoryFilter;
-
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Get pagination metadata from backend response
+  const totalPages = listData?.meta?.totalPages || 1;
+  const totalItems = listData?.meta?.total || 0;
+  const hasNext = currentPage < totalPages;
+  const hasPrev = currentPage > 1;
 
   const handleView = (item) => {
     setSelectedItem(item);
@@ -960,9 +973,22 @@ export default function PetugasManageReportsPage() {
   };
 
   const handleDelete = (item) => {
-    if (window.confirm(`Hapus barang "${item.name}"?`)) {
-      setItems(items.filter((i) => i.id !== item.id));
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (itemToDelete) {
+      setItems(items.filter((i) => i.id !== itemToDelete.id));
+      toast.success(`Barang "${itemToDelete.name}" berhasil dihapus`);
+      setShowDeleteModal(false);
+      setItemToDelete(null);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
   };
 
   const handleClaimSuccess = (itemId, studentData) => {
@@ -1021,15 +1047,8 @@ export default function PetugasManageReportsPage() {
     }, 1000);
   };
 
-  const categories = [
-    "Elektronik",
-    "Tas",
-    "Aksesoris",
-    "Dokumen",
-    "Kendaraan",
-    "Pakaian",
-    "Barang Pribadi",
-  ];
+  // Get categories from API response
+  const categories = categoriesData || [];
 
   return (
     <div>
@@ -1082,12 +1101,8 @@ export default function PetugasManageReportsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Semua Status</SelectItem>
-                    <SelectItem value="Tersedia">Tersedia</SelectItem>
-                    <SelectItem value="AVAILABLE">Tersedia</SelectItem>
-                    <SelectItem value="Diambil">Diambil</SelectItem>
-                    <SelectItem value="CLAIMED">Diambil</SelectItem>
-                    <SelectItem value="Proses">Proses</SelectItem>
-                    <SelectItem value="DISPOSED">Dimusnahkan</SelectItem>
+                    <SelectItem value="BELUM_DIAMBIL">Tersedia</SelectItem>
+                    <SelectItem value="SUDAH_DIAMBIL">Diambil</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -1101,8 +1116,8 @@ export default function PetugasManageReportsPage() {
                   <SelectContent>
                     <SelectItem value="all">Semua Kategori</SelectItem>
                     {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.nama}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1146,8 +1161,8 @@ export default function PetugasManageReportsPage() {
                       </div>
                     </td>
                   </tr>
-                ) : paginatedItems.length > 0 ? (
-                  paginatedItems.map((item) => (
+                ) : items.length > 0 ? (
+                  items.map((item) => (
                     <ItemRow
                       key={item.id}
                       item={item}
@@ -1161,7 +1176,7 @@ export default function PetugasManageReportsPage() {
                     <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="text-gray-500">
                         {searchTerm ||
-                        filterStatus !== "all" ||
+                        statusFilter !== "all" ||
                         categoryFilter !== "all"
                           ? "Tidak ada barang yang sesuai dengan filter"
                           : "Tidak ada barang temuan"}
@@ -1180,8 +1195,8 @@ export default function PetugasManageReportsPage() {
                 <FiRefreshCw className="animate-spin mr-2" />
                 <span>Memuat data...</span>
               </div>
-            ) : paginatedItems.length > 0 ? (
-              paginatedItems.map((item) => (
+            ) : items.length > 0 ? (
+              items.map((item) => (
                 <ItemCard
                   key={item.id}
                   item={item}
@@ -1204,12 +1219,14 @@ export default function PetugasManageReportsPage() {
       </Card>
 
       {/* Pagination */}
-      {!loading && filteredItems.length > 0 && totalPages > 1 && (
+      {!loading && items.length > 0 && totalPages > 1 && (
         <PetugasPagination
           currentPage={currentPage}
           totalPages={totalPages}
-          total={filteredItems.length}
-          currentCount={paginatedItems.length}
+          total={totalItems}
+          currentCount={items.length}
+          hasNext={hasNext}
+          hasPrev={hasPrev}
           onPageChange={setCurrentPage}
         />
       )}
@@ -1222,6 +1239,67 @@ export default function PetugasManageReportsPage() {
         onClaimSuccess={handleClaimSuccess}
         onUpdate={handleUpdate}
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && itemToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Hapus Barang
+              </h3>
+              <button
+                onClick={handleDeleteCancel}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-4">
+              <div className="flex items-start space-x-3 mb-4">
+                <FiAlertTriangle className="w-8 h-8 text-red-500 flex-shrink-0 mt-1" />
+                <div>
+                  <p className="text-sm text-gray-900 font-medium mb-2">
+                    Apakah Anda yakin ingin menghapus barang ini?
+                  </p>
+                  <div className="bg-gray-50 rounded-md p-3 mb-2">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {itemToDelete.name}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Lokasi: {itemToDelete.location}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-red-700">
+                  <strong>Perhatian:</strong> Tindakan ini tidak dapat
+                  dibatalkan. Data barang akan dihapus secara permanen.
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={handleDeleteCancel}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

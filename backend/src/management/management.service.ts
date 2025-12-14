@@ -799,7 +799,8 @@ export class ManagementService {
       where.OR = [
         { nama_barang: { contains: search } },
         { deskripsi: { contains: search } },
-        { lokasi_ditemukan: { contains: search } },
+        { lokasi_umum: { contains: search } },
+        { lokasi_spesifik: { contains: search } },
         {
           pencatat: {
             profile: {
@@ -849,7 +850,8 @@ export class ManagementService {
           id: true,
           nama_barang: true,
           deskripsi: true,
-          lokasi_ditemukan: true,
+          lokasi_umum: true,
+          lokasi_spesifik: true,
           status: true,
           created_at: true,
           updated_at: true,
@@ -910,7 +912,8 @@ export class ManagementService {
       id: item.id,
       nama_barang: item.nama_barang,
       deskripsi: item.deskripsi,
-      lokasi_ditemukan: item.lokasi_ditemukan,
+      lokasi_umum: item.lokasi_umum,
+      lokasi_spesifik: item.lokasi_spesifik,
       status: item.status,
       kategori: item.kategori.nama,
       kategori_id: item.kategori.id,
@@ -1029,7 +1032,8 @@ export class ManagementService {
       where.OR = [
         { nama_barang: { contains: search } },
         { deskripsi: { contains: search } },
-        { lokasi_ditemukan: { contains: search } },
+        { lokasi_umum: { contains: search } },
+        { lokasi_spesifik: { contains: search } },
       ];
     }
 
@@ -1074,7 +1078,8 @@ export class ManagementService {
         id: true,
         nama_barang: true,
         deskripsi: true,
-        lokasi_ditemukan: true,
+        lokasi_umum: true,
+        lokasi_spesifik: true,
         status: true,
         created_at: true,
         waktu_diambil: true,
@@ -1191,7 +1196,8 @@ export class ManagementService {
       select: {
         id: true,
         nama_barang: true,
-        lokasi_ditemukan: true,
+        lokasi_umum: true,
+        lokasi_spesifik: true,
         status: true,
         created_at: true,
         updated_at: true,
@@ -1234,7 +1240,13 @@ export class ManagementService {
         subtitle = `Diserahkan oleh ${item.penyerah?.profile?.full_name || 'petugas'}`;
         type = 'success';
       } else {
-        title = `${item.nama_barang} ditemukan di ${item.lokasi_ditemukan}`;
+        const lokasi =
+          item.lokasi_umum && item.lokasi_spesifik
+            ? `${item.lokasi_umum} - ${item.lokasi_spesifik}`
+            : item.lokasi_umum ||
+              item.lokasi_spesifik ||
+              'lokasi tidak diketahui';
+        title = `${item.nama_barang} ditemukan di ${lokasi}`;
         subtitle = `Dicatat oleh ${item.pencatat.profile?.full_name || 'Unknown'} (${item.pencatat.role.name})`;
         type = 'info';
       }
