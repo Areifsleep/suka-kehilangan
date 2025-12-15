@@ -1,10 +1,4 @@
-import {
-  FiHome,
-  FiUsers,
-  FiUserCheck,
-  FiFileText,
-  FiTag,
-} from "react-icons/fi";
+import { FiHome, FiUsers, FiUserCheck, FiTag } from "react-icons/fi";
 import { BaseLayout } from "./BaseLayout";
 
 export const AdminLayout = () => {
@@ -21,7 +15,6 @@ export const AdminLayout = () => {
       label: "Manajemen Kategori",
       icon: FiTag,
     },
-    { key: "/admin/audit-reports", label: "Audit", icon: FiFileText },
   ];
 
   return <BaseLayout menu={menu} />;

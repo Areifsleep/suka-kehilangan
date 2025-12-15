@@ -43,6 +43,25 @@ export class BarangTemuanService {
         };
       });
     }
+
+    // Transform foto_bukti_klaim URLs as well
+    if (barang.foto_bukti_klaim && Array.isArray(barang.foto_bukti_klaim)) {
+      barang.foto_bukti_klaim = barang.foto_bukti_klaim.map((foto) => {
+        let urlGambar = foto.url_gambar;
+
+        // Check if it's already a full URL (starts with http:// or https://)
+        if (urlGambar && !urlGambar.startsWith('http')) {
+          // It's a local key, transform it to full URL
+          urlGambar = this.storageService.getPublicUrl(urlGambar);
+        }
+
+        return {
+          ...foto,
+          url_gambar: urlGambar,
+        };
+      });
+    }
+
     return barang;
   }
 
@@ -139,18 +158,21 @@ export class BarangTemuanService {
     if (userRole === 'USER') {
       // User hanya bisa lihat barang BELUM_DIAMBIL
       where.status = StatusBarang.BELUM_DIAMBIL;
-    } else if (userRole === 'PETUGAS' && lokasi_pos) {
-      // Petugas bisa filter by lokasi_pos
-      where.pencatat = {
-        profile: {
-          lokasi_pos: lokasi_pos,
-        },
-      };
-    }
+    } else if (userRole === 'PETUGAS') {
+      // Petugas bisa lihat semua status
+      // Hanya filter jika status explicitly provided dan valid
+      if (status && Object.values(StatusBarang).includes(status)) {
+        where.status = status;
+      }
 
-    // Apply filters
-    if (status) {
-      where.status = status;
+      // Optional: Filter by lokasi_pos if provided
+      if (lokasi_pos) {
+        where.pencatat = {
+          profile: {
+            lokasi_pos: lokasi_pos,
+          },
+        };
+      }
     }
 
     if (kategori_id) {
@@ -182,6 +204,7 @@ export class BarangTemuanService {
         where,
         include: {
           foto_barang: true,
+          foto_bukti_klaim: true,
           kategori: {
             select: {
               id: true,
@@ -197,6 +220,17 @@ export class BarangTemuanService {
                   name: true,
                 },
               },
+              profile: {
+                select: {
+                  full_name: true,
+                  lokasi_pos: true,
+                },
+              },
+            },
+          },
+          penyerah: {
+            select: {
+              id: true,
               profile: {
                 select: {
                   full_name: true,

@@ -86,7 +86,11 @@ export class BarangTemuanController {
    */
   @Get()
   async findAll(@Query() filter: FilterBarangTemuanDto, @Request() req) {
-    const userRole = req.user.role?.name || 'USER';
+    // Extract role - handle both string and object formats
+    const roleValue = req.user?.role;
+    const userRole =
+      typeof roleValue === 'string' ? roleValue : roleValue?.name || 'USER';
+
     const result = await this.barangTemuanService.findAll(
       filter,
       userRole,

@@ -18,7 +18,6 @@ import ManageKategoriPage from "./features/admin/pages/ManageKategoriPage.jsx";
 import PetugasDashboard from "./features/petugas/pages/PetugasDashboard.jsx";
 import PetugasUploadPage from "./features/petugas/pages/PetugasUploadPage.jsx";
 import PetugasManageReportsPage from "./features/petugas/pages/PetugasManageReportsPage.jsx";
-import AuditReportsPage from "./features/admin-management/pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./features/auth/contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./features/auth/guard/ProtectedRoute";
@@ -109,10 +108,6 @@ const router = createBrowserRouter([
               {
                 path: "manage-categories",
                 element: <ManageKategoriPage />,
-              },
-              {
-                path: "audit-reports",
-                element: <AuditReportsPage />,
               },
             ],
           },
