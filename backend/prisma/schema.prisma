@@ -149,9 +149,8 @@ model BarangTemuan {
   nama_barang               String       @db.VarChar(255)
   status                    StatusBarang @default(BELUM_DIAMBIL)
   deskripsi                 String?      @db.Text
-  lokasi_ditemukan          String       @db.VarChar(255)
   tanggal_ditemukan         DateTime     @db.Date
-  lokasi_umum               String?      @db.VarChar(255)
+  lokasi_umum               String       @db.VarChar(255)
   lokasi_spesifik           String?      @db.VarChar(255)
   perkiraan_waktu_ditemukan String?      @db.VarChar(255)
 

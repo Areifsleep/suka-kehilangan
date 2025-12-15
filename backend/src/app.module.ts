@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -17,6 +19,12 @@ import { DashboardModule } from './dashboard/dashboard.module';
 @Module({
   imports: [
     ConfigModule.forRoot({}),
+    // Serve static files from public directory
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'public'), // From dist/src -> backend/public
+      serveRoot: '/',
+      exclude: ['/api*'], // Exclude API routes from static file serving
+    }),
     PrismaModule,
     AuthModule,
     SeederModule,

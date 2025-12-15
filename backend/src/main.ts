@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType, Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { AppModule } from './app.module';
@@ -23,7 +23,12 @@ function commonConfiguration(app: NestExpressApplication) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: true,
+    rawBody: true,
+  });
+  const logger = new Logger('Bootstrap');
+
   commonConfiguration(app);
 
   app.setGlobalPrefix('api');
@@ -31,6 +36,9 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  // Static files now served via ServeStaticModule in AppModule
+  logger.log('✅ Static files served via ServeStaticModule');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -44,7 +52,9 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  logger.log(`🚀 Application running on: http://localhost:${port}`);
+  logger.log(`📖 API: http://localhost:${port}/api/v1/...`);
+  logger.log(`📁 Static files: http://localhost:${port}/uploads/...`);
 }
 
 bootstrap();

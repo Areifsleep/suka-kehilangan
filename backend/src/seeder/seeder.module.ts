@@ -11,6 +11,7 @@ import {
   PetugasUserSeeder,
   DosenUserSeeder,
   MahasiswaUserSeeder,
+  BarangTemuanSeeder,
 } from './seeders';
 
 @Module({
@@ -25,6 +26,7 @@ import {
     PetugasUserSeeder,
     DosenUserSeeder,
     MahasiswaUserSeeder,
+    BarangTemuanSeeder,
   ],
   exports: [SeederService],
 })

@@ -14,6 +14,9 @@ import {
   FiTag,
   FiEdit,
   FiCheck,
+  FiX,
+  FiAlertTriangle,
+  FiFileText,
 } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,8 +36,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { PetugasPagination } from "@/features/admin-management/components";
+import { BarangPagination } from "../components/BarangPagination";
 import { toast } from "react-toastify";
+import {
+  usePetugasBarangTemuanList,
+  usePetugasCategories,
+} from "../queries/useBarangTemuan";
+import { petugasBarangTemuanApi } from "../api/barangTemuanApi";
+import { getImageUrl } from "@/utils/imageHelper";
+import { useDebounce } from "@/hooks/useDebounce";
+import { SafeImage } from "@/components/ui/safe-image";
 
 // Status Badge Component
 function StatusBadge({ status }) {
@@ -84,7 +95,9 @@ function StatusBadge({ status }) {
 }
 
 // Table Row Component for Desktop View
-function ItemRow({ item, onEdit, onView, onDelete }) {
+function ItemRow({ item, onEdit, onView, onDelete, onViewClaim }) {
+  const isClaimed = item.raw?.status === "SUDAH_DIAMBIL";
+
   return (
     <tr
       className="border-b hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
@@ -93,10 +106,11 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
       <td className="px-6 py-4">
         <div className="relative w-16 h-16 bg-gray-100 rounded-xl overflow-hidden group">
           {item.photo || item.images?.[0] ? (
-            <img
+            <SafeImage
               src={item.photo || item.images[0]}
               alt={item.description || item.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fallbackClassName="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -106,14 +120,7 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
         </div>
       </td>
       <td className="px-6 py-4">
-        <div className="font-semibold text-gray-900">
-          {item.description || item.name}
-        </div>
-        {(item.reportedBy || item.foundBy) && (
-          <div className="text-xs text-gray-400 mt-1">
-            Dilaporkan oleh: {item.reportedBy || item.foundBy}
-          </div>
-        )}
+        <div className="font-semibold text-gray-900">{item.name}</div>
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center text-sm text-gray-700">
@@ -144,6 +151,18 @@ function ItemRow({ item, onEdit, onView, onDelete }) {
           >
             <FiEye className="text-sm" />
           </button>
+          {isClaimed && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewClaim(item);
+              }}
+              className="w-8 h-8 rounded-lg bg-green-50 hover:bg-green-100 flex items-center justify-center transition-colors text-green-600"
+              title="Detail Klaim"
+            >
+              <FiFileText className="text-sm" />
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -178,10 +197,11 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
         {/* Foto Barang */}
         <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
           {item.photo || item.images?.[0] ? (
-            <img
+            <SafeImage
               src={item.photo || item.images[0]}
               alt={item.name || item.description}
               className="w-full h-full object-cover"
+              fallbackClassName="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -377,22 +397,19 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
     try {
       setClaiming(true);
 
-      // TODO: Call API to process claim
-      // const formData = new FormData();
-      // formData.append('nama_pengambil', claimData.nama_pengambil);
-      // formData.append('identitas_pengambil', claimData.identitas_pengambil);
-      // formData.append('kontak_pengambil', claimData.kontak_pengambil);
-      // formData.append('keterangan_klaim', claimData.keterangan_klaim);
-      // formData.append('waktu_diambil', new Date().toISOString());
-      // claimData.foto_bukti_klaim.forEach((file) => {
-      //   formData.append('foto_bukti_klaim', file);
-      // });
-      // await claimItem(item.id, formData);
+      // Call API to process claim
+      const response = await petugasBarangTemuanApi.markDiambil(
+        item.raw.id,
+        {
+          nama_pengambil: claimData.nama_pengambil,
+          identitas_pengambil: claimData.identitas_pengambil,
+          kontak_pengambil: claimData.kontak_pengambil,
+          keterangan_klaim: claimData.keterangan_klaim || "",
+        },
+        claimData.foto_bukti_klaim
+      );
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Call success callback
+      // Call success callback to update UI
       if (onClaimSuccess) {
         onClaimSuccess(item.id, {
           nama: claimData.nama_pengambil,
@@ -401,13 +418,13 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
         });
       }
 
-      toast.success(
-        `Barang berhasil di-claim oleh ${claimData.nama_pengambil}`
-      );
+      // Close modal and reset form
       onClose();
     } catch (error) {
       console.error("Error claiming item:", error);
-      toast.error("Gagal memproses claim barang");
+      toast.error(
+        error.response?.data?.message || "Gagal memproses claim barang"
+      );
     } finally {
       setClaiming(false);
     }
@@ -443,11 +460,12 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
           {item.images && item.images.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
               {item.images.map((image, index) => (
-                <img
+                <SafeImage
                   key={index}
                   src={image}
                   alt={`${item.name} ${index + 1}`}
                   className="w-full h-32 object-cover rounded-lg border"
+                  fallbackClassName="w-full h-32"
                 />
               ))}
             </div>
@@ -867,6 +885,163 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
   );
 }
 
+// Claim Detail Modal Component
+function ClaimDetailModal({ item, isOpen, onClose }) {
+  if (!item || !item.raw) return null;
+
+  const claimData = item.raw;
+  const hasClaimInfo = claimData.status === "SUDAH_DIAMBIL";
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-gray-900">
+            Detail Klaim Barang
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Info Barang */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-3">
+              Informasi Barang
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Nama Barang:</span>
+                <span className="font-medium text-gray-900">
+                  {claimData.nama_barang}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Kategori:</span>
+                <span className="font-medium text-gray-900">
+                  {claimData.kategori?.nama || "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Lokasi Ditemukan:</span>
+                <span className="font-medium text-gray-900">
+                  {claimData.lokasi_umum}
+                  {claimData.lokasi_spesifik &&
+                    ` - ${claimData.lokasi_spesifik}`}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Info Pengambil */}
+          {hasClaimInfo && (
+            <>
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <h3 className="font-semibold text-green-900 mb-3 flex items-center">
+                  <FiUser className="mr-2" />
+                  Data Pengambil
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-green-700">Nama:</span>
+                    <span className="font-medium text-green-900">
+                      {claimData.nama_pengambil || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-green-700">Identitas:</span>
+                    <span className="font-medium text-green-900">
+                      {claimData.identitas_pengambil || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-green-700">Kontak:</span>
+                    <span className="font-medium text-green-900">
+                      {claimData.kontak_pengambil || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-green-700">Waktu Diambil:</span>
+                    <span className="font-medium text-green-900">
+                      {claimData.waktu_diambil
+                        ? new Date(claimData.waktu_diambil).toLocaleString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )
+                        : "-"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Keterangan Klaim */}
+              {claimData.keterangan_klaim && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-2 flex items-center">
+                    <FiFileText className="mr-2" />
+                    Keterangan Klaim
+                  </h3>
+                  <p className="text-sm text-blue-800">
+                    {claimData.keterangan_klaim}
+                  </p>
+                </div>
+              )}
+
+              {/* Foto Bukti Klaim */}
+              {claimData.foto_bukti_klaim &&
+                claimData.foto_bukti_klaim.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">
+                      Foto Bukti Pengambilan
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {claimData.foto_bukti_klaim.map((foto, index) => (
+                        <div
+                          key={foto.id}
+                          className="relative aspect-video rounded-lg overflow-hidden border border-gray-200"
+                        >
+                          <SafeImage
+                            src={getImageUrl(foto.url_gambar)}
+                            alt={`Bukti klaim ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Petugas Penyerah */}
+              {claimData.penyerah && (
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
+                    <FiUser className="mr-2" />
+                    Petugas Penyerah
+                  </h3>
+                  <p className="text-sm text-gray-700">
+                    {claimData.penyerah.profile?.full_name || "-"}
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Tombol Close */}
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={onClose} variant="outline">
+              Tutup
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function PetugasManageReportsPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -875,188 +1050,93 @@ export default function PetugasManageReportsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [selectedItem, setSelectedItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showClaimDetailModal, setShowClaimDetailModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  // Mock data - combining both data sources
-  useEffect(() => {
-    setLoading(true);
+  // Fetch real items for petugas using React Query hook
+  const debouncedSearch = useDebounce(searchTerm, 400);
 
-    setTimeout(() => {
-      const combinedMockItems = [
-        // Data from Dashboard
-        {
-          id: 1,
-          name: "Dompet Coklat",
-          description: "Dompet Coklat",
-          foundDate: "24 September 2025",
-          dateFound: "2025-09-24",
-          category: "Barang Pribadi",
-          location: "Masjid UIN",
-          status: "Tersedia",
-          photo: null,
-          images: [],
-          isNew: true,
-          reportedBy: "Satpam Ahmad",
-          foundBy: "Satpam Ahmad",
-          condition: "Baik",
-          createdAt: "2025-09-24T10:30:00Z",
-        },
-        {
-          id: 2,
-          name: "Handphone Samsung Galaxy",
-          description: "Handphone Samsung Galaxy",
-          foundDate: "25 September 2025",
-          dateFound: "2025-09-25",
-          category: "Elektronik",
-          location: "Tempat Parkir",
-          status: "Diambil",
-          photo: null,
-          images: [],
-          isNew: false,
-          reportedBy: "Petugas Keamanan",
-          foundBy: "Petugas Keamanan",
-          condition: "Baik",
-          createdAt: "2025-09-25T11:30:00Z",
-        },
-        {
-          id: 3,
-          name: "Kunci Motor Honda",
-          description: "Kunci Motor Honda",
-          foundDate: "25 September 2025",
-          dateFound: "2025-09-25",
-          category: "Kendaraan",
-          location: "Tempat Parkir",
-          status: "Proses",
-          photo: null,
-          images: [],
-          isNew: false,
-          reportedBy: "Mahasiswa",
-          foundBy: "Mahasiswa",
-          condition: "Baik",
-          createdAt: "2025-09-25T14:30:00Z",
-        },
-        {
-          id: 4,
-          name: "Tas Ransel Hitam",
-          description: "Tas Ransel Hitam",
-          foundDate: "26 September 2025",
-          dateFound: "2025-09-26",
-          category: "Barang Pribadi",
-          location: "Perpustakaan",
-          status: "Tersedia",
-          photo: null,
-          images: [],
-          isNew: true,
-          reportedBy: "Petugas Perpus",
-          foundBy: "Petugas Perpus",
-          condition: "Baik",
-          createdAt: "2025-09-26T09:30:00Z",
-        },
-        {
-          id: 5,
-          name: "Kacamata",
-          description: "Kacamata",
-          foundDate: "27 September 2025",
-          dateFound: "2025-09-27",
-          category: "Aksesori",
-          location: "Ruang Kelas A",
-          status: "Tersedia",
-          photo: null,
-          images: [],
-          isNew: true,
-          reportedBy: "Dosen",
-          foundBy: "Dosen",
-          condition: "Baik",
-          createdAt: "2025-09-27T13:30:00Z",
-        },
-        // Additional items from original ManageReportsPage
-        {
-          id: 6,
-          name: "iPhone 13 Pro",
-          description:
-            "iPhone 13 Pro warna biru, kondisi baik, ada casing transparan",
-          foundDate: "15 Januari 2024",
-          dateFound: "2024-01-15",
-          category: "Elektronik",
-          location: "Perpustakaan Lantai 2",
-          status: "AVAILABLE",
-          photo: null,
-          images: ["https://placehold.co/600x400"],
-          isNew: false,
-          reportedBy: "Ahmad Petugas",
-          foundBy: "Ahmad Petugas",
-          condition: "Baik",
-          createdAt: "2024-01-15T10:30:00Z",
-          additionalNotes: "Ditemukan di meja baca nomor 15",
-        },
-        {
-          id: 7,
-          name: "Tas Ransel Hitam Eiger",
-          description: "Tas ransel warna hitam merk Eiger, ada gantungan kunci",
-          foundDate: "14 Januari 2024",
-          dateFound: "2024-01-14",
-          category: "Tas",
-          location: "Gedung A Lantai 1",
-          status: "CLAIMED",
-          photo: null,
-          images: ["https://placehold.co/600x400"],
-          isNew: false,
-          reportedBy: "Siti Petugas",
-          foundBy: "Siti Petugas",
-          condition: "Sangat Baik",
-          createdAt: "2024-01-14T14:20:00Z",
-        },
-        {
-          id: 8,
-          name: "Dompet Kulit Coklat",
-          description: "Dompet kulit warna coklat, berisi KTP dan kartu ATM",
-          foundDate: "12 Januari 2024",
-          dateFound: "2024-01-12",
-          category: "Aksesoris",
-          location: "Kantin Utama",
-          status: "AVAILABLE",
-          photo: null,
-          images: ["https://placehold.co/600x400"],
-          isNew: false,
-          reportedBy: "Dewi Petugas",
-          foundBy: "Dewi Petugas",
-          condition: "Baik",
-          createdAt: "2024-01-12T12:30:00Z",
-        },
-      ];
-
-      setItems(combinedMockItems);
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  // Filter items
-  const filteredItems = items.filter((item) => {
-    const matchesSearch =
-      item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "all" || item.status === statusFilter;
-    const matchesCategory =
-      categoryFilter === "all" || item.category === categoryFilter;
-
-    return matchesSearch && matchesStatus && matchesCategory;
+  const {
+    data: listData,
+    isLoading: listLoading,
+    isError: listError,
+    refetch: refetchList,
+  } = usePetugasBarangTemuanList({
+    page: currentPage,
+    limit: itemsPerPage,
+    search: debouncedSearch,
+    status: statusFilter === "all" ? undefined : statusFilter,
+    kategori_id: categoryFilter === "all" ? undefined : categoryFilter,
   });
 
-  // Pagination
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Fetch categories
+  const { data: categoriesData } = usePetugasCategories();
+
+  useEffect(() => {
+    setLoading(listLoading);
+  }, [listLoading]);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter, categoryFilter]);
+
+  useEffect(() => {
+    if (listData && listData.data) {
+      const mapped = listData.data.map((b) => ({
+        id: b.id,
+        name: b.nama_barang,
+        description: b.deskripsi,
+        foundDate: b.tanggal_ditemukan
+          ? new Date(b.tanggal_ditemukan).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })
+          : null,
+        dateFound: b.tanggal_ditemukan,
+        category: b.kategori?.nama,
+        location:
+          b.lokasi_umum && b.lokasi_spesifik
+            ? `${b.lokasi_umum} - ${b.lokasi_spesifik}`
+            : b.lokasi_umum || b.lokasi_spesifik || "Lokasi tidak diketahui",
+        status: b.status === "BELUM_DIAMBIL" ? "Tersedia" : "Diambil",
+        photo:
+          b.foto_barang && b.foto_barang[0]
+            ? getImageUrl(b.foto_barang[0].url_gambar)
+            : null,
+        images: b.foto_barang
+          ? b.foto_barang.map((f) => getImageUrl(f.url_gambar))
+          : [],
+        isNew: false,
+        reportedBy: b.pencatat?.profile?.full_name,
+        foundBy: b.pencatat?.profile?.full_name,
+        condition: "-",
+        createdAt: b.created_at,
+        raw: b,
+      }));
+
+      setItems(mapped);
+    }
+  }, [listData]);
+
+  // Get pagination metadata from backend response
+  const totalPages = listData?.meta?.totalPages || 1;
+  const totalItems = listData?.meta?.total || 0;
+  const hasNext = currentPage < totalPages;
+  const hasPrev = currentPage > 1;
 
   const handleView = (item) => {
     setSelectedItem(item);
     setShowDetailModal(true);
+  };
+
+  const handleViewClaim = (item) => {
+    setSelectedItem(item);
+    setShowClaimDetailModal(true);
   };
 
   const handleEdit = (item) => {
@@ -1064,32 +1144,30 @@ export default function PetugasManageReportsPage() {
   };
 
   const handleDelete = (item) => {
-    if (window.confirm(`Hapus barang "${item.name}"?`)) {
-      setItems(items.filter((i) => i.id !== item.id));
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (itemToDelete) {
+      setItems(items.filter((i) => i.id !== itemToDelete.id));
+      toast.success(`Barang "${itemToDelete.name}" berhasil dihapus`);
+      setShowDeleteModal(false);
+      setItemToDelete(null);
     }
   };
 
-  const handleClaimSuccess = (itemId, studentData) => {
-    // Update item status to claimed
-    setItems(
-      items.map((item) => {
-        if (item.id === itemId) {
-          return {
-            ...item,
-            status: "CLAIMED",
-            claimedBy: studentData.nama,
-            claimedByNim: studentData.nim,
-            claimedAt: new Date().toISOString(),
-          };
-        }
-        return item;
-      })
-    );
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+  };
 
-    // Show success notification
-    alert(
-      `Barang berhasil di-claim oleh ${studentData.nama} (${studentData.nim})`
-    );
+  const handleClaimSuccess = async (itemId, claimantData) => {
+    // Refetch data dari backend untuk update UI
+    await refetchList();
+
+    // Show success notification menggunakan toast
+    toast.success(`Barang berhasil di-claim oleh ${claimantData.nama}`);
   };
 
   const handleUpdate = async (itemId, updatedData) => {
@@ -1125,15 +1203,8 @@ export default function PetugasManageReportsPage() {
     }, 1000);
   };
 
-  const categories = [
-    "Elektronik",
-    "Tas",
-    "Aksesoris",
-    "Dokumen",
-    "Kendaraan",
-    "Pakaian",
-    "Barang Pribadi",
-  ];
+  // Get categories from API response
+  const categories = categoriesData || [];
 
   return (
     <div>
@@ -1186,12 +1257,8 @@ export default function PetugasManageReportsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Semua Status</SelectItem>
-                    <SelectItem value="Tersedia">Tersedia</SelectItem>
-                    <SelectItem value="AVAILABLE">Tersedia</SelectItem>
-                    <SelectItem value="Diambil">Diambil</SelectItem>
-                    <SelectItem value="CLAIMED">Diambil</SelectItem>
-                    <SelectItem value="Proses">Proses</SelectItem>
-                    <SelectItem value="DISPOSED">Dimusnahkan</SelectItem>
+                    <SelectItem value="BELUM_DIAMBIL">Tersedia</SelectItem>
+                    <SelectItem value="SUDAH_DIAMBIL">Diambil</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -1205,8 +1272,8 @@ export default function PetugasManageReportsPage() {
                   <SelectContent>
                     <SelectItem value="all">Semua Kategori</SelectItem>
                     {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.nama}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1224,7 +1291,7 @@ export default function PetugasManageReportsPage() {
                     Foto
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Deskripsi
+                    Nama Barang
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Tanggal Penemuan
@@ -1250,13 +1317,14 @@ export default function PetugasManageReportsPage() {
                       </div>
                     </td>
                   </tr>
-                ) : paginatedItems.length > 0 ? (
-                  paginatedItems.map((item) => (
+                ) : items.length > 0 ? (
+                  items.map((item) => (
                     <ItemRow
                       key={item.id}
                       item={item}
                       onEdit={handleEdit}
                       onView={handleView}
+                      onViewClaim={handleViewClaim}
                       onDelete={handleDelete}
                     />
                   ))
@@ -1265,7 +1333,7 @@ export default function PetugasManageReportsPage() {
                     <td colSpan="6" className="px-6 py-12 text-center">
                       <div className="text-gray-500">
                         {searchTerm ||
-                        filterStatus !== "all" ||
+                        statusFilter !== "all" ||
                         categoryFilter !== "all"
                           ? "Tidak ada barang yang sesuai dengan filter"
                           : "Tidak ada barang temuan"}
@@ -1284,8 +1352,8 @@ export default function PetugasManageReportsPage() {
                 <FiRefreshCw className="animate-spin mr-2" />
                 <span>Memuat data...</span>
               </div>
-            ) : paginatedItems.length > 0 ? (
-              paginatedItems.map((item) => (
+            ) : items.length > 0 ? (
+              items.map((item) => (
                 <ItemCard
                   key={item.id}
                   item={item}
@@ -1308,12 +1376,12 @@ export default function PetugasManageReportsPage() {
       </Card>
 
       {/* Pagination */}
-      {!loading && filteredItems.length > 0 && totalPages > 1 && (
-        <PetugasPagination
+      {!loading && items.length > 0 && totalPages > 1 && (
+        <BarangPagination
           currentPage={currentPage}
           totalPages={totalPages}
-          total={filteredItems.length}
-          currentCount={paginatedItems.length}
+          total={totalItems}
+          currentCount={items.length}
           onPageChange={setCurrentPage}
         />
       )}
@@ -1326,6 +1394,74 @@ export default function PetugasManageReportsPage() {
         onClaimSuccess={handleClaimSuccess}
         onUpdate={handleUpdate}
       />
+
+      {/* Claim Detail Modal */}
+      <ClaimDetailModal
+        item={selectedItem}
+        isOpen={showClaimDetailModal}
+        onClose={() => setShowClaimDetailModal(false)}
+      />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && itemToDelete && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Hapus Barang
+              </h3>
+              <button
+                onClick={handleDeleteCancel}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-4">
+              <div className="flex items-start space-x-3 mb-4">
+                <FiAlertTriangle className="w-8 h-8 text-red-500 flex-shrink-0 mt-1" />
+                <div>
+                  <p className="text-sm text-gray-900 font-medium mb-2">
+                    Apakah Anda yakin ingin menghapus barang ini?
+                  </p>
+                  <div className="bg-gray-50 rounded-md p-3 mb-2">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {itemToDelete.name}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Lokasi: {itemToDelete.location}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                <p className="text-sm text-red-700">
+                  <strong>Perhatian:</strong> Tindakan ini tidak dapat
+                  dibatalkan. Data barang akan dihapus secara permanen.
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={handleDeleteCancel}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,10 +14,10 @@ import AdminDashboard from "./features/admin-management/pages/AdminDashboard.jsx
 import ManagementUser from "./features/admin-management/pages/ManagementUser.jsx";
 import GlobalErrorPage from "./pages/GlobalErrorPage.jsx";
 import ManagementPetugas from "./features/admin-management/pages/ManagementPetugas.jsx";
+import ManageKategoriPage from "./features/admin/pages/ManageKategoriPage.jsx";
 import PetugasDashboard from "./features/petugas/pages/PetugasDashboard.jsx";
 import PetugasUploadPage from "./features/petugas/pages/PetugasUploadPage.jsx";
 import PetugasManageReportsPage from "./features/petugas/pages/PetugasManageReportsPage.jsx";
-import AuditReportsPage from "./features/admin-management/pages/AuditReportsPage.jsx";
 import { AuthProvider } from "./features/auth/contexts/AuthContext.jsx";
 import { AdminLayout } from "./layouts/AdminLayout.jsx";
 import { ProtectedRoute } from "./features/auth/guard/ProtectedRoute";
@@ -106,8 +106,8 @@ const router = createBrowserRouter([
                 element: <ManagementPetugas />,
               },
               {
-                path: "audit-reports",
-                element: <AuditReportsPage />,
+                path: "manage-categories",
+                element: <ManageKategoriPage />,
               },
             ],
           },

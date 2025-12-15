@@ -7,3 +7,4 @@ export * from './admin-user.seeder';
 export * from './petugas-user.seeder';
 export * from './dosen-user.seeder';
 export * from './mahasiswa-user.seeder';
+export * from './barang-temuan.seeder';

@@ -8,6 +8,7 @@ import {
   PetugasUserSeeder,
   DosenUserSeeder,
   MahasiswaUserSeeder,
+  BarangTemuanSeeder,
 } from './seeders';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class SeederService {
     private readonly petugasUserSeeder: PetugasUserSeeder,
     private readonly dosenUserSeeder: DosenUserSeeder,
     private readonly mahasiswaUserSeeder: MahasiswaUserSeeder,
+    private readonly barangTemuanSeeder: BarangTemuanSeeder,
   ) {}
 
   /**
@@ -47,6 +49,9 @@ export class SeederService {
     await this.petugasUserSeeder.run();
     await this.dosenUserSeeder.run();
     await this.mahasiswaUserSeeder.run();
+
+    // Jalankan seeder barang temuan yang bergantung pada user dan kategori
+    await this.barangTemuanSeeder.run();
 
     this.logger.log('Proses seeding selesai.');
   }

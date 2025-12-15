@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiPackage, FiClock, FiCheck, FiFileText } from "react-icons/fi";
+import { usePetugasDashboard } from "@/hooks/useDashboard";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -18,10 +19,29 @@ import {
 import { Bar, Doughnut, Line } from "react-chartjs-2";
 
 // Register ChartJS components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement, Filler);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Filler
+);
 
 // Enhanced StatCard component with trends and animations
-function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "text-gray-400", trend, trendValue }) {
+function StatCard({
+  title,
+  value,
+  icon,
+  bgColor = "bg-gray-100",
+  iconColor = "text-gray-400",
+  trend,
+  trendValue,
+}) {
   return (
     <div className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-300 p-6 group">
       <div className="flex items-center justify-between">
@@ -29,7 +49,9 @@ function StatCard({ title, value, icon, bgColor = "bg-gray-100", iconColor = "te
           <div className="text-sm text-gray-500 mb-1">{title}</div>
           <div className="text-3xl font-bold text-gray-900 mb-2">{value}</div>
         </div>
-        <div className={`w-14 h-14 rounded-xl ${bgColor} flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
+        <div
+          className={`w-14 h-14 rounded-xl ${bgColor} flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}
+        >
           <div className={`text-2xl ${iconColor}`}>{icon}</div>
         </div>
       </div>
@@ -53,7 +75,14 @@ function CategoryBarChart({ data }) {
           "rgba(234, 179, 8, 0.8)", // yellow
           "rgba(249, 115, 22, 0.8)", // orange
         ],
-        borderColor: ["rgb(59, 130, 246)", "rgb(139, 92, 246)", "rgb(236, 72, 153)", "rgb(34, 197, 94)", "rgb(234, 179, 8)", "rgb(249, 115, 22)"],
+        borderColor: [
+          "rgb(59, 130, 246)",
+          "rgb(139, 92, 246)",
+          "rgb(236, 72, 153)",
+          "rgb(34, 197, 94)",
+          "rgb(234, 179, 8)",
+          "rgb(249, 115, 22)",
+        ],
         borderWidth: 2,
         borderRadius: 8,
         borderSkipped: false,
@@ -124,12 +153,11 @@ function CategoryBarChart({ data }) {
   return (
     <Card className="shadow-sm border-0">
       <CardContent className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Barang Berdasarkan Kategori</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Barang Berdasarkan Kategori
+        </h3>
         <div className="h-[300px]">
-          <Bar
-            data={chartData}
-            options={options}
-          />
+          <Bar data={chartData} options={options} />
         </div>
       </CardContent>
     </Card>
@@ -214,12 +242,11 @@ function LocationDoughnutChart({ locations }) {
   return (
     <Card className="shadow-sm border-0">
       <CardContent className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Distribusi Lokasi Penemuan</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Distribusi Lokasi Penemuan
+        </h3>
         <div className="h-[300px]">
-          <Doughnut
-            data={chartData}
-            options={options}
-          />
+          <Doughnut data={chartData} options={options} />
         </div>
       </CardContent>
     </Card>
@@ -330,12 +357,11 @@ function TrendLineChart({ trendData }) {
   return (
     <Card className="shadow-sm border-0">
       <CardContent className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Tren Bulanan</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Tren Bulanan
+        </h3>
         <div className="h-[300px]">
-          <Line
-            data={chartData}
-            options={options}
-          />
+          <Line data={chartData} options={options} />
         </div>
       </CardContent>
     </Card>
@@ -343,137 +369,90 @@ function TrendLineChart({ trendData }) {
 }
 
 export default function PetugasDashboard() {
-  const [stats, setStats] = useState({
-    totalItems: 0,
-    unclaimed: 0,
-    claimed: 0,
-    reports: 0,
-  });
+  const { data: dashboardData, isLoading } = usePetugasDashboard();
 
+  // Extract data from API response
+  const stats = {
+    totalItems: dashboardData?.data?.statistik?.total_dicatat || 0,
+    unclaimed: dashboardData?.data?.statistik?.belum_diambil || 0,
+    claimed: dashboardData?.data?.statistik?.sudah_diambil || 0,
+    reports: dashboardData?.data?.pencatatan?.bulan_ini || 0,
+  };
+
+  // Format recent activities from API
+  const recentActivities =
+    dashboardData?.data?.aktivitas_terbaru?.map((item) => {
+      const isRecent = item.aksi === "Dicatat";
+      return {
+        title: isRecent ? "Barang Baru Ditemukan" : "Barang Diserahkan",
+        description: `${item.nama_barang} - ${item.kategori}`,
+        time: new Date(item.waktu).toLocaleString("id-ID"),
+        icon: isRecent ? (
+          <FiPackage className="text-blue-600" size={18} />
+        ) : (
+          <FiCheck className="text-green-600" size={18} />
+        ),
+        bgColor: isRecent ? "bg-blue-100" : "bg-green-100",
+      };
+    }) || [];
+
+  // Dummy data for charts (akan diimplementasikan nanti dengan data dari backend)
   const [categoryData, setCategoryData] = useState([]);
   const [locationData, setLocationData] = useState([]);
   const [trendData, setTrendData] = useState([]);
-  const [recentActivities, setRecentActivities] = useState([]);
 
   useEffect(() => {
-    setTimeout(() => {
-      // Enhanced dummy data dengan trend
-      setStats({
-        totalItems: 500,
-        unclaimed: 200,
-        claimed: 300,
-        reports: 20,
-      });
+    // Set dummy data untuk charts sementara
+    setCategoryData([
+      { label: "Barang Pribadi", value: 150 },
+      { label: "Elektronik", value: 120 },
+      { label: "Aksesori", value: 80 },
+      { label: "Kendaraan", value: 70 },
+      { label: "Dokumen", value: 50 },
+      { label: "Pakaian", value: 30 },
+    ]);
 
-      // Data kategori untuk bar chart
-      setCategoryData([
-        { label: "Barang Pribadi", value: 150 },
-        { label: "Elektronik", value: 120 },
-        { label: "Aksesori", value: 80 },
-        { label: "Kendaraan", value: 70 },
-        { label: "Dokumen", value: 50 },
-        { label: "Pakaian", value: 30 },
-      ]);
+    setLocationData([
+      { name: "Perpustakaan", count: 85 },
+      { name: "Masjid UIN", count: 75 },
+      { name: "Tempat Parkir", count: 120 },
+      { name: "Kantin", count: 60 },
+      { name: "Ruang Kelas", count: 95 },
+      { name: "Gedung A", count: 40 },
+      { name: "Gedung B", count: 25 },
+    ]);
 
-      // Data lokasi untuk doughnut chart
-      setLocationData([
-        { name: "Perpustakaan", count: 85 },
-        { name: "Masjid UIN", count: 75 },
-        { name: "Tempat Parkir", count: 120 },
-        { name: "Kantin", count: 60 },
-        { name: "Ruang Kelas", count: 95 },
-        { name: "Gedung A", count: 40 },
-        { name: "Gedung B", count: 25 },
-      ]);
-
-      // Data tren untuk line chart
-      setTrendData([
-        { month: "Jul", found: 45, claimed: 38 },
-        { month: "Agu", found: 52, claimed: 45 },
-        { month: "Sep", found: 48, claimed: 42 },
-        { month: "Okt", found: 65, claimed: 58 },
-        { month: "Nov", found: 70, claimed: 62 },
-        { month: "Des", found: 85, claimed: 55 },
-      ]);
-
-      // Recent activities
-      setRecentActivities([
-        {
-          title: "Barang Baru Ditemukan",
-          description: "Dompet coklat ditemukan di Masjid UIN",
-          time: "2 jam yang lalu",
-          icon: (
-            <FiPackage
-              className="text-blue-600"
-              size={18}
-            />
-          ),
-          bgColor: "bg-blue-100",
-        },
-        {
-          title: "Barang Diambil",
-          description: "Samsung Galaxy telah diambil pemiliknya",
-          time: "5 jam yang lalu",
-          icon: (
-            <FiCheck
-              className="text-green-600"
-              size={18}
-            />
-          ),
-          bgColor: "bg-green-100",
-        },
-        {
-          title: "Laporan Baru",
-          description: "Laporan kehilangan kunci motor",
-          time: "1 hari yang lalu",
-          icon: (
-            <FiFileText
-              className="text-purple-600"
-              size={18}
-            />
-          ),
-          bgColor: "bg-purple-100",
-        },
-        {
-          title: "Barang Pending",
-          description: "Verifikasi kunci motor Honda di parkiran",
-          time: "1 hari yang lalu",
-          icon: (
-            <FiClock
-              className="text-yellow-600"
-              size={18}
-            />
-          ),
-          bgColor: "bg-yellow-100",
-        },
-        {
-          title: "Barang Baru Ditemukan",
-          description: "Tas ransel hitam di Perpustakaan",
-          time: "2 hari yang lalu",
-          icon: (
-            <FiPackage
-              className="text-blue-600"
-              size={18}
-            />
-          ),
-          bgColor: "bg-blue-100",
-        },
-      ]);
-    }, 100);
+    setTrendData([
+      { month: "Jul", found: 45, claimed: 38 },
+      { month: "Agu", found: 52, claimed: 45 },
+      { month: "Sep", found: 48, claimed: 42 },
+      { month: "Okt", found: 65, claimed: 58 },
+      { month: "Nov", found: 70, claimed: 62 },
+      { month: "Des", found: 85, claimed: 55 },
+    ]);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Memuat dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       {/* Stat cards dengan trend */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <StatCard
-          title="Total Barang"
+          title="Total Barang Dicatat"
           value={stats.totalItems}
           icon={<FiPackage />}
           bgColor="bg-blue-100"
           iconColor="text-blue-600"
-          trend="up"
-          trendValue="+12% dari minggu lalu"
         />
         <StatCard
           title="Belum Diambil"
@@ -481,8 +460,6 @@ export default function PetugasDashboard() {
           icon={<FiClock />}
           bgColor="bg-orange-100"
           iconColor="text-orange-600"
-          trend="down"
-          trendValue="-5% dari minggu lalu"
         />
         <StatCard
           title="Sudah Diambil"
@@ -490,8 +467,6 @@ export default function PetugasDashboard() {
           icon={<FiCheck />}
           bgColor="bg-green-100"
           iconColor="text-green-600"
-          trend="up"
-          trendValue="+8% dari minggu lalu"
         />
       </div>
 
@@ -505,6 +480,44 @@ export default function PetugasDashboard() {
       <div className="mb-6">
         <TrendLineChart trendData={trendData} />
       </div>
+
+      {/* Recent Activities */}
+      {recentActivities.length > 0 && (
+        <div className="mb-6">
+          <Card className="shadow-sm border">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Aktivitas Terbaru
+              </h3>
+              <div className="space-y-3">
+                {recentActivities.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-lg ${activity.bgColor} flex items-center justify-center flex-shrink-0`}
+                    >
+                      {activity.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">
+                        {activity.title}
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {activity.time}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </>
   );
 }

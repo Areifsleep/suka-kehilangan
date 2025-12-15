@@ -251,7 +251,11 @@ export class PdfGeneratorService {
         width: 70,
         align: 'left',
       });
-      doc.text(this.truncate(item.lokasi_ditemukan, 18), 285, currentY + 5, {
+      const lokasi =
+        item.lokasi_umum && item.lokasi_spesifik
+          ? `${item.lokasi_umum} - ${item.lokasi_spesifik}`
+          : item.lokasi_umum || item.lokasi_spesifik || '-';
+      doc.text(this.truncate(lokasi, 18), 285, currentY + 5, {
         width: 80,
         align: 'left',
       });
