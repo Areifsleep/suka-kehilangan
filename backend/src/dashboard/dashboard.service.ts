@@ -6,8 +6,31 @@ export class DashboardService {
   constructor(private readonly prismaService: PrismaService) {}
 
   /**
-   * Dashboard untuk USER
-   * Menampilkan statistik barang yang bisa diklaim
+   * Dashboard untuk    const lokasiDistribusi = awai    // 2. Trend bulanan (6       trendBulanan.push({
+        bulan: monthStart.toLocaleDateString('id-ID', { month: 'short' }),
+        ditemukan,
+        diambil,
+      });
+    }
+
+    type TrendItem = {ir)
+    const trendBulanan: TrendItem[] = [];
+    for (let i = 5; i >= 0; i--) {his.prismaService.barangTemuan.groupBy({
+      by: ['lokasi_umum'],
+      where: {
+        pencatat_id: userId,
+        lokasi_umum: { not: null as any },
+      },
+      _count: {
+        lokasi_umum: true,
+      },
+      orderBy: {
+        _count: {
+          lokasi_umum: 'desc',
+        },
+      },
+      take: 5,
+    });mpilkan statistik barang yang bisa diklaim
    */
   async getUserDashboard() {
     const now = new Date();
@@ -196,6 +219,95 @@ export class DashboardService {
       take: 10,
     });
 
+    // Data untuk charts
+    // 1. Distribusi per kategori (barang yang dicatat petugas ini)
+    const kategoriRaw = await this.prismaService.barangTemuan.groupBy({
+      by: ['kategori_id'],
+      where: {
+        pencatat_id: userId,
+      },
+      _count: {
+        kategori_id: true,
+      },
+      orderBy: {
+        _count: {
+          kategori_id: 'desc',
+        },
+      },
+      take: 6,
+    });
+
+    // Get kategori names
+    const kategoriIds = kategoriRaw.map((k) => k.kategori_id);
+    const kategoriList = await this.prismaService.kategoriBarang.findMany({
+      where: {
+        id: { in: kategoriIds },
+      },
+      select: {
+        id: true,
+        nama: true,
+      },
+    });
+
+    const kategoriMap = new Map(kategoriList.map((k) => [k.id, k.nama]));
+    const kategoriDistribusi = kategoriRaw.map((k) => ({
+      id: k.kategori_id,
+      nama: kategoriMap.get(k.kategori_id!) || 'Unknown',
+      jumlah: (k._count as any).kategori_id,
+    }));
+
+    // 2. Distribusi per lokasi (barang yang dicatat petugas ini)
+    const lokasiDistribusi = await this.prismaService.barangTemuan.groupBy({
+      by: ['lokasi_umum'],
+      where: {
+        pencatat_id: userId,
+      },
+      _count: {
+        lokasi_umum: true,
+      },
+      orderBy: {
+        _count: {
+          lokasi_umum: 'desc',
+        },
+      },
+      take: 7,
+    });
+
+    // 3. Trend bulanan (6 bulan terakhir)
+    type TrendItem = {
+      bulan: string;
+      ditemukan: number;
+      diambil: number;
+    };
+    const trendBulanan: TrendItem[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      const ditemukan = await this.prismaService.barangTemuan.count({
+        where: {
+          pencatat_id: userId,
+          created_at: { gte: monthStart, lte: monthEnd },
+        },
+      });
+
+      const diambil = await this.prismaService.barangTemuan.count({
+        where: {
+          pencatat_id: userId,
+          status: 'SUDAH_DIAMBIL',
+          waktu_diambil: { gte: monthStart, lte: monthEnd },
+        },
+      });
+
+      trendBulanan.push({
+        bulan: monthStart.toLocaleDateString('id-ID', { month: 'short' }),
+        ditemukan,
+        diambil,
+      });
+    }
+
     return {
       statistik: {
         total_dicatat: totalDicatat,
@@ -223,6 +335,17 @@ export class DashboardService {
             : 'Diserahkan',
         waktu: item.waktu_diambil || item.created_at,
       })),
+      charts: {
+        kategori: kategoriDistribusi.map((k) => ({
+          label: k.nama,
+          value: k.jumlah,
+        })),
+        lokasi: lokasiDistribusi.map((l) => ({
+          name: l.lokasi_umum,
+          count: (l._count as any).lokasi_umum,
+        })),
+        trend: trendBulanan,
+      },
     };
   }
 
@@ -347,6 +470,87 @@ export class DashboardService {
     const persentaseKlaim =
       totalBarang > 0 ? ((sudahDiambil / totalBarang) * 100).toFixed(2) : 0;
 
+    // Aktivitas terbaru (semua barang yang baru dicatat atau diserahkan)
+    const aktivitasTerbaru = await this.prismaService.barangTemuan.findMany({
+      select: {
+        id: true,
+        nama_barang: true,
+        status: true,
+        kategori: { select: { nama: true } },
+        created_at: true,
+        waktu_diambil: true,
+      },
+      orderBy: { updated_at: 'desc' },
+      take: 10,
+    });
+
+    // Data untuk charts
+    // 1. Distribusi per kategori (semua barang)
+    const kategoriRaw = await this.prismaService.barangTemuan.groupBy({
+      by: ['kategori_id'],
+      _count: {
+        kategori_id: true,
+      },
+      orderBy: {
+        _count: {
+          kategori_id: 'desc',
+        },
+      },
+      take: 6,
+    });
+
+    // Get kategori names
+    const kategoriIds = kategoriRaw.map((k) => k.kategori_id);
+    const kategoriList = await this.prismaService.kategoriBarang.findMany({
+      where: {
+        id: { in: kategoriIds },
+      },
+      select: {
+        id: true,
+        nama: true,
+      },
+    });
+
+    const kategoriMap = new Map(kategoriList.map((k) => [k.id, k.nama]));
+    const kategoriDistribusi = kategoriRaw.map((k) => ({
+      id: k.kategori_id,
+      nama: kategoriMap.get(k.kategori_id!) || 'Unknown',
+      jumlah: (k._count as any).kategori_id,
+    }));
+
+    // 2. Trend bulanan (6 bulan terakhir)
+    type AdminTrendItem = {
+      bulan: string;
+      ditemukan: number;
+      diambil: number;
+    };
+    const trendBulanan: AdminTrendItem[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      const ditemukan = await this.prismaService.barangTemuan.count({
+        where: {
+          created_at: { gte: monthStart, lte: monthEnd },
+        },
+      });
+
+      const diambil = await this.prismaService.barangTemuan.count({
+        where: {
+          status: 'SUDAH_DIAMBIL',
+          waktu_diambil: { gte: monthStart, lte: monthEnd },
+        },
+      });
+
+      trendBulanan.push({
+        bulan: monthStart.toLocaleDateString('id-ID', { month: 'short' }),
+        ditemukan,
+        diambil,
+      });
+    }
+
     return {
       statistik: {
         total_barang: totalBarang,
@@ -383,6 +587,21 @@ export class DashboardService {
         total_dicatat: p._count.barang_dicatat,
         total_diserahkan: p._count.barang_diserahkan,
       })),
+      aktivitas_terbaru: aktivitasTerbaru.map((item) => ({
+        id: item.id,
+        nama_barang: item.nama_barang,
+        kategori: item.kategori.nama,
+        status: item.status,
+        aksi: item.waktu_diambil ? 'Diserahkan' : 'Dicatat',
+        waktu: item.waktu_diambil || item.created_at,
+      })),
+      charts: {
+        kategori: kategoriDistribusi.map((k) => ({
+          label: k.nama,
+          value: k.jumlah,
+        })),
+        trend: trendBulanan,
+      },
     };
   }
 }
