@@ -53,14 +53,8 @@ export class BarangTemuanSeeder {
           foto_barang: [
             {
               url_gambar:
-                'https://images.unsplash.com/photo-1592286927505-c0d8e6b9f7e5?w=800',
+                'https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone-17-lavender-1000_1_1_1.webp&w=1920&q=45',
               nama_file_asli: 'iphone_depan.jpg',
-              mime_type: 'image/jpeg',
-            },
-            {
-              url_gambar:
-                'https://images.unsplash.com/photo-1591337676887-a217a6970a8a?w=800',
-              nama_file_asli: 'iphone_belakang.jpg',
               mime_type: 'image/jpeg',
             },
           ],
@@ -435,29 +429,6 @@ export class BarangTemuanSeeder {
           ],
         },
         {
-          nama_barang: 'Payung Lipat Hitam',
-          deskripsi: 'Payung lipat warna hitam polos, kondisi baik.',
-          lokasi_umum: 'Lantai 1',
-          lokasi_spesifik: 'Rak payung dekat pintu masuk',
-          tanggal_ditemukan: new Date('2024-12-08'),
-          perkiraan_waktu_ditemukan: '15:00 - 16:00 WIB',
-          nama_penemu: 'Maya Putri',
-          nomor_hp_penemu: '086678901234',
-          identitas_penemu: 'H07334455',
-          catatan_penemu: 'Tertinggal di rak payung.',
-          status: StatusBarang.BELUM_DIAMBIL,
-          kategori_id: categories.find((c) => c.nama === 'Lainnya')?.id,
-          pencatat_id: petugas[2].id,
-          foto_barang: [
-            {
-              url_gambar:
-                'https://images.unsplash.com/photo-1527556897832-0c6d8e0c715b?w=800',
-              nama_file_asli: 'payung.jpg',
-              mime_type: 'image/jpeg',
-            },
-          ],
-        },
-        {
           nama_barang: 'Buku Kalkulus Jilid 2',
           deskripsi:
             'Buku kuliah Kalkulus Jilid 2 karangan Purcell. Ada nama pemilik di halaman depan.',
@@ -814,30 +785,6 @@ export class BarangTemuanSeeder {
               url_gambar:
                 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=800',
               nama_file_asli: 'kacamata_minus.jpg',
-              mime_type: 'image/jpeg',
-            },
-          ],
-        },
-        {
-          nama_barang: 'Kabel Charger iPhone Lightning',
-          deskripsi:
-            'Kabel charger iPhone original lightning to USB-C panjang 1 meter.',
-          lokasi_umum: 'Lantai 1',
-          lokasi_spesifik: 'Sofa dekat resepsionis',
-          tanggal_ditemukan: new Date('2024-12-08'),
-          perkiraan_waktu_ditemukan: '09:00 - 10:00 WIB',
-          nama_penemu: 'Citra Dewi',
-          nomor_hp_penemu: '084234567890',
-          identitas_penemu: 'H07990022',
-          catatan_penemu: 'Kabel tertinggal di sofa ruang tunggu.',
-          status: StatusBarang.BELUM_DIAMBIL,
-          kategori_id: categories.find((c) => c.nama === 'Elektronik')?.id,
-          pencatat_id: petugas[0].id,
-          foto_barang: [
-            {
-              url_gambar:
-                'https://images.unsplash.com/photo-1591290619762-5e4a77f7c5c2?w=800',
-              nama_file_asli: 'kabel_iphone.jpg',
               mime_type: 'image/jpeg',
             },
           ],

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { FiSearch, FiMapPin, FiCalendar, FiUser, FiImage, FiLoader, FiChevronLeft, FiChevronRight, FiAlertCircle } from "react-icons/fi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { useBarangTemuanList, useCategories } from "../queries/useBarangTemuan";
 import { useDebounce } from "@/hooks/useDebounce";
 import { getRelativeTime } from "@/utils/format-time";
 
-function ItemCard({ item, onViewDetail }) {
+function ItemCard({ item }) {
   const mappedItem = {
     id: item.id,
     item_name: item.nama_barang,
@@ -28,84 +28,83 @@ function ItemCard({ item, onViewDetail }) {
   };
 
   return (
-    <Card
-      className="border border-gray-200 shadow-sm hover:shadow-lg group bg-white overflow-hidden rounded-xl transition-all duration-200 cursor-pointer"
-      onClick={() => onViewDetail(mappedItem)}
-    >
-      <CardContent className="p-0">
-        <div className="flex flex-col md:flex-row md:h-52">
-          {/* Image Cover */}
-          <div className="relative w-full md:w-80 h-64 md:h-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
-            {mappedItem.report_images.length !== 0 ? (
-              <SafeImage
-                src={mappedItem.report_images[0].url_gambar}
-                alt={mappedItem.item_name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-                fallbackClassName="w-full h-full"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                <div className="text-center">
-                  <FiImage className="w-14 h-14 text-gray-400 mx-auto mb-2" />
-                  <p className="text-xs text-gray-500 font-medium">Tidak ada foto</p>
+    <Link to={`/user/item/${item.id}`}>
+      <Card className="border border-gray-200 shadow-sm hover:shadow-lg group bg-white overflow-hidden rounded-xl transition-all duration-200 cursor-pointer">
+        <CardContent className="p-0">
+          <div className="flex flex-col md:flex-row md:h-52">
+            {/* Image Cover */}
+            <div className="relative w-full md:w-80 h-64 md:h-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
+              {mappedItem.report_images.length !== 0 ? (
+                <SafeImage
+                  src={mappedItem.report_images[0].url_gambar}
+                  alt={mappedItem.item_name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                  fallbackClassName="w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                  <div className="text-center">
+                    <FiImage className="w-14 h-14 text-gray-400 mx-auto mb-2" />
+                    <p className="text-xs text-gray-500 font-medium">Tidak ada foto</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Badge overlay on image */}
+              <div className="absolute top-3 left-3">
+                <span className="px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg bg-green-500 text-white backdrop-blur-sm">Ditemukan</span>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 p-5 md:py-4 md:px-5">
+              <div className="flex items-start justify-between gap-3 mb-2.5">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-lg md:text-xl text-gray-900 mb-2.5 group-hover:text-green-600 transition-colors leading-tight line-clamp-2">
+                    {mappedItem.item_name}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-2 mb-2.5">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 text-xs font-semibold text-gray-700 border border-gray-200 truncate max-w-[200px]">
+                      {mappedItem.category.name}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                      <FiCalendar className="w-3.5 h-3.5" />
+                      {getRelativeTime(mappedItem.created_at)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Badge overlay on image */}
-            <div className="absolute top-3 left-3">
-              <span className="px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg bg-green-500 text-white backdrop-blur-sm">Ditemukan</span>
+              {/* Description */}
+              <p className="text-sm text-gray-600 leading-relaxed mb-3 line-clamp-3">{mappedItem.description}</p>
+
+              {/* Meta information */}
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2 text-sm min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
+                    <FiMapPin className="w-3.5 h-3.5 text-purple-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-gray-500 leading-tight">Lokasi</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{mappedItem.place_found}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
+                    <FiUser className="w-3.5 h-3.5 text-orange-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-gray-500 leading-tight">Diunggah oleh</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{mappedItem.created_by?.profile?.full_name || "Unknown"}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Content */}
-          <div className="flex-1 p-5 md:py-4 md:px-5">
-            <div className="flex items-start justify-between gap-3 mb-2.5">
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg md:text-xl text-gray-900 mb-2.5 group-hover:text-green-600 transition-colors leading-tight line-clamp-2">
-                  {mappedItem.item_name}
-                </h3>
-                <div className="flex flex-wrap items-center gap-2 mb-2.5">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-gradient-to-r from-gray-100 to-gray-50 text-xs font-semibold text-gray-700 border border-gray-200 truncate max-w-[200px]">
-                    {mappedItem.category.name}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                    <FiCalendar className="w-3.5 h-3.5" />
-                    {getRelativeTime(mappedItem.created_at)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="text-sm text-gray-600 leading-relaxed mb-3 line-clamp-3">{mappedItem.description}</p>
-
-            {/* Meta information */}
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 text-sm min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center flex-shrink-0">
-                  <FiMapPin className="w-3.5 h-3.5 text-purple-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-gray-500 leading-tight">Lokasi</p>
-                  <p className="text-sm font-medium text-gray-900 truncate">{mappedItem.place_found}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0">
-                  <FiUser className="w-3.5 h-3.5 text-orange-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-gray-500 leading-tight">Diunggah oleh</p>
-                  <p className="text-sm font-medium text-gray-900 truncate">{mappedItem.created_by?.profile?.full_name || "Unknown"}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
@@ -277,7 +276,6 @@ function FilterBar({ searchTerm, setSearchTerm, selectedCategory, setSelectedCat
 }
 
 export default function BerandaUserPage() {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [page, setPage] = useState(1);
@@ -299,10 +297,6 @@ export default function BerandaUserPage() {
   });
 
   const { data: categories, isLoading: isLoadingCategories } = useCategories();
-
-  const handleViewDetail = (item) => {
-    navigate(`/user/item/${item.id}`);
-  };
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -492,7 +486,6 @@ export default function BerandaUserPage() {
                     <ItemCard
                       key={item.id}
                       item={item}
-                      onViewDetail={handleViewDetail}
                     />
                   ))}
                 </div>
