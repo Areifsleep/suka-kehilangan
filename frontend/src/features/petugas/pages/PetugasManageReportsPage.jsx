@@ -299,7 +299,6 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
         category: item.category || "",
         description: item.description || "",
         location: item.location || "",
-        condition: item.condition || "",
         foundBy: item.foundBy || "",
         additionalNotes: item.additionalNotes || "",
       });
@@ -332,7 +331,6 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
       category: item.category || "",
       description: item.description || "",
       location: item.location || "",
-      condition: item.condition || "",
       foundBy: item.foundBy || "",
       additionalNotes: item.additionalNotes || "",
     });
@@ -615,27 +613,6 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
               <div className="mt-1">
                 <StatusBadge status={item.status} />
               </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Kondisi
-              </label>
-              {isEditMode ? (
-                <select
-                  value={editedItem.condition}
-                  onChange={(e) =>
-                    handleInputChange("condition", e.target.value)
-                  }
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Pilih kondisi</option>
-                  <option value="Baik">Baik</option>
-                  <option value="Cukup Baik">Cukup Baik</option>
-                  <option value="Rusak">Rusak</option>
-                </select>
-              ) : (
-                <p className="text-sm text-gray-900 mt-1">{item.condition}</p>
-              )}
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">
@@ -1253,7 +1230,6 @@ export default function PetugasManageReportsPage() {
         isNew: false,
         reportedBy: b.pencatat?.profile?.full_name,
         foundBy: b.pencatat?.profile?.full_name,
-        condition: "-",
         createdAt: b.created_at,
         raw: b,
       }));
