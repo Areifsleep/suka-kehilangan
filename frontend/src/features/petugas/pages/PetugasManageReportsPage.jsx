@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import {
   FiPackage,
   FiSearch,
@@ -17,6 +18,7 @@ import {
   FiX,
   FiAlertTriangle,
   FiFileText,
+  FiUpload,
 } from "react-icons/fi";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,6 +44,7 @@ import {
   usePetugasBarangTemuanList,
   usePetugasCategories,
 } from "../queries/useBarangTemuan";
+import { useDeleteBarangTemuan } from "../mutations/useBarangTemuan";
 import { petugasBarangTemuanApi } from "../api/barangTemuanApi";
 import { getImageUrl } from "@/utils/imageHelper";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -50,45 +53,30 @@ import { SafeImage } from "@/components/ui/safe-image";
 // Status Badge Component
 function StatusBadge({ status }) {
   const statusConfig = {
-    AVAILABLE: {
-      label: "Tersedia",
+    BELUM_DIAMBIL: {
+      label: "Belum Diambil",
       className: "bg-green-100 text-green-800",
       dot: "bg-green-500",
     },
-    Tersedia: {
-      label: "Tersedia",
-      className: "bg-green-100 text-green-800",
-      dot: "bg-green-500",
-    },
-    CLAIMED: {
-      label: "Diambil",
+    SUDAH_DIAMBIL: {
+      label: "Sudah Diambil",
       className: "bg-blue-100 text-blue-800",
       dot: "bg-blue-500",
     },
-    Diambil: {
-      label: "Diambil",
-      className: "bg-red-100 text-red-800",
-      dot: "bg-red-500",
-    },
-    DISPOSED: {
+    DIMUSNAHKAN: {
       label: "Dimusnahkan",
       className: "bg-red-100 text-red-800",
       dot: "bg-red-500",
     },
-    Proses: {
-      label: "Proses",
-      className: "bg-yellow-100 text-yellow-800",
-      dot: "bg-yellow-500",
-    },
   };
 
-  const config = statusConfig[status] || statusConfig.AVAILABLE;
+  const config = statusConfig[status] || statusConfig.BELUM_DIAMBIL;
 
   return (
     <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${config.className}`}
+      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${config.className}`}
     >
-      <div className={`w-2 h-2 rounded-full mr-2 ${config.dot}`}></div>
+      <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${config.dot}`}></div>
       {config.label}
     </span>
   );
@@ -182,12 +170,9 @@ function ItemRow({ item, onEdit, onView, onDelete, onViewClaim }) {
 // Item Card Component for Mobile View
 function ItemCard({ item, onView, onEdit, onDelete }) {
   const statusConfig = {
-    Tersedia: "bg-green-100 text-green-800",
-    AVAILABLE: "bg-green-100 text-green-800",
-    Diambil: "bg-red-100 text-red-800",
-    CLAIMED: "bg-blue-100 text-blue-800",
-    Proses: "bg-yellow-100 text-yellow-800",
-    DISPOSED: "bg-red-100 text-red-800",
+    BELUM_DIAMBIL: "bg-green-100 text-green-800",
+    SUDAH_DIAMBIL: "bg-blue-100 text-blue-800",
+    DIMUSNAHKAN: "bg-red-100 text-red-800",
   };
   const statusColor = statusConfig[item.status] || "bg-gray-100 text-gray-800";
 
@@ -258,13 +243,6 @@ function ItemCard({ item, onView, onEdit, onDelete }) {
           <FiEye className="w-4 h-4" />
         </button>
         <button
-          onClick={() => onEdit(item)}
-          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
-          title="Edit Item"
-        >
-          <FiEdit className="w-4 h-4" />
-        </button>
-        <button
           onClick={() => onDelete(item)}
           className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
           title="Hapus Item"
@@ -283,6 +261,7 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedItem, setEditedItem] = useState(null);
   const [saving, setSaving] = useState(false);
+  const claimFormRef = useRef(null);
 
   // Claim form data - sesuai dengan schema database
   const [claimData, setClaimData] = useState({
@@ -292,6 +271,10 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
     keterangan_klaim: "",
     foto_bukti_klaim: [], // Array untuk multiple files
   });
+
+  // State untuk preview images dengan validasi
+  const [selectedClaimImages, setSelectedClaimImages] = useState([]);
+  const [isDraggingClaim, setIsDraggingClaim] = useState(false);
 
   // Reset state when modal closes
   useEffect(() => {
@@ -306,6 +289,9 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
         keterangan_klaim: "",
         foto_bukti_klaim: [],
       });
+      // Cleanup preview URLs
+      selectedClaimImages.forEach((img) => URL.revokeObjectURL(img.preview));
+      setSelectedClaimImages([]);
     } else if (item) {
       // Initialize edited item with current item data
       setEditedItem({
@@ -319,6 +305,18 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
       });
     }
   }, [isOpen, item]);
+
+  // Auto-scroll to claim form when it appears
+  useEffect(() => {
+    if (showClaimForm && claimFormRef.current) {
+      setTimeout(() => {
+        claimFormRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
+  }, [showClaimForm]);
 
   if (!item) return null;
 
@@ -377,9 +375,99 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+    processClaimFiles(files);
+  };
+
+  const processClaimFiles = (files) => {
+    const fileArray = Array.from(files);
+
+    // Filter hanya file gambar
+    const imageFiles = fileArray.filter((file) =>
+      file.type.startsWith("image/")
+    );
+
+    if (imageFiles.length === 0) {
+      toast.error("Hanya file gambar yang diperbolehkan");
+      return;
+    }
+
+    // Validasi maksimal 3 file
+    if (imageFiles.length + selectedClaimImages.length > 3) {
+      toast.error("Maksimal 3 gambar yang dapat diunggah");
+      return;
+    }
+
+    // Validasi ukuran file (maksimal 5MB per file)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+    const oversizedFiles = imageFiles.filter(
+      (file) => file.size > MAX_FILE_SIZE
+    );
+
+    if (oversizedFiles.length > 0) {
+      toast.error("Ukuran file maksimal 5MB per gambar");
+      return;
+    }
+
+    // Buat preview untuk setiap file
+    const newImages = imageFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+    }));
+
+    setSelectedClaimImages((prev) => [...prev, ...newImages]);
+
+    // Update claimData dengan file yang sudah tervalidasi
     setClaimData((prev) => ({
       ...prev,
-      foto_bukti_klaim: files,
+      foto_bukti_klaim: [...prev.foto_bukti_klaim, ...imageFiles],
+    }));
+  };
+
+  const handleDragEnterClaim = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingClaim(true);
+  };
+
+  const handleDragLeaveClaim = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Only set to false if leaving the drop area completely
+    if (e.currentTarget === e.target) {
+      setIsDraggingClaim(false);
+    }
+  };
+
+  const handleDragOverClaim = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingClaim(true);
+  };
+
+  const handleDropClaim = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingClaim(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      processClaimFiles(files);
+    }
+  };
+
+  const removeClaimImage = (index) => {
+    setSelectedClaimImages((prev) => {
+      const newImages = [...prev];
+      URL.revokeObjectURL(newImages[index].preview);
+      newImages.splice(index, 1);
+      return newImages;
+    });
+
+    setClaimData((prev) => ({
+      ...prev,
+      foto_bukti_klaim: prev.foto_bukti_klaim.filter((_, i) => i !== index),
     }));
   };
 
@@ -430,7 +518,8 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
     }
   };
 
-  const canClaim = item.status === "Tersedia" || item.status === "AVAILABLE";
+  const canClaim =
+    item.status === "BELUM_DIAMBIL" || item.raw?.status === "BELUM_DIAMBIL";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -664,7 +753,7 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
 
           {/* Claim Section - Hide when in edit mode */}
           {canClaim && !isEditMode && (
-            <div className="border-t pt-6">
+            <div className="border-t pt-6" ref={claimFormRef}>
               {!showClaimForm ? (
                 <Button
                   onClick={() => setShowClaimForm(true)}
@@ -772,25 +861,71 @@ function ItemDetailModal({ item, isOpen, onClose, onClaimSuccess, onUpdate }) {
                     <label className="text-sm font-medium text-gray-700">
                       Foto Bukti Pengambilan (Opsional)
                     </label>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleFileChange}
-                      className="w-full"
-                    />
-                    <p className="text-xs text-gray-500">
-                      Upload foto bukti pengambilan (KTP, selfie dengan barang,
-                      dll). Maks 5 foto.
-                    </p>
-                    {claimData.foto_bukti_klaim.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {claimData.foto_bukti_klaim.map((file, index) => (
-                          <div
-                            key={index}
-                            className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded"
-                          >
-                            {file.name}
+
+                    {/* Drag & Drop Area */}
+                    <div
+                      className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 ${
+                        isDraggingClaim
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/30"
+                      }`}
+                      onDragEnter={handleDragEnterClaim}
+                      onDragOver={handleDragOverClaim}
+                      onDragLeave={handleDragLeaveClaim}
+                      onDrop={handleDropClaim}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileChange}
+                        className="hidden"
+                        id="claimImageUpload"
+                      />
+                      <label
+                        htmlFor="claimImageUpload"
+                        className="cursor-pointer block"
+                      >
+                        <div className="w-14 h-14 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                          <FiUpload className="w-7 h-7 text-blue-600" />
+                        </div>
+                        <p className="text-gray-700 font-semibold text-sm mb-1">
+                          {isDraggingClaim
+                            ? "Lepaskan file di sini"
+                            : "Klik untuk upload gambar atau drag & drop"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Upload foto bukti pengambilan (KTP, selfie dengan
+                          barang, dll).
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Maksimal 3 foto, ukuran maksimal 5MB per foto.
+                        </p>
+                      </label>
+                    </div>
+
+                    {/* Preview Images dengan tombol hapus */}
+                    {selectedClaimImages.length > 0 && (
+                      <div className="grid grid-cols-3 gap-3 mt-3">
+                        {selectedClaimImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={image.preview}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeClaimImage(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                            >
+                              <FiX className="w-4 h-4" />
+                            </button>
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1.5 rounded-b-lg truncate px-2">
+                              {image.name.length > 12
+                                ? image.name.substring(0, 12) + "..."
+                                : image.name}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1043,6 +1178,7 @@ function ClaimDetailModal({ item, isOpen, onClose }) {
 }
 
 export default function PetugasManageReportsPage() {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -1058,6 +1194,9 @@ export default function PetugasManageReportsPage() {
 
   // Fetch real items for petugas using React Query hook
   const debouncedSearch = useDebounce(searchTerm, 400);
+
+  // Delete mutation
+  const deleteBarangMutation = useDeleteBarangTemuan();
 
   const {
     data: listData,
@@ -1103,7 +1242,7 @@ export default function PetugasManageReportsPage() {
           b.lokasi_umum && b.lokasi_spesifik
             ? `${b.lokasi_umum} - ${b.lokasi_spesifik}`
             : b.lokasi_umum || b.lokasi_spesifik || "Lokasi tidak diketahui",
-        status: b.status === "BELUM_DIAMBIL" ? "Tersedia" : "Diambil",
+        status: b.status, // Gunakan status langsung dari backend
         photo:
           b.foto_barang && b.foto_barang[0]
             ? getImageUrl(b.foto_barang[0].url_gambar)
@@ -1148,12 +1287,22 @@ export default function PetugasManageReportsPage() {
     setShowDeleteModal(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (itemToDelete) {
-      setItems(items.filter((i) => i.id !== itemToDelete.id));
-      toast.success(`Barang "${itemToDelete.name}" berhasil dihapus`);
-      setShowDeleteModal(false);
-      setItemToDelete(null);
+      try {
+        // Call API to delete barang from backend
+        await deleteBarangMutation.mutateAsync(itemToDelete.raw.id);
+
+        // Close modal
+        setShowDeleteModal(false);
+        setItemToDelete(null);
+
+        // Refetch list to update UI
+        await refetchList();
+      } catch (error) {
+        // Error already handled by mutation (toast shown)
+        console.error("Error deleting item:", error);
+      }
     }
   };
 
@@ -1203,6 +1352,10 @@ export default function PetugasManageReportsPage() {
     }, 1000);
   };
 
+  const handleTambahItem = () => {
+    navigate("/petugas/upload");
+  };
+
   // Get categories from API response
   const categories = categoriesData || [];
 
@@ -1230,7 +1383,7 @@ export default function PetugasManageReportsPage() {
                   />
                   <span className="text-sm hidden sm:inline">Refresh</span>
                 </button>
-                <Button>
+                <Button onClick={handleTambahItem}>
                   <FiPlus className="text-sm" />
                   <span className="text-sm">Tambah Item</span>
                 </Button>
@@ -1447,15 +1600,24 @@ export default function PetugasManageReportsPage() {
                 <button
                   type="button"
                   onClick={handleDeleteCancel}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  disabled={deleteBarangMutation.isPending}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700"
+                  disabled={deleteBarangMutation.isPending}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Hapus
+                  {deleteBarangMutation.isPending ? (
+                    <>
+                      <FiRefreshCw className="w-4 h-4 animate-spin" />
+                      Menghapus...
+                    </>
+                  ) : (
+                    "Hapus"
+                  )}
                 </button>
               </div>
             </div>

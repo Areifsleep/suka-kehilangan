@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiPackage, FiClock, FiCheck, FiFileText } from "react-icons/fi";
 import { usePetugasDashboard } from "@/hooks/useDashboard";
+import { DashboardSkeleton } from "../components/DashboardSkeleton";
 
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -396,51 +397,18 @@ export default function PetugasDashboard() {
       };
     }) || [];
 
-  // Dummy data for charts (akan diimplementasikan nanti dengan data dari backend)
-  const [categoryData, setCategoryData] = useState([]);
-  const [locationData, setLocationData] = useState([]);
-  const [trendData, setTrendData] = useState([]);
-
-  useEffect(() => {
-    // Set dummy data untuk charts sementara
-    setCategoryData([
-      { label: "Barang Pribadi", value: 150 },
-      { label: "Elektronik", value: 120 },
-      { label: "Aksesori", value: 80 },
-      { label: "Kendaraan", value: 70 },
-      { label: "Dokumen", value: 50 },
-      { label: "Pakaian", value: 30 },
-    ]);
-
-    setLocationData([
-      { name: "Perpustakaan", count: 85 },
-      { name: "Masjid UIN", count: 75 },
-      { name: "Tempat Parkir", count: 120 },
-      { name: "Kantin", count: 60 },
-      { name: "Ruang Kelas", count: 95 },
-      { name: "Gedung A", count: 40 },
-      { name: "Gedung B", count: 25 },
-    ]);
-
-    setTrendData([
-      { month: "Jul", found: 45, claimed: 38 },
-      { month: "Agu", found: 52, claimed: 45 },
-      { month: "Sep", found: 48, claimed: 42 },
-      { month: "Okt", found: 65, claimed: 58 },
-      { month: "Nov", found: 70, claimed: 62 },
-      { month: "Des", found: 85, claimed: 55 },
-    ]);
-  }, []);
+  // Get chart data from backend - FIX: Akses langsung dari dashboardData.data
+  const categoryData = dashboardData?.data?.charts?.kategori || [];
+  const locationData = dashboardData?.data?.charts?.lokasi || [];
+  const trendData =
+    dashboardData?.data?.charts?.trend?.map((t) => ({
+      month: t.bulan,
+      found: t.ditemukan,
+      claimed: t.diambil,
+    })) || [];
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Memuat dashboard...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

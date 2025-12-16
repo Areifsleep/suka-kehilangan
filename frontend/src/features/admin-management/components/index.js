@@ -6,3 +6,5 @@ export { ResetPasswordModal } from "./ResetPasswordModal";
 
 export { UsersPagination } from "./user/Pagination";
 export { PetugasPagination } from "./petugas/Pagination";
+
+export { AdminDashboardSkeleton } from "./AdminDashboardSkeleton";

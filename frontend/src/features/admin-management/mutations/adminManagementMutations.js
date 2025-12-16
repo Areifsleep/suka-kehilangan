@@ -11,7 +11,6 @@ const QUERY_KEYS = {
   petugas: "management-petugas",
   mahasiswa: "management-mahasiswa",
   dashboardStats: "management-dashboard-stats",
-  dashboardActivities: "management-dashboard-activities",
 };
 
 // API Functions
@@ -112,12 +111,6 @@ const managementApi = {
     const response = await api.get("/dashboard/admin");
     return response.data;
   },
-
-  getDashboardActivities: async () => {
-    // Backend returns activities in the same endpoint
-    const response = await api.get("/dashboard/admin");
-    return response.data;
-  },
 };
 
 // Query Hooks
@@ -181,14 +174,6 @@ export const useDashboardStats = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.dashboardStats],
     queryFn: managementApi.getDashboardStats,
-    refetchInterval: 30000, // Refetch every 30 seconds
-  });
-};
-
-export const useDashboardActivities = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.dashboardActivities],
-    queryFn: managementApi.getDashboardActivities,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 };
